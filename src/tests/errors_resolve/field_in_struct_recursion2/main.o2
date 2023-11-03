@@ -1,0 +1,6 @@
+type List {
+    head Node
+}
+type Node {
+    list List
+}

@@ -1,0 +1,17 @@
+func f1() {
+    // inner function: f1.f2
+    {
+        func f2_1() {}
+        func f2_2() {
+            /*
+                comment
+            */
+        }
+    }
+    func f1_1() {
+
+        // comment
+
+    }
+    func f1_2() {/*comment in first line*/}
+}

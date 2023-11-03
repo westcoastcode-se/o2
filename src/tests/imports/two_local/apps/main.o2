@@ -1,0 +1,4 @@
+import "westcoastcode.se/tests/models"
+import "westcoastcode.se/tests/services"
+
+func f() {}

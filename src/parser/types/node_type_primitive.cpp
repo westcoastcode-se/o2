@@ -1,0 +1,28 @@
+//
+// Part of the o2 Project, under the Apache License v2.0 with o2 Project Exceptions.
+// See the LICENSE file in the project root for license terms
+//
+
+#include "node_type_primitive.h"
+
+using namespace o2;
+
+node_type_primitive::node_type_primitive(const vector<string_view>& names, int size)
+		: node_type(source_code_view(), size), _names(names)
+{
+}
+
+void node_type_primitive::debug(std::basic_ostream<char>& stream, int indent) const
+{
+	stream << this << in(indent);
+	stream << "primitive(names=[";
+	for (int i = 0; i < _names.size(); ++i)
+	{
+		if (i > 0)
+			stream << ',';
+		const auto& name = _names[i];
+		stream << name;
+	}
+	stream << "],size=" << get_size() << ")" << std::endl;
+	node::debug(stream, indent);
+}

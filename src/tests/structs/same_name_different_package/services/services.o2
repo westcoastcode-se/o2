@@ -1,0 +1,3 @@
+import "westcoastcode.se/tests/models"
+
+type empty {}

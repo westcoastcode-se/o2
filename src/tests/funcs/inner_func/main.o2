@@ -1,0 +1,5 @@
+func f1() {
+    // inner function: f1.f2
+    func f2() {
+    }
+}

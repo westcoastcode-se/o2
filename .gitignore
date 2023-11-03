@@ -1,0 +1,12 @@
+# Intellij/Clion
+.idea
+
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+
+# CMake directories
+cmake-build-debug/
+cmake-build-release/
+
+# CMake files
+CMakePresets.json

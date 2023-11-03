@@ -1,0 +1,6 @@
+type Item {
+    // should throw recursion error
+    item Item
+
+
+}

@@ -1,0 +1,3 @@
+import "westcoastcode.se/tests/models"
+
+func custom_service() {}

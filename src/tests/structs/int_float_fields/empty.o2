@@ -1,0 +1,6 @@
+type empty {
+    first int
+
+    // comment
+    second float32
+}
