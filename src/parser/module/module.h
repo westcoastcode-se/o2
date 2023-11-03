@@ -53,7 +53,7 @@ namespace o2
 		{
 		}
 
-		~module() override;
+		~module();
 
 		/**
 		 * \return true if this module is the root module
