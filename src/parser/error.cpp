@@ -59,7 +59,11 @@ error_syntax_error::error_syntax_error(source_code_view view, const token* t, co
 		: parse_error(error_types::syntax_error, view)
 {
 	std::stringstream s;
-	s << prefix << " but was '" << t->value() << "'";
+	s << prefix << " but was ";
+	if (t->type() == token_type::eof)
+		s << "<EOF>";
+	else
+		s << "'" << t->value() << "'";
 	set(s.str());
 }
 
@@ -83,7 +87,11 @@ error_expected_identity::error_expected_identity(source_code_view view, const to
 		: parse_error(error_types::expected_identity, view)
 {
 	std::stringstream s;
-	s << "expected 'identity' but was '" << t->value() << "'";
+	s << "expected 'identity' but was ";
+	if (t->type() == token_type::eof)
+		s << "<EOF>";
+	else
+		s << "'" << t->value() << "'";
 	set(s.str());
 }
 
@@ -91,7 +99,11 @@ error_expected_constant::error_expected_constant(source_code_view view, const to
 		: parse_error(error_types::expected_constant, view)
 {
 	std::stringstream s;
-	s << "expected a constant but was '" << t->value() << "'";
+	s << "expected a constant but was ";
+	if (t->type() == token_type::eof)
+		s << "<EOF>";
+	else
+		s << "'" << t->value() << "'";
 	set(s.str());
 }
 

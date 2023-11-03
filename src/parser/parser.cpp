@@ -463,7 +463,7 @@ namespace
 				case token_type::parant_right:
 					goto done;
 				default:
-					throw error_syntax_error(ps->get_view(), t, "expected ')'");
+					throw error_syntax_error(ps->get_view(), t, "expected ')' or ','");
 				}
 			}
 		done:;
