@@ -18,7 +18,7 @@ namespace o2
 	{
 	public:
 		node_op_constant(const source_code_view& view, const primitive_value& value)
-				: node_op(view), _value(value)
+				: node_op(view, modifier_const), _value(value)
 		{
 		}
 

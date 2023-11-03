@@ -19,6 +19,8 @@ extern void errors_parse();
 
 extern void errors_resolve();
 
+extern void const_();
+
 int main(int argc, char** argv)
 {
 	o2::testing::test_state::stop_suit_on_error() = true;
@@ -42,6 +44,7 @@ int main(int argc, char** argv)
 	structs();
 	errors_parse();
 	errors_resolve();
+	const_();
 
 	return o2::testing::test_state::success() ? 0 : 1;
 }

@@ -52,6 +52,8 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/parser_state.cpp"
         "src/parser/recursion_detector.cpp"
         "src/parser/resolver.cpp"
+        src/tests/const/const.cpp
+        src/parser/types/node_type_implicit.cpp
 )
 
 # Test

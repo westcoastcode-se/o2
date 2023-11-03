@@ -67,7 +67,7 @@ vector<node*> node_optimizer_unaryop_merge::optimize(node* n)
 			if (primitive_value_neg(&value))
 			{
 				count++;
-				return arl_new node_op_constant(n->get_source_code(), value);
+				return o2_new node_op_constant(n->get_source_code(), value);
 			}
 			else
 				break;
@@ -77,28 +77,28 @@ vector<node*> node_optimizer_unaryop_merge::optimize(node* n)
 			if (primitive_value_inc(&value))
 			{
 				count++;
-				return arl_new node_op_constant(n->get_source_code(), value);
+				return o2_new node_op_constant(n->get_source_code(), value);
 			}
 			break;
 		case node_op_unaryop::dec:
 			if (primitive_value_dec(&value))
 			{
 				count++;
-				return arl_new node_op_constant(n->get_source_code(), value);
+				return o2_new node_op_constant(n->get_source_code(), value);
 			}
 			break;
 		case node_op_unaryop::bit_not:
 			if (primitive_value_bit_not(&value))
 			{
 				count++;
-				return arl_new node_op_constant(n->get_source_code(), value);
+				return o2_new node_op_constant(n->get_source_code(), value);
 			}
 			break;
 		case node_op_unaryop::not_:
 			if (primitive_value_not(&value))
 			{
 				count++;
-				return arl_new node_op_constant(n->get_source_code(), value);
+				return o2_new node_op_constant(n->get_source_code(), value);
 			}
 			break;
 		case node_op_unaryop::unknown:

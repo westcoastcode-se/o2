@@ -72,13 +72,13 @@ namespace o2
 }
 
 #if defined(O2_MEMORY_TRACKING)
-#define arl_new new(__FILE__, __LINE__)
-#define arl_malloc(size) o2::memory_tracker::alloc_mem(size, __FILE__, __LINE__)
-#define arl_free(ptr) o2::memory_tracker::free_mem(ptr)
-#define arl_realloc(ptr, new_size) o2::memory_tracker::realloc_mem(ptr, new_size, __FILE__, __LINE__)
+#define o2_new new(__FILE__, __LINE__)
+#define o2_malloc(size) o2::memory_tracker::alloc_mem(size, __FILE__, __LINE__)
+#define o2_free(ptr) o2::memory_tracker::free_mem(ptr)
+#define o2_realloc(ptr, new_size) o2::memory_tracker::realloc_mem(ptr, new_size, __FILE__, __LINE__)
 #else
-#define arl_new new
-#define arl_malloc malloc
-#define arl_free free
-#define arl_realloc realloc
+#define o2_new new
+#define o2_malloc malloc
+#define o2_free free
+#define o2_realloc realloc
 #endif

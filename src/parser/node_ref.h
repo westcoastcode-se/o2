@@ -26,7 +26,8 @@ namespace o2
 			arg = 1 << 3,
 			local = 1 << 4,
 			global = 1 << 5,
-			primitive = 1 << 6
+			primitive = 1 << 6,
+			const_ = 1 << 7
 		};
 
 		static constexpr int only_types = type | primitive;

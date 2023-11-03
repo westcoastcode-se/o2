@@ -139,7 +139,7 @@ vector<node*> node_optimizer_binop_merge::optimize(node* n)
 		if (fn && fn(&left_value, &right_value))
 		{
 			// TODO: Add support for converting the new type into the appropriate
-			auto new_const = arl_new node_op_constant(n->get_source_code(), left_value);
+			auto new_const = o2_new node_op_constant(n->get_source_code(), left_value);
 			count++;
 			return { new_const };
 		}

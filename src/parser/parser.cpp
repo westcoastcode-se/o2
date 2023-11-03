@@ -12,6 +12,7 @@
 #include "functions/node_func_returns.h"
 #include "operations/node_op_return.h"
 #include "module/module.h"
+#include "types/node_type_implicit.h"
 
 using namespace o2;
 
@@ -82,13 +83,14 @@ namespace
 				pmv.type = primitive_type::float64;
 				pmv.f64 = t->value_float64();
 			}
+			break;
 		case token_type::string:
 			throw error_not_implemented(ps->get_view(), t);
 		default:
 			throw error_expected_constant(ps->get_view(), t);
 		}
 
-		auto result = arl_new node_op_constant(ps->get_view(), pmv);
+		auto result = o2_new node_op_constant(ps->get_view(), pmv);
 		t->next();
 		return result;
 	}
@@ -175,7 +177,7 @@ namespace
 		const auto right = right_fn(ps);
 		auto guard = memory_guard(right);
 
-		const auto unary = arl_new node_op_unaryop(view, node_op_unaryop::from_token_type(tt));
+		const auto unary = o2_new node_op_unaryop(view, node_op_unaryop::from_token_type(tt));
 		auto guard2 = memory_guard(unary);
 		unary->add_child(right);
 		guard.done();
@@ -203,7 +205,7 @@ namespace
 
 			const auto right = right_fn(ps);
 			auto guard1 = memory_guard(right);
-			const auto new_left = arl_new node_op_binop(view, node_op_binop::from_token_type(tt));
+			const auto new_left = o2_new node_op_binop(view, node_op_binop::from_token_type(tt));
 			auto guard2 = memory_guard(new_left);
 			new_left->add_child(left);
 			guard.done();
@@ -247,7 +249,7 @@ namespace
 			}
 			else if (t->type() == token_type::return_)
 			{
-				const auto ret = arl_new node_op_return(ps->get_view());
+				const auto ret = o2_new node_op_return(ps->get_view());
 				auto guard = memory_guard(ret);
 				t->next();
 				const parser_scope ps0(ps, ret);
@@ -260,7 +262,7 @@ namespace
 		}
 		else if (t->type() == token_type::bracket_left)
 		{
-			const auto scope = arl_new node_scope(ps->get_view());
+			const auto scope = o2_new node_scope(ps->get_view());
 			auto guard = memory_guard(scope);
 
 			while (t->next_until_not(token_type::newline, token_type::comment) != token_type::bracket_right)
@@ -298,7 +300,7 @@ namespace
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto ref = arl_new node_ref(ps->get_view(), chain_types, query_flags, t->value());
+		const auto ref = o2_new node_ref(ps->get_view(), chain_types, query_flags, t->value());
 		auto guard = memory_guard(ref);
 		auto section = ref;
 
@@ -308,7 +310,7 @@ namespace
 			if (t->next() != token_type::identity)
 				throw error_expected_identity(ps->get_view(), t);
 
-			const auto new_section = arl_new node_ref(ps->get_view(), chain_types,
+			const auto new_section = o2_new node_ref(ps->get_view(), chain_types,
 					node_ref::query_flag_children, t->value());
 			auto inner_guard = memory_guard(new_section);
 			section->add_child(new_section);
@@ -329,7 +331,7 @@ namespace
 		if (t->type() != token_type::square_left)
 			throw error_syntax_error(ps->get_view(), ps->t, "expected '['");
 
-		auto arr = memory_guard(arl_new node_type_array(ps->get_view()));
+		auto arr = memory_guard(o2_new node_type_array(ps->get_view()));
 		t->next();
 		const auto op = parse_op_compare(ps);
 		arr->add_child(op);
@@ -345,7 +347,7 @@ namespace
 		const auto t = ps->t;
 		if (t->type() != token_type::pointer)
 			throw error_syntax_error(ps->get_view(), ps->t, "expected '*'");
-		auto acc = memory_guard(arl_new node_type_accessor(ps->get_view(), node_type_accessor::accessor_pointer));
+		auto acc = memory_guard(o2_new node_type_accessor(ps->get_view(), node_type_accessor::accessor_pointer));
 		t->next();
 		return acc.done();
 	}
@@ -355,7 +357,7 @@ namespace
 		const auto t = ps->t;
 		if (t->type() != token_type::ref)
 			throw error_syntax_error(ps->get_view(), ps->t, "expected '&'");
-		auto acc = memory_guard(arl_new node_type_accessor(ps->get_view(), node_type_accessor::accessor_reference));
+		auto acc = memory_guard(o2_new node_type_accessor(ps->get_view(), node_type_accessor::accessor_reference));
 		t->next();
 		return acc.done();
 	}
@@ -397,7 +399,7 @@ namespace
 			return guard.done();
 		}
 
-		auto type_ref = arl_new node_type_ref(ps->get_view());
+		auto type_ref = o2_new node_type_ref(ps->get_view());
 		auto guard = memory_guard(type_ref);
 		const parser_scope ps0(ps, type_ref);
 		type_ref->add_child(parse_ref(&ps0,
@@ -421,7 +423,7 @@ namespace
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto var = arl_new node_named_variable(ps->get_view(), t->value());
+		const auto var = o2_new node_named_variable(ps->get_view(), t->value());
 		auto guard = memory_guard(var);
 		t->next();
 		var->add_child(parse_arg_type(ps));
@@ -435,7 +437,7 @@ namespace
 		if (tt != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto def = arl_new node_func_def(ps->get_view(), t->value(), modifiers);
+		const auto def = o2_new node_func_def(ps->get_view(), t->value(), modifiers);
 		auto guard = memory_guard(def);
 
 		tt = t->next();
@@ -446,7 +448,7 @@ namespace
 
 		// parse arguments:
 		// syntax: name type[, name type, ...]
-		const auto arguments = arl_new node_func_arguments(ps->get_view());
+		const auto arguments = o2_new node_func_arguments(ps->get_view());
 		def->add_child(arguments);
 		tt = t->next();
 		if (tt != token_type::parant_right)
@@ -470,7 +472,7 @@ namespace
 		}
 		t->next();
 
-		const auto returns = arl_new node_func_returns(ps->get_view());
+		const auto returns = o2_new node_func_returns(ps->get_view());
 		def->add_child(returns);
 
 		if (bit_isset(modifiers, node_func_def::modifier_extern))
@@ -495,11 +497,11 @@ namespace
 			throw error_syntax_error(ps->get_view(), t, "expected '{'");
 
 		// Create a new body node
-		const auto body = arl_new node_func_body(ps->get_view());
+		const auto body = o2_new node_func_body(ps->get_view());
 		auto guard = memory_guard(body);
 
 		// Add the initial scope for the function body
-		const auto scope = arl_new node_scope(ps->get_view());
+		const auto scope = o2_new node_scope(ps->get_view());
 		auto guard2 = memory_guard(scope);
 		body->add_child(scope);
 		guard2.done();
@@ -537,7 +539,34 @@ namespace
 
 	node* parse_named_constant(const parser_scope* ps)
 	{
-		throw error_not_implemented(ps->get_view(), "named constants");
+		const auto t = ps->t;
+		if (t->type() != token_type::identity)
+			throw error_expected_identity(ps->get_view(), t);
+
+		const auto var = o2_new node_named_variable(ps->get_view(), t->value());
+		auto guard = memory_guard(var);
+		const parser_scope ps1(ps, var);
+		if (t->next() == token_type::identity)
+		{
+			// const NAME <type>
+			var->add_child(parse_arg_type(&ps1));
+			if (t->type() != token_type::assign)
+				throw new error_syntax_error(ps1.get_view(), t, "expected '='");
+			t->next();
+			var->add_child(parse_op(&ps1));
+		}
+		else
+		{
+			const auto implicit = o2_new node_type_implicit(ps1.get_view());
+			var->add_child(implicit);
+			if (t->type() != token_type::assign)
+				throw new error_syntax_error(ps1.get_view(), t, "expected '='");
+			t->next();
+			implicit->add_child(parse_op(&ps1));
+			ps->state->add_resolve_size(implicit);
+		}
+
+		return guard.done();
 	}
 
 	node* parse_extern(const parser_scope* ps)
@@ -586,7 +615,7 @@ namespace
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto field = arl_new node_type_struct_field(ps->get_view(), t->value());
+		const auto field = o2_new node_type_struct_field(ps->get_view(), t->value());
 		auto guard = memory_guard(field);
 		t->next();
 		field->add_child(parse_type_ref(ps));
@@ -611,7 +640,7 @@ namespace
 			throw error_expected_identity(ps->get_view(), t);
 
 		const auto identity = t->value();
-		const auto type = arl_new node_type_struct(ps->get_view(), identity);
+		const auto type = o2_new node_type_struct(ps->get_view(), identity);
 		ps->state->add_resolve_size(type);
 		auto guard = memory_guard(type);
 		const parser_scope ps0(ps, type);
@@ -641,7 +670,7 @@ namespace
 		else if (t->type() == token_type::bracket_left)
 		{
 			// types have fields, functions etc.
-			auto fields = arl_new node_type_struct_fields(type->get_source_code());
+			auto fields = o2_new node_type_struct_fields(type->get_source_code());
 			type->add_child(fields);
 
 			// TODO Add container for functions? or should fields be put directly under the type node
@@ -672,7 +701,7 @@ namespace
 		}
 		else if (t->type() == token_type::eof)
 		{
-			auto fields = arl_new node_type_struct_fields(type->get_source_code());
+			auto fields = o2_new node_type_struct_fields(type->get_source_code());
 			type->add_child(fields);
 		}
 		else
@@ -697,7 +726,7 @@ namespace
 			alias = t->value();
 			t->next();
 		}
-		auto import = arl_new node_import(view, import_statement, alias);
+		auto import = o2_new node_import(view, import_statement, alias);
 		auto guard = memory_guard(import);
 		return guard.done();
 	}
@@ -841,7 +870,7 @@ node_package* o2::parse_module_import(syntax_tree* st, module* m, string_view pa
 		return nullptr;
 
 	// create a new package based on the import
-	auto package = arl_new node_package(source_code_view(), m->get_relative_path(path));
+	auto package = o2_new node_package(source_code_view(), m->get_relative_path(path));
 	auto guard = memory_guard(package);
 	// parse each source code found
 	for (auto src: source_codes)

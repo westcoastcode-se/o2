@@ -49,10 +49,10 @@ namespace o2
 				st = new syntax_tree;
 				// TODO parse module project file and pre_load all modules and put them into
 				//      the syntax tree
-				const auto m = arl_new
+				const auto m = o2_new
 						module(module_name, path,
 						new filesystem_module_source_codes(path));
-				const auto nm = arl_new node_module(source_code_view(), m);
+				const auto nm = o2_new node_module(source_code_view(), m);
 				st->get_root_package()->add_child(nm);
 
 				o2::parser_state state(st);
@@ -130,10 +130,10 @@ namespace o2
 			try
 			{
 				st = new syntax_tree;
-				const auto m = arl_new
+				const auto m = o2_new
 						module(module_name, path,
 						new filesystem_module_source_codes(path));
-				const auto nm = arl_new node_module(source_code_view(), m);
+				const auto nm = o2_new node_module(source_code_view(), m);
 				st->get_root_package()->add_child(nm);
 
 				o2::parser_state state(st);
