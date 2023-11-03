@@ -104,7 +104,7 @@ func f() int {
 Will turn into:
 
 ```
-func f int() {
+func f() int {
   var result = 0
   result++
   result++
