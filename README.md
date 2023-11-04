@@ -29,6 +29,8 @@ felt that something is missing from that language:
     language that the game is written in and those mods can actually use the
     runtime-type information, inheritance and other such features
 * Built-in support for dependency management between different projects/modules
+* No built-in support for suspensions using `async` and `await`
+  * Threads are not really a good way of using your computers resources
 
 So my goal is to make a programming language that's modern, compiles quickly enough and 
 creates machine-code. Then who knows what happens from there
