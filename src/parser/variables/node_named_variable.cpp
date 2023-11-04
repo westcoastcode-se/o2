@@ -8,8 +8,8 @@
 
 using namespace o2;
 
-node_named_variable::node_named_variable(const source_code_view& view, string_view name)
-		: node_symbol(view), _name(name), _type()
+node_named_variable::node_named_variable(const source_code_view& view, string_view name, int modifiers)
+		: node_symbol(view), _name(name), _type(), _modifiers(modifiers)
 {
 
 }
@@ -17,7 +17,23 @@ node_named_variable::node_named_variable(const source_code_view& view, string_vi
 void node_named_variable::debug(std::basic_ostream<char>& stream, int indent) const
 {
 	stream << this << in(indent);
-	stream << "named_variable(name=" << _name << ")" << std::endl;
+	stream << "named_variable(name=" << _name << ",modifiers=[";
+	for (int i = 0; i < 1; ++i)
+	{
+		const int bit = (1 << i);
+		if ((bit & _modifiers))
+		{
+			switch (static_cast<modifiers>(bit))
+			{
+			case modifier_const:
+				stream << "const,";
+				break;
+			default:
+				stream << "?,";
+			}
+		}
+	}
+	stream << "])" << std::endl;
 	node_symbol::debug(stream, indent);
 }
 

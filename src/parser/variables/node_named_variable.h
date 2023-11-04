@@ -17,7 +17,15 @@ namespace o2
 			: public node_symbol
 	{
 	public:
-		node_named_variable(const source_code_view& view, string_view name);
+		/**
+		 * \brief modifiers that can be applied to a variable
+		 */
+		enum modifiers
+		{
+			modifier_const = 1 << 0
+		};
+
+		node_named_variable(const source_code_view& view, string_view name, int modifiers);
 
 		/**
 		 * \return the name of the variable
@@ -48,5 +56,6 @@ namespace o2
 	private:
 		const string_view _name;
 		node_type* _type;
+		const int _modifiers;
 	};
 }

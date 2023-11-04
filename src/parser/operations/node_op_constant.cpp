@@ -4,6 +4,7 @@
 //
 
 #include "node_op_constant.h"
+#include "../types/node_type.h"
 
 using namespace o2;
 
@@ -73,4 +74,19 @@ void node_op_constant::debug(std::basic_ostream<char>& stream, int indent) const
 	}
 	stream << ")" << std::endl;
 	node_op::debug(stream, indent);
+}
+
+node* node_op_constant::on_child_added(node* n)
+{
+	const auto type = dynamic_cast<node_type*>(n);
+	if (type)
+		_type = type;
+	return n;
+}
+
+void node_op_constant::on_child_removed(node* n)
+{
+	const auto type = dynamic_cast<node_type*>(n);
+	if (type)
+		_type = nullptr;
 }

@@ -22,6 +22,12 @@ namespace
 
 	node_type* parse_type(const parser_scope* ps);
 
+	node_type* resolve_type_from_pmv(const parser_scope* ps, const primitive_value& pmv)
+	{
+		const auto type = ps->state->get_primitive_type(pmv.type);
+		return o2_new node_type_ref(ps->get_view(), type);
+	}
+
 	node_op_constant* parse_op_constant(const parser_scope* ps)
 	{
 		const auto t = ps->t;
@@ -91,8 +97,10 @@ namespace
 		}
 
 		auto result = o2_new node_op_constant(ps->get_view(), pmv);
+		auto guard = memory_guard(result);
+		result->add_child(resolve_type_from_pmv(ps, pmv));
 		t->next();
-		return result;
+		return guard.done();
 	}
 
 	/**
@@ -423,7 +431,7 @@ namespace
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto var = o2_new node_named_variable(ps->get_view(), t->value());
+		const auto var = o2_new node_named_variable(ps->get_view(), t->value(), 0);
 		auto guard = memory_guard(var);
 		t->next();
 		var->add_child(parse_arg_type(ps));
@@ -543,7 +551,7 @@ namespace
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto var = o2_new node_named_variable(ps->get_view(), t->value());
+		const auto var = o2_new node_named_variable(ps->get_view(), t->value(), node_named_variable::modifier_const);
 		auto guard = memory_guard(var);
 		const parser_scope ps1(ps, var);
 		if (t->next() == token_type::identity)

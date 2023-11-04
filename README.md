@@ -4,6 +4,7 @@
 [Primitives](#Primitives)
 [Modules](#Modules)
 [Type](#Type)
+[Const](#Const)
 [Macro](#Macro)
 
 ## Primitives
@@ -12,6 +13,7 @@
 
 * `byte`, is 1 byte
 * `bool`, is 4 bytes
+  * [ ] look into alternate bool types, using bit flags or something similar
 * `int8`, is 1 byte
 * `uint8`, is 1 byte
 * `int16`, is 2 byte
@@ -22,6 +24,8 @@
 * `uint64`, is 8 byte
 * `float32` (alias: `float`), is 4 bytes
 * `float64`, is 8 bytes
+* [ ] `string`
+* [ ] `unicode` types
 
 ## Modules
 
@@ -69,7 +73,66 @@ Modules requiring the exact same dependency can share symbols from `private` dep
 if you have a framework split into multiple modules, but want to share data between them containing private
 dependencies.
 
+## Package
+
+A package is, implicitly, figured out by the folder it's located in. Lets' consider the following folder structure:
+
+- mydomain.io/mymodule
+  - services
+    - service.o2
+  - models
+    - user.o2
+    - roles.o2
+  - app
+    - app.o2
+
+Then if you import `mydomain.io/mymodule/models` then all files in the `models` directory is imported
+
+## Import
+
+- [x] `import`
+- [x] `import` aliases
+
+You import a package with the syntax: `import "mymodule.io/module/package"`. You can also specify an alias for your import
+using the format `import "<path>" as alias_name`
+
 ## Type
+
+- [x] the `type` keyword
+- [ ] implicit types
+
+### Typedef
+
+### Struct
+
+- [x] `type` structs without inheritance
+- [ ] structs with inheritance
+
+### Enum
+
+- [ ] add support for `enum` types
+
+## Const
+
+- [x] `const` variables from constant primitive token, such as `0` or `1.0f`
+- [ ] `const` variables from other constant name
+- [ ] `const` variables from `const func`
+- [ ] `const` functions
+- [ ] returning a `const` variable from a `func`
+
+You can create constant symbols using the `const` keyword.
+
+### Const variables
+
+Consider the following:
+
+```
+const VALUE = 10
+```
+
+then the symbol `VALUE` will have the value `10` with the implicit type `int32`. Constant values can't be modified
+when your application is running, but instead, can be used in a macro or other pre-compile processes to improve
+the performance of your application
 
 ## Macro
 
@@ -140,13 +203,7 @@ const stringified string = "value is 20"
 
 ### Completed
 
-- [x] decide language name
-- [x] `type` structs without inheritance
 - [x] simple `func` function definitions
-- [x] `package`
-- [x] `import`
-    - [x] partial imports
-- [x] types
 - [x] recursive symbol querying
     - imports
     - inner types
@@ -162,10 +219,6 @@ const stringified string = "value is 20"
 
 ### Not complete
 
-- [ ] implicit types
-- [ ] `const` variables from constant
-- [ ] `const` variables from `const func`
-- [ ] returning a `const` variable
 - [ ] each new expression must be put on a new line
 - [ ] only resolve sizes for unknown types at the end. Some times can be resolved during parse phase
   (only primitives etc.).
@@ -185,7 +238,6 @@ const stringified string = "value is 20"
 - [ ] `yield` stream statement in function
 - [ ] `async` and `await` suspension statements
     - should be triggered by interupts from drivers (sockets, io, ...)
-- [ ] structs with inheritance
 - [ ] compile-time `extern` functions linkage
 - [ ] runtime `extern` functions linkage
     - if called and not linked then `panic`

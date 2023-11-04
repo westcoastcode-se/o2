@@ -2,4 +2,3 @@ const INT = 10
 const INT2 int = 20
 const FLOAT = 1.0f
 const FLOAT2 float32 = 1.0f
-const FLOAT3 float32 = 1

@@ -13,9 +13,9 @@ node_type_ref::node_type_ref(const source_code_view& view)
 {
 }
 
-void node_type_ref::set_ref(node_ref* ref)
+node_type_ref::node_type_ref(const source_code_view& view, node_type* type)
+		: node_type(view), _type(type)
 {
-	add_child(ref);
 }
 
 int node_type_ref::resolve_size(const recursion_detector* rd)
@@ -24,7 +24,7 @@ int node_type_ref::resolve_size(const recursion_detector* rd)
 		return _size;
 
 	rd->raise_error(this);
-	if (_type == nullptr)
+	if (_type == this || _type == this)
 		throw resolve_error_unresolved_reference(get_source_code());
 
 	const recursion_detector rd0(rd, this);

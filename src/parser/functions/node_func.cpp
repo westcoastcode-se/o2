@@ -13,7 +13,7 @@ void node_func_def::debug(std::basic_ostream<char>& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "func_def(name=" << _name << ", modifiers=[";
-	for (int i = 0; i < 2; ++i)
+	for (int i = 0; i < 4; ++i)
 	{
 		const int bit = (1 << i);
 		if ((bit & _modifiers))

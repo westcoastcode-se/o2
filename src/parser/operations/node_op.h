@@ -9,6 +9,8 @@
 
 namespace o2
 {
+	class node_type;
+
 	template<class T>
 	class node_op_optimizer
 			: public node_optimizer
@@ -62,6 +64,15 @@ namespace o2
 		bool has_op_modifier(int modifier) const
 		{
 			return bit_isset(_op_modifiers, modifier);
+		}
+
+		/**
+		 * \return the type this operation represents. For example,
+		 *         a constant might be represented by the node_type_primitive int32
+		 */
+		virtual node_type* get_type()
+		{
+			return nullptr;
 		}
 
 	protected:

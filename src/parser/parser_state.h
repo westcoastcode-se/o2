@@ -7,6 +7,8 @@
 
 #include "node.h"
 #include "types/node_type.h"
+#include "types/node_type_primitive.h"
+#include "primitive_value.h"
 
 namespace o2
 {
@@ -77,6 +79,13 @@ namespace o2
 		{
 			_imports.add_unique(i);
 		}
+
+		/**
+		 * \brief
+		 * \param type
+		 * \return the node that represents the supplied primitive type
+		 */
+		node_type_primitive* get_primitive_type(primitive_type type) const;
 
 	private:
 		syntax_tree* const _syntax_tree;

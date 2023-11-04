@@ -12,6 +12,7 @@ using namespace o2;
 syntax_tree::syntax_tree()
 		: _root(source_code_view(), "")
 {
+	// added predefined primitive types
 	_root.add_child(o2_new node_type_primitive(vector<string_view>("void"), 0));
 	_root.add_child(o2_new node_type_primitive(vector<string_view>("byte"), 1));
 	_root.add_child(o2_new node_type_primitive(vector<string_view>("bool"), 4));

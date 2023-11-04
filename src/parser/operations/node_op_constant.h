@@ -10,6 +10,8 @@
 
 namespace o2
 {
+	class node_type;
+
 	/**
 	 * \brief A constant value
 	 */
@@ -18,7 +20,7 @@ namespace o2
 	{
 	public:
 		node_op_constant(const source_code_view& view, const primitive_value& value)
-				: node_op(view, modifier_const), _value(value)
+				: node_op(view, modifier_const), _value(value), _type()
 		{
 		}
 
@@ -30,7 +32,20 @@ namespace o2
 			return _value;
 		}
 
+#pragma region node_op
+
+		node_type* get_type() final
+		{
+			return _type;
+		}
+
+#pragma endregion
+
 #pragma region node
+
+		node* on_child_added(node* n) final;
+
+		void on_child_removed(node* n) final;
 
 		void debug(std::basic_ostream<char>& stream, int indent) const final;
 
@@ -38,5 +53,6 @@ namespace o2
 
 	private:
 		primitive_value _value;
+		node_type* _type;
 	};
 }

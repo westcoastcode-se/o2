@@ -17,13 +17,9 @@ namespace o2
 			: public node_type
 	{
 	public:
-		node_type_ref(const source_code_view& view);
+		explicit node_type_ref(const source_code_view& view);
 
-		/**
-		 * \brief 
-		 * \param ref the underlying reference of the type we are looking for
-		 */
-		void set_ref(node_ref* ref);
+		node_type_ref(const source_code_view& view, node_type* type);
 
 #pragma region node_type
 
