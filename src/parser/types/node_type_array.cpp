@@ -54,8 +54,6 @@ bool node_type_array::resolve(const recursion_detector* rd)
 		const auto opc = dynamic_cast<node_op_constant*>(c);
 		if (opc != nullptr)
 		{
-			if (opc->get_children().size() > 0)
-				throw std::runtime_error("constant value could not be deduced during the optimization process");
 			if (opc->get_value().type >= primitive_type::uint64)
 				throw std::runtime_error("constant value must be an non-decimal number");
 			_count = opc->get_value().to_uint64();

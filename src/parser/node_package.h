@@ -6,7 +6,7 @@
 #pragma once
 
 #include "node_symbol.h"
-#include "variables/node_named_variable.h"
+#include "variables/node_var.h"
 #include <vector>
 #include <unordered_map>
 
@@ -59,7 +59,7 @@ namespace o2
 	private:
 		const string_view _name;
 		std::unordered_map<string_view, node_package*> _packages;
-		std::unordered_map<string_view, node_named_variable*> _variables;
+		std::unordered_map<string_view, node_var*> _variables;
 	};
 
 }

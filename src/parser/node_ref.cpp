@@ -12,6 +12,11 @@
 
 using namespace o2;
 
+node_ref::node_ref(const source_code_view& view, node* result)
+		: node(view), _query_types(), _query_flags(), _text(), _results(result)
+{
+}
+
 void node_ref::debug(std::basic_ostream<char>& stream, int indent) const
 {
 	stream << this << in(indent);
@@ -138,7 +143,7 @@ bool node_ref::resolve_from_parent(node* parent)
 
 			if ((query & (query_types::arg | query_types::local | query_types::global)) != 0)
 			{
-				const auto impl = dynamic_cast<node_named_variable*>(n);
+				const auto impl = dynamic_cast<node_var*>(n);
 				if (impl && impl->get_name() == text)
 				{
 					add(impl);

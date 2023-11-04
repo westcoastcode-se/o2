@@ -13,6 +13,7 @@
 #include "operations/node_op_return.h"
 #include "module/module.h"
 #include "types/node_type_implicit.h"
+#include "variables/node_var_const.h"
 
 using namespace o2;
 
@@ -425,13 +426,13 @@ namespace
 		return parse_type_ref(ps);
 	}
 
-	node_named_variable* parse_func_arg(const parser_scope* ps)
+	node_var* parse_func_arg(const parser_scope* ps)
 	{
 		const auto t = ps->t;
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto var = o2_new node_named_variable(ps->get_view(), t->value(), 0);
+		const auto var = o2_new node_var(ps->get_view(), t->value());
 		auto guard = memory_guard(var);
 		t->next();
 		var->add_child(parse_arg_type(ps));
@@ -551,7 +552,7 @@ namespace
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto var = o2_new node_named_variable(ps->get_view(), t->value(), node_named_variable::modifier_const);
+		const auto var = o2_new node_var_const(ps->get_view(), t->value());
 		auto guard = memory_guard(var);
 		const parser_scope ps1(ps, var);
 		if (t->next() == token_type::identity)

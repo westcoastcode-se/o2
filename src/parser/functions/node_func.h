@@ -6,7 +6,7 @@
 #pragma once
 
 #include "../node_symbol.h"
-#include "../variables/node_named_variable.h"
+#include "../variables/node_var.h"
 #include "node_func_arguments.h"
 #include "node_func_returns.h"
 

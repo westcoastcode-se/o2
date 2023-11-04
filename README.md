@@ -5,11 +5,16 @@
 [Modules](#Modules)
 [Type](#Type)
 [Const](#Const)
+[Func](#Func)
+[Trait](#Trait)
 [Macro](#Macro)
 
 ## Primitives
 
 - [x] `primitives`, such as int32, float32
+- [ ] `string` primitive (unicode?)
+- [ ] unicode characters
+  - should this be `char` or should a wide character type be added?
 
 * `byte`, is 1 byte
 * `bool`, is 4 bytes
@@ -24,11 +29,12 @@
 * `uint64`, is 8 byte
 * `float32` (alias: `float`), is 4 bytes
 * `float64`, is 8 bytes
-* [ ] `string`
-* [ ] `unicode` types
 
 ## Modules
 
+- [x] `package` root is the same as the project root
+- [x] `package` names are now figured out from the module name and path
+  - modules should be put as children under root, unless they are private
 - [ ] `module` parser
 - [ ] `module` command line tool
 - [ ] use `git` to fetch requirements/dependencies
@@ -92,6 +98,7 @@ Then if you import `mydomain.io/mymodule/models` then all files in the `models` 
 
 - [x] `import`
 - [x] `import` aliases
+- [x] `import` statements should be the path to the module + package path
 
 You import a package with the syntax: `import "mymodule.io/module/package"`. You can also specify an alias for your import
 using the format `import "<path>" as alias_name`
@@ -99,9 +106,29 @@ using the format `import "<path>" as alias_name`
 ## Type
 
 - [x] the `type` keyword
-- [ ] implicit types
+- [ ] implicit type deduction for constants
+- [ ] implicit type deduction for variables
+- [ ] inheritance
 
 ### Typedef
+
+- [ ] typedef
+- [ ] consider if typedefs should be allowed to extend methods?
+  - question: runtime type-information will be lost in some case. Is this okay?
+- [ ] consider primitive typedef with extra data: `type Id : int32 { <Fields> }`
+  - question: runtime type-information will be lost in some case. Is this okay?
+
+If you create a type that inherits from a primitive or another type then that's considered a typedef. Typedef
+are handled by the compiler as two different types, but can be compile-time casted between the type and the
+`base` type. 
+
+Consider the following:
+
+```
+type Id : int32
+```
+
+Then you can 
 
 ### Struct
 
@@ -133,6 +160,55 @@ const VALUE = 10
 then the symbol `VALUE` will have the value `10` with the implicit type `int32`. Constant values can't be modified
 when your application is running, but instead, can be used in a macro or other pre-compile processes to improve
 the performance of your application
+
+### Const functions
+
+Constant functions are guaranteed to be compile-time compliant. They can be used in both normal expressions
+and in macro expressions.
+
+```
+const func MyFunc() int {
+  return 10
+}
+```
+
+## Func
+
+- [x] simple `func` function definitions
+
+## Trait
+
+- [ ] add `trait` types used as an alternative to template to solve some of the template
+  specializations done in C++, for example the `operator<<` for std::ostream
+
+Consider the following:
+
+```
+trait Stringify {
+  func String() string
+}
+
+type Id : int32 {
+  func String() string {
+    return "My Id"
+  }
+}
+
+func Println(s Stringify) {
+  stdio.Println(s.String())
+}
+
+func main() {
+  var id = (Id)10
+  Println(id)
+}
+```
+
+Types that comply with a trait's interface will be, compile-time resolved to be fit that trait. Traits, however,
+is not the same as an `interface`. Runtime-type information is kept for interfaces, but traits loses that 
+information.
+
+The purpose for a trait is to create a modern solution for parts of C++'s template specialization functionality.
 
 ## Macro
 
@@ -203,17 +279,12 @@ const stringified string = "value is 20"
 
 ### Completed
 
-- [x] simple `func` function definitions
 - [x] recursive symbol querying
     - imports
     - inner types
     - collision detection
 - [x] binary and unary operations using basic operators `+`, `-` etc.
 - [x] `return` statement
-- [x] `package` root is the same as the project root
-- [x] `package` names are now figured out from the module name and path
-    - modules should be put as children under root, unless they are private
-- [x] `import` statements should be the path to the module + package path
 - [x] resolving types should not also calculate the type size
 - [x] do not require `;`
 
@@ -228,13 +299,9 @@ const stringified string = "value is 20"
 - [ ] `for` loops
 - [ ] `switch` statement
 - [ ] `cast` between primitives
-- [ ] unicode characters
-    - should this be `char` or should a wide character type be added?
 - [ ] `date` and `time` operations
 - [ ] types that inherits from primitives
 - [ ] template syntax using `<` and `>`
-- [ ] `macro` functions
-- [ ] `macro` statement in functions
 - [ ] `yield` stream statement in function
 - [ ] `async` and `await` suspension statements
     - should be triggered by interupts from drivers (sockets, io, ...)
@@ -247,19 +314,9 @@ const stringified string = "value is 20"
 - [ ] full multi-threaded support
     - [x] multi-thread friendly source code parse
     - [ ] allow for multi-threaded resolve (maybe)
-- [ ] attributes using the `[myattrib]` syntax
 - [ ] argument name specification using `call(name_arg = "test")`
 - [ ] code complexity analyser and reporting
     - will be needed anyways for the optimizer to be good
-- [ ] add support for custom `include` search directories
-- [ ] add project descriptor `qw.proj`
-    - compiler version descriptor
-    - dependencies (fetched using `git`)
-    - pre- and post compile processors
-- [ ] add project dependencies
-- [ ] do not allow accessing non-public symbols outside package
-- [ ] add `trait` types used as an alternative to template to solve some of the template
-  specializations done in C++, for example the `operator<<` for std::ostream
 
 ### Consideration / Evaluation
 

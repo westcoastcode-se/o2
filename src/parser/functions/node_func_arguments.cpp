@@ -27,7 +27,7 @@ int node_func_arguments::num_arguments() const
 
 node* node_func_arguments::on_child_added(node* n)
 {
-	const auto named = dynamic_cast<node_named_variable*>(n);
+	const auto named = dynamic_cast<node_var*>(n);
 	if (named)
 		_arguments.add(named);
 	return n;
@@ -35,7 +35,7 @@ node* node_func_arguments::on_child_added(node* n)
 
 void node_func_arguments::on_child_removed(node* n)
 {
-	const auto named = dynamic_cast<node_named_variable*>(n);
+	const auto named = dynamic_cast<node_var*>(n);
 	if (named)
 	{
 		const auto idx = _arguments.find(named);

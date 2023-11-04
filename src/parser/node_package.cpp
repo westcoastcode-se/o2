@@ -45,7 +45,7 @@ node* node_package::on_child_added(node* n)
 	}
 	else
 	{
-		const auto nv = dynamic_cast<node_named_variable*>(n);
+		const auto nv = dynamic_cast<node_var*>(n);
 		if (nv != nullptr)
 		{
 			if (_variables.contains(nv->get_name()))
@@ -63,7 +63,7 @@ void node_package::on_child_removed(node* n)
 		_packages.erase(p->_name);
 	else
 	{
-		const auto nv = dynamic_cast<node_named_variable*>(n);
+		const auto nv = dynamic_cast<node_var*>(n);
 		if (nv != nullptr)
 			_variables.erase(nv->get_name());
 	}

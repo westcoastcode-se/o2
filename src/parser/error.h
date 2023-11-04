@@ -26,6 +26,10 @@ namespace o2
 		incompatible_types,
 		named_symbol_already_declared,
 
+		structure_errors_start,
+		expected_child_node,
+		unexpected_child_node,
+
 		resolve_error_starts,
 		recursion,
 		multiple_refs,
@@ -152,14 +156,47 @@ namespace o2
 			: public parse_error
 	{
 	public:
-		error_unexpected_extern_func_body(source_code_view view);
+		explicit error_unexpected_extern_func_body(const source_code_view& view);
 	};
 
 	class error_named_symbol_already_declared
 			: public parse_error
 	{
 	public:
-		error_named_symbol_already_declared(source_code_view view, string_view name);
+		error_named_symbol_already_declared(const source_code_view& view, string_view name);
+	};
+
+	/**
+	 * \brief errors raised if the node structure is invalid
+	 */
+	class structure_error
+			: public error
+	{
+	public:
+		structure_error(const error_types type, const source_code_view& view)
+				: error(type, view)
+		{
+		}
+	};
+
+	/**
+	 * \brief error is raised if a child-node is missing
+	 */
+	class expected_child_node
+			: public structure_error
+	{
+	public:
+		expected_child_node(const source_code_view& view, const char* extra);
+	};
+
+	/**
+	 * \brief error is raised if a node has unexpected child-nodes
+	 */
+	class unexpected_child_node
+			: public structure_error
+	{
+	public:
+		unexpected_child_node(const source_code_view& view, const char* extra);
 	};
 
 	/**

@@ -47,8 +47,9 @@ namespace o2
 		{
 		}
 
+		node_ref(const source_code_view& view, node* result);
+		
 		/**
-		 * \brief 
 		 * \return types that this reference is looking for during the resolution phase
 		 */
 		int get_query_types() const
@@ -56,11 +57,17 @@ namespace o2
 			return _query_types;
 		}
 
+		/**
+		 * \param qt the query types we want to set
+		 */
 		void set_query_types(int qt)
 		{
             _query_types = qt;
 		}
 
+		/**
+		 * \return the text we are querying
+		 */
 		string_view get_query_text() const
 		{
 			return _text;

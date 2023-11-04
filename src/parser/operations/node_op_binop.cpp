@@ -81,6 +81,12 @@ void node_op_binop::debug(std::basic_ostream<char>& stream, int indent) const
 	node_op::debug(stream, indent);
 }
 
+void node_op_binop::on_parent_node(node* n)
+{
+	if (get_children().size() != 2)
+		throw expected_child_node(get_source_code(), "two node_op childen is expected");
+}
+
 vector<node*> node_optimizer_binop_merge::optimize(node* n)
 {
 	const auto left = static_cast<node_op_binop*>(n)->get_left();

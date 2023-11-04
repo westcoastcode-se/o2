@@ -181,11 +181,13 @@ namespace o2
 		/**
 		 * \brief get a child
 		 * \param idx the child
-		 * \return the child at the supplied index
+		 * \return the child at the supplied index. nullptr if child node doesn't exist
 		 */
 		node* get_child(int idx) const
 		{
-			return _children[idx];
+			if (_children.size() > idx)
+				return _children[idx];
+			return nullptr;
 		}
 
 		/**

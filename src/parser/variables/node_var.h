@@ -13,19 +13,11 @@ namespace o2
 	/**
 	 * \brief a variable with a scope-unique name
 	 */
-	class node_named_variable
+	class node_var
 			: public node_symbol
 	{
 	public:
-		/**
-		 * \brief modifiers that can be applied to a variable
-		 */
-		enum modifiers
-		{
-			modifier_const = 1 << 0
-		};
-
-		node_named_variable(const source_code_view& view, string_view name, int modifiers);
+		node_var(const source_code_view& view, string_view name);
 
 		/**
 		 * \return the name of the variable
@@ -53,9 +45,8 @@ namespace o2
 
 #pragma endregion
 
-	private:
+	protected:
 		const string_view _name;
 		node_type* _type;
-		const int _modifiers;
 	};
 }

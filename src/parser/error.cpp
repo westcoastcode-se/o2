@@ -107,7 +107,7 @@ error_expected_constant::error_expected_constant(source_code_view view, const to
 	set(s.str());
 }
 
-error_unexpected_extern_func_body::error_unexpected_extern_func_body(source_code_view view)
+error_unexpected_extern_func_body::error_unexpected_extern_func_body(const source_code_view& view)
 		: parse_error(error_types::unexpected_extern_func_body, view)
 {
 	std::stringstream s;
@@ -115,11 +115,27 @@ error_unexpected_extern_func_body::error_unexpected_extern_func_body(source_code
 	set(s.str());
 }
 
-error_named_symbol_already_declared::error_named_symbol_already_declared(source_code_view view, string_view name)
+error_named_symbol_already_declared::error_named_symbol_already_declared(const source_code_view& view, string_view name)
 		: parse_error(error_types::named_symbol_already_declared, view)
 {
 	std::stringstream s;
 	s << "symbol '" << name << "' is already declared";
+	set(s.str());
+}
+
+expected_child_node::expected_child_node(const source_code_view& view, const char* extra)
+		: structure_error(error_types::expected_child_node, view)
+{
+	std::stringstream s;
+	s << "node doesn't have the necessary child nodes: " << extra;
+	set(s.str());
+}
+
+unexpected_child_node::unexpected_child_node(const source_code_view& view, const char* extra)
+		: structure_error(error_types::unexpected_child_node, view)
+{
+	std::stringstream s;
+	s << "node have a child node that's not allowed: " << extra;
 	set(s.str());
 }
 

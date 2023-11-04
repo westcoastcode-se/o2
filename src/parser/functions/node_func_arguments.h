@@ -6,7 +6,7 @@
 #pragma once
 
 #include "../node.h"
-#include "../variables/node_named_variable.h"
+#include "../variables/node_var.h"
 
 namespace o2
 {
@@ -28,7 +28,7 @@ namespace o2
 		 * \brief
 		 * \return all arguments used by this function
 		 */
-		array_view<node_named_variable*> get_arguments() const
+		array_view<node_var*> get_arguments() const
 		{
 			return _arguments;
 		}
@@ -44,6 +44,6 @@ namespace o2
 #pragma endregion
 
 	private:
-		vector<node_named_variable*> _arguments;
+		vector<node_var*> _arguments;
 	};
 }

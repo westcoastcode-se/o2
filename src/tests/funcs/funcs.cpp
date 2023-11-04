@@ -92,7 +92,7 @@ void funcs()
 			const auto func = assert_type<node_func_def>(root->get_children()[14]);
 			assert_equals(func->get_children().size(), 3);
 			const auto args = assert_type<node_func_arguments>(func->get_child(0));
-			const auto arg1 = assert_type<node_named_variable>(args->get_child(0));
+			const auto arg1 = assert_type<node_var>(args->get_child(0));
 			assert_equals("a1", arg1->get_name());
 			const auto arr_type_ref_int = assert_type<node_type_ref>(arg1->get_child(0));
 			const auto arr_ref_int = assert_type<node_ref>(arr_type_ref_int->get_child(0));
@@ -112,13 +112,13 @@ void funcs()
 			const auto func = assert_type<node_func_def>(root->get_children()[14]);
 			assert_equals(func->get_children().size(), 3);
 			const auto args = assert_type<node_func_arguments>(func->get_child(0));
-			const auto arg1 = assert_type<node_named_variable>(args->get_child(0));
+			const auto arg1 = assert_type<node_var>(args->get_child(0));
 			const auto arr = assert_type<node_type_array>(arg1->get_child(0));
 			assert_equals(arr->get_children().size(), 2);
 			const auto arr_const = assert_type<node_op_constant>(arr->get_child(0));
 			assert_equals(arr_const->get_value().type, primitive_type::int32);
 			assert_equals(arr_const->get_value().i32, 2);
-			assert_equals(arr_const->get_children().size(), 0);
+			assert_equals(arr_const->get_children().size(), 1);
 			const auto arr_type_ref_int = assert_type<node_type_ref>(arr->get_child(1));
 			const auto arr_ref_int = assert_type<node_ref>(arr_type_ref_int->get_child(0));
 			assert_equals(arr_ref_int->get_query_text(), "int");
@@ -134,7 +134,7 @@ void funcs()
 			const auto func = assert_type<node_func_def>(root->get_child(14));
 			assert_equals(func->get_children().size(), 3);
 			const auto args = assert_type<node_func_arguments>(func->get_child(0));
-			const auto arg1 = assert_type<node_named_variable>(args->get_child(0));
+			const auto arg1 = assert_type<node_var>(args->get_child(0));
 			assert_equals("_", arg1->get_name());
 			const auto arr_type_ref_int = assert_type<node_type_ref>(arg1->get_child(0));
 			assert_equals(arr_type_ref_int->get_type(), root->get_child(7));

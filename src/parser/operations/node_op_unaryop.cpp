@@ -53,6 +53,12 @@ node* node_op_unaryop::get_right() const
 	return nullptr;
 }
 
+void node_op_unaryop::on_parent_node(node* n)
+{
+	if (get_children().size() != 1)
+		throw expected_child_node(get_source_code(), "one node_op child is expected");
+}
+
 vector<node*> node_optimizer_unaryop_merge::optimize(node* n)
 {
 	const auto right = static_cast<node_op_unaryop*>(n)->get_right();

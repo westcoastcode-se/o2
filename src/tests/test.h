@@ -210,7 +210,7 @@ namespace o2::testing
 	{
 		if (value != expected)
 		{
-			throw_(error() << "assertion: expected " << value << " to be " << expected);
+			throw_(error() << "assertion: expected " << expected << " but was " << value);
 		}
 	}
 
