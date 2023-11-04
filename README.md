@@ -1,13 +1,37 @@
 # o2
 
-[License](LICENSE.txt)
-[Primitives](#Primitives)
-[Modules](#Modules)
-[Type](#Type)
-[Const](#Const)
-[Func](#Func)
-[Trait](#Trait)
-[Macro](#Macro)
+## Table of content
+
+1. [Why](#Why)
+2. [Primitives](#Primitives)
+3. [Modules](#Modules)
+4. [Type](#Type)
+5. [Const](#Const)
+6. [Func](#Func)
+7. [Trait](#Trait)
+8. [Macro](#Macro)
+9. [License](LICENSE.txt)
+
+## Why?
+
+This is primarily a hobby project of mine. I've been a C++ developer for most of my life and I've always
+felt that something is missing from that language:
+
+* C++ takes a long time to compile
+* C++ syntax is hard to read (especially the later versions of C++)
+  * most modern languages suffer from this (Rust, Node JS etc)
+* No good support for compile-time code processing using attributes
+  * Engines (web-frameworks, game engines etc) could really use good
+    compile-time source code generation for JSON serialization and other similar things
+* No easy way of interpreting the source code with tools
+* Can't really run C++ as a scripting language
+  * Consider a game that makes it possible for mods being written in the same
+    language that the game is written in and those mods can actually use the
+    runtime-type information, inheritance and other such features
+* Built-in support for dependency management between different projects/modules
+
+So my goal is to make a programming language that's modern, compiles quickly enough and 
+creates machine-code. Then who knows what happens from there
 
 ## Primitives
 
