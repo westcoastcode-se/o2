@@ -43,8 +43,6 @@ void const_()
 			assert_equals(var_FLOAT2->get_name(), "FLOAT2");
 			const auto ref_FLOAT2 = assert_type<node_type_ref>(var_FLOAT2->get_type());
 			assert_equals(ref_FLOAT2->get_type(), root->get_child(11));
-
-			debug(st);
 		});
 	});
 }
