@@ -19,7 +19,7 @@ void const_()
 		test("const_global", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 18);
+			assert_equals(root->get_children().size(), 19);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
@@ -43,6 +43,11 @@ void const_()
 			assert_equals(var_FLOAT2->get_name(), "FLOAT2");
 			const auto ref_FLOAT2 = assert_type<node_type_ref>(var_FLOAT2->get_type());
 			assert_equals(ref_FLOAT2->get_type(), root->get_child(11));
+
+			const auto var_FLOAT3 = assert_type<node_var>(root->get_child(18));
+			assert_equals(var_FLOAT3->get_name(), "FLOAT3");
+			const auto ref_FLOAT3 = assert_type<node_type_ref>(var_FLOAT3->get_type());
+			assert_equals(ref_FLOAT3->get_type(), root->get_child(11));
 		});
 	});
 }

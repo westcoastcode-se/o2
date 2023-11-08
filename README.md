@@ -142,7 +142,7 @@ import using the format `import "<path>" as alias_name`.
 ## Type
 
 - [x] the `type` keyword
-- [ ] implicit type deduction for constants
+- [x] implicit type deduction for constants
 - [ ] implicit type deduction for variables
 - [ ] implicit types deducted from constants can be automatically resolved during parse phase
   - `var name = 10` is always known to be an `int32`
@@ -182,8 +182,10 @@ Then you can
 - [x] `const` variables from constant primitive token, such as `0` or `1.0f`
 - [ ] `const` variables from other constant name
 - [ ] `const` variables from `const func`
+- [ ] setting a `const` variable from a `const func` call
 - [ ] `const` functions
 - [ ] returning a `const` variable from a `func`
+- [ ] allow for a struct `type` to be used as constant
 
 You can create constant symbols using the `const` keyword.
 
@@ -216,6 +218,12 @@ const func MyFunc() int {
 - [ ] `const` functions that can be compile-time evaluated
 - [ ] consider functions with implicit return type based on `return` statement
   - common syntax from other languages would be: `func Pow2(value int) -> value * value`
+- [ ] add support for local `var` statements
+- [ ] add support for short-hand `decl_assign` statement for creating one or more variables
+- [ ] add support for multiple `var` statements using the `,` delimiter
+  - example: `var i,j = 0,1`
+- [ ] add support for multiple `decl_assign` statements using the `,` delimiter
+    - example: `i,j := 0,1`
 
 ## Trait
 
