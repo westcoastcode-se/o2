@@ -6,3 +6,10 @@
 #include "node_var_const.h"
 
 using namespace o2;
+
+void node_var_const::debug(std::basic_ostream<char>& stream, int indent) const
+{
+	stream << this << in(indent);
+	stream << "var_const(name=" << _name << ")" << std::endl;
+	node_symbol::debug(stream, indent);
+}

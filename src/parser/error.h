@@ -186,7 +186,7 @@ namespace o2
 			: public structure_error
 	{
 	public:
-		expected_child_node(const source_code_view& view, const char* extra);
+		expected_child_node(const source_code_view& view, const char* expected_nodes);
 	};
 
 	/**
@@ -196,7 +196,7 @@ namespace o2
 			: public structure_error
 	{
 	public:
-		unexpected_child_node(const source_code_view& view, const char* extra);
+		unexpected_child_node(const source_code_view& view, const char* expected_nodes);
 	};
 
 	/**

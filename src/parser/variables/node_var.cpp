@@ -8,8 +8,8 @@
 
 using namespace o2;
 
-node_var::node_var(const source_code_view& view, string_view name)
-		: node_symbol(view), _name(name), _type()
+node_var::node_var(const source_code_view& view, string_view name, int modifiers)
+		: node_symbol(view), _name(name), _modifiers(modifiers), _type()
 {
 
 }
@@ -33,4 +33,10 @@ void node_var::on_child_removed(node* n)
 {
 	if (_type == n)
 		_type = nullptr;
+}
+
+void node_var::on_parent_node(node* p)
+{
+	if (_type == nullptr)
+		throw expected_child_node(get_source_code(), "node_type");
 }

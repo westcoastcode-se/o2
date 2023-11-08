@@ -19,32 +19,39 @@ felt that something is missing from that language:
 
 * C++ takes a long time to compile
 * C++ syntax is hard to read (especially the later versions of C++)
-  * most modern languages suffer from this (Rust, Node JS etc)
+    * most modern languages suffer from this (Rust, Node JS etc)
 * No good support for compile-time code processing using attributes
-  * Engines (web-frameworks, game engines etc) could really use good
-    compile-time source code generation for JSON serialization and other similar things
+    * Engines (web-frameworks, game engines etc) could really use good
+      compile-time source code generation for JSON serialization and other similar things
 * No easy way of interpreting the source code with tools
 * Can't really run C++ as a scripting language
-  * Consider a game that makes it possible for mods being written in the same
-    language that the game is written in and those mods can actually use the
-    runtime-type information, inheritance and other such features
+    * Consider a game that makes it possible for mods being written in the same
+      language that the game is written in and those mods can actually use the
+      runtime-type information, inheritance and other such features
 * Built-in support for dependency management between different projects/modules
 * No built-in support for suspensions using `async` and `await`
-  * Threads are not really a good way of using your computers resources
+    * Threads are not really a good way of using your computers resources
 
-So my goal is to make a programming language that's modern, compiles quickly enough and 
+So my goal is to make a programming language that's modern, compiles quickly enough and
 creates machine-code. Then who knows what happens from there
+
+## Getting started
+
+1. clone repository
+2. download clang https://github.com/llvm/llvm-project/releases and install the appropriate version
+3. configure editor to use
+   clang https://www.jetbrains.com/help/clion/quick-tutorial-on-configuring-clion-on-windows.html#clang-cl
 
 ## Primitives
 
 - [x] `primitives`, such as int32, float32
 - [ ] `string` primitive (unicode?)
 - [ ] unicode characters
-  - should this be `char` or should a wide character type be added?
+    - should this be `char` or should a wide character type be added?
 
 * `byte`, is 1 byte
 * `bool`, is 4 bytes
-  * [ ] look into alternate bool types, using bit flags or something similar
+    * [ ] look into alternate bool types, using bit flags or something similar
 * `int8`, is 1 byte
 * `uint8`, is 1 byte
 * `int16`, is 2 byte
@@ -60,7 +67,7 @@ creates machine-code. Then who knows what happens from there
 
 - [x] `package` root is the same as the project root
 - [x] `package` names are now figured out from the module name and path
-  - modules should be put as children under root, unless they are private
+    - modules should be put as children under root, unless they are private
 - [ ] `module` parser
 - [ ] `module` command line tool
 - [ ] use `git` to fetch requirements/dependencies
@@ -110,13 +117,13 @@ dependencies.
 A package is, implicitly, figured out by the folder it's located in. Lets' consider the following folder structure:
 
 - mydomain.io/mymodule
-  - services
-    - service.o2
-  - models
-    - user.o2
-    - roles.o2
-  - app
-    - app.o2
+    - services
+        - service.o2
+    - models
+        - user.o2
+        - roles.o2
+    - app
+        - app.o2
 
 Then if you import `mydomain.io/mymodule/models` then all files in the `models` directory is imported
 
@@ -125,28 +132,33 @@ Then if you import `mydomain.io/mymodule/models` then all files in the `models` 
 - [x] `import`
 - [x] `import` aliases
 - [x] `import` statements should be the path to the module + package path
+- [ ] resolve references when a package's imports are all resolved
+    - should be possible to do in parallel parsing source code since we know, for sure, that a reference
+      can only be resolved into something that's imported
 
-You import a package with the syntax: `import "mymodule.io/module/package"`. You can also specify an alias for your import
-using the format `import "<path>" as alias_name`
+You import a package with the syntax: `import "mymodule.io/module/package"`. You can also specify an alias for your
+import using the format `import "<path>" as alias_name`.
 
 ## Type
 
 - [x] the `type` keyword
 - [ ] implicit type deduction for constants
 - [ ] implicit type deduction for variables
+- [ ] implicit types deducted from constants can be automatically resolved during parse phase
+  - `var name = 10` is always known to be an `int32`
 - [ ] inheritance
 
 ### Typedef
 
 - [ ] typedef
 - [ ] consider if typedefs should be allowed to extend methods?
-  - question: runtime type-information will be lost in some case. Is this okay?
+    - question: runtime type-information will be lost in some case. Is this okay?
 - [ ] consider primitive typedef with extra data: `type Id : int32 { <Fields> }`
-  - question: runtime type-information will be lost in some case. Is this okay?
+    - question: runtime type-information will be lost in some case. Is this okay?
 
 If you create a type that inherits from a primitive or another type then that's considered a typedef. Typedef
 are handled by the compiler as two different types, but can be compile-time casted between the type and the
-`base` type. 
+`base` type.
 
 Consider the following:
 
@@ -154,7 +166,7 @@ Consider the following:
 type Id : int32
 ```
 
-Then you can 
+Then you can
 
 ### Struct
 
@@ -201,6 +213,9 @@ const func MyFunc() int {
 ## Func
 
 - [x] simple `func` function definitions
+- [ ] `const` functions that can be compile-time evaluated
+- [ ] consider functions with implicit return type based on `return` statement
+  - common syntax from other languages would be: `func Pow2(value int) -> value * value`
 
 ## Trait
 
@@ -231,7 +246,7 @@ func main() {
 ```
 
 Types that comply with a trait's interface will be, compile-time resolved to be fit that trait. Traits, however,
-is not the same as an `interface`. Runtime-type information is kept for interfaces, but traits loses that 
+is not the same as an `interface`. Runtime-type information is kept for interfaces, but traits loses that
 information.
 
 The purpose for a trait is to create a modern solution for parts of C++'s template specialization functionality.
@@ -299,7 +314,7 @@ Will turn into:
 const stringified string = "value is 20"
 ```
 
-###  
+###       
 
 ## Features
 

@@ -342,10 +342,10 @@ void token::next0()
 		atom(token_type::semicolon);
 		break;
 	case ':':
-		if (peek(1) == ':')
+		if (peek(1) == '=')
 		{
 			_pos++;
-			atom(token_type::separator);
+			atom(token_type::decl_assign);
 			break;
 		}
 		atom(token_type::colon);

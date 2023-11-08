@@ -4,6 +4,8 @@
 //
 
 #include "node_op_assign.h"
+#include "../types/node_type_implicit.h"
+#include "../node_link.h"
 
 using namespace o2;
 
@@ -14,10 +16,7 @@ node_op_assign::node_op_assign(const source_code_view& view)
 
 node_type* node_op_assign::get_type()
 {
-	const auto op = dynamic_cast<node_op*>(get_child(0));
-	if (op)
-		return op->get_type();
-	return nullptr;
+	return _variable->get_type();
 }
 
 void node_op_assign::debug(std::basic_ostream<char>& stream, int indent) const
@@ -29,10 +28,10 @@ void node_op_assign::debug(std::basic_ostream<char>& stream, int indent) const
 
 node* node_op_assign::on_child_added(node* n)
 {
-	const auto var = dynamic_cast<node_var*>(n);
-	if (var)
+	const auto link = dynamic_cast<node_link*>(n);
+	if (link && !link->is_broken())
 	{
-		_variable = var;
+		_variable = dynamic_cast<node_var*>(link->get_node());
 		return n;
 	}
 
@@ -48,7 +47,8 @@ node* node_op_assign::on_child_added(node* n)
 
 void node_op_assign::on_child_removed(node* n)
 {
-	if (n == _variable)
+	const auto link = dynamic_cast<node_link*>(n);
+	if (link && link->get_node() == _variable)
 	{
 		_variable = nullptr;
 		return;
@@ -61,28 +61,4 @@ void node_op_assign::on_child_removed(node* n)
 	}
 
 	node::on_child_removed(n);
-}
-
-bool node_op_assign::resolve(const recursion_detector* rd)
-{
-	if (!node::resolve(rd))
-		return false;
-
-	if (_variable == nullptr)
-	{
-		// assume that
-		const auto ref = dynamic_cast<node_ref*>(get_child(0));
-		if (ref == nullptr)
-			throw expected_child_node(get_source_code(), "node_ref");
-	}
-
-	return true;
-}
-
-void node_op_assign::on_parent_node(node* p)
-{
-	if (_expression == nullptr)
-		throw expected_child_node(get_source_code(), "node_op");
-
-	node::on_parent_node(p);
 }

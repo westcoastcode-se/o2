@@ -54,6 +54,9 @@ void node_ref::debug(std::basic_ostream<char>& stream, int indent) const
 			case node_ref::primitive:
 				stream << "primitive";
 				break;
+			case node_ref::const_:
+				stream << "const";
+				break;
 			}
 		}
 	}

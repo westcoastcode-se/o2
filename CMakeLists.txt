@@ -3,8 +3,9 @@ project("o2")
 set(CMAKE_CXX_STANDARD 20)
 
 option(O2_MEMORY_TRACKING "should memory tracking be enabled or not" OFF)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /EHsc /D_CRT_SECURE_NO_WARNINGS")
 if (O2_MEMORY_TRACKING)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DO2_MEMORY_TRACKING")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DO2_MEMORY_TRACKING")
 endif ()
 
 # Add source to this project's executable.
@@ -52,10 +53,11 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/parser_state.cpp"
         "src/parser/recursion_detector.cpp"
         "src/parser/resolver.cpp"
-        src/tests/const/const.cpp
-        src/parser/types/node_type_implicit.cpp
-        src/parser/operations/node_op_assign.cpp
-        src/parser/variables/node_var_const.cpp
+        "src/tests/const/const.cpp"
+        "src/parser/types/node_type_implicit.cpp"
+        "src/parser/operations/node_op_assign.cpp"
+        "src/parser/node_link.cpp"
+        "src/parser/variables/node_var_const.cpp"
 )
 
 # Test

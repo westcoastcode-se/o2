@@ -10,11 +10,15 @@
 
 namespace o2
 {
+	class node_type_implicit;
+
 	/**
 	 * \brief a node that represents the assignment operator
 	 *
-	 * this node requires two things, first a reference to the variable we are assigning
-	 * and secondly the value we want the variable to become
+	 * This node requires two things, first a reference to the variable we are assigning
+	 * and secondly the expression we are assigning.
+	 *
+	 * The reference can be a node_ref or a node_link
 	 */
 	class node_op_assign
 			: public node_op
@@ -52,11 +56,7 @@ namespace o2
 
 		void on_child_removed(node* n) final;
 
-		void on_parent_node(node* p) final;
-
 		void debug(std::basic_ostream<char>& stream, int indent) const final;
-
-		bool resolve(const recursion_detector* rd) final;
 
 #pragma endregion
 

@@ -4,7 +4,8 @@
 //
 
 #include "node_type_implicit.h"
-#include "../operations/node_op.h"
+#include "../node_link.h"
+#include "../operations/node_op_assign.h"
 
 using namespace o2;
 
@@ -41,15 +42,29 @@ void node_type_implicit::debug(std::basic_ostream<char>& stream, int indent) con
 
 bool node_type_implicit::resolve(const recursion_detector* rd)
 {
+	if (_type == this)
+	{
+		const auto link = dynamic_cast<node_link*>(get_child(0));
+		if (link == nullptr)
+			throw expected_child_node(get_source_code(), "node_link");
+		if (link->is_broken())
+			throw expected_child_node(get_source_code(), "node_link->node_op");
+		const auto op = dynamic_cast<node_op*>(link->get_node());
+		if (op == nullptr)
+			throw unexpected_child_node(get_source_code(), "node_link->node_op");
+
+		const recursion_detector rd1(rd, this);
+		if (!op->resolve(&rd1))
+			return false;
+		const auto type = op->get_type();
+		if (type == nullptr)
+			throw resolve_error_unresolved_reference(get_source_code());
+		_type = type->get_type();
+		if (_type == nullptr)
+			return false;
+	}
+
 	if (!node::resolve(rd))
-		return false;
-
-	auto op = dynamic_cast<node_op*>(get_child(0));
-	if (op)
-		_type = op->get_type();
-
-	_type = _type->get_type();
-	if (_type == nullptr)
 		return false;
 	return true;
 }

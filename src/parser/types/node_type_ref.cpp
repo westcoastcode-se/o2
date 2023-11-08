@@ -51,8 +51,9 @@ bool node_type_ref::resolve(const recursion_detector* rd)
 	{
 		auto ref = dynamic_cast<node_ref*>(get_child(0));
 		if (ref == nullptr)
-			throw std::runtime_error("expected node_type_ref child-node to be a node_ref");
-		if (!ref->resolve(rd))
+			throw expected_child_node(get_source_code(), "node_ref");
+		const recursion_detector rd0(rd, this);
+		if (!ref->resolve(&rd0))
 			return false;
 		const auto results = ref->get_result();
 		if (results.size() > 1)

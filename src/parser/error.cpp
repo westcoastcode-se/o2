@@ -123,19 +123,19 @@ error_named_symbol_already_declared::error_named_symbol_already_declared(const s
 	set(s.str());
 }
 
-expected_child_node::expected_child_node(const source_code_view& view, const char* extra)
+expected_child_node::expected_child_node(const source_code_view& view, const char* expected_nodes)
 		: structure_error(error_types::expected_child_node, view)
 {
 	std::stringstream s;
-	s << "node doesn't have the necessary child nodes: " << extra;
+	s << "node doesn't have the necessary child nodes: " << expected_nodes;
 	set(s.str());
 }
 
-unexpected_child_node::unexpected_child_node(const source_code_view& view, const char* extra)
+unexpected_child_node::unexpected_child_node(const source_code_view& view, const char* expected_nodes)
 		: structure_error(error_types::unexpected_child_node, view)
 {
 	std::stringstream s;
-	s << "node have a child node that's not allowed: " << extra;
+	s << "node expected child node of type " << expected_nodes << " but wasn't";
 	set(s.str());
 }
 

@@ -13,6 +13,8 @@
 #include "operations/node_op_return.h"
 #include "module/module.h"
 #include "types/node_type_implicit.h"
+#include "operations/node_op_assign.h"
+#include "node_link.h"
 #include "variables/node_var_const.h"
 
 using namespace o2;
@@ -113,6 +115,8 @@ namespace
 
 	node_op* parse_op_compare(const parser_scope* ps);
 
+	node_op* parse_op_assign(const parser_scope* ps);
+
 	node_op* parse_op_unary(const parser_scope* ps, token_type tt, parse_op_fn right_fn);
 
 	node_op* parse_op_binop(const parser_scope* ps, array_view<token_type> tokens,
@@ -132,7 +136,7 @@ namespace
 		case token_type::parant_left:
 			t->next();
 			{
-				const auto node = parse_op_compare(ps);
+				const auto node = parse_op_assign(ps);
 				auto guard = memory_guard(node);
 				if (t->type() != token_type::parant_right)
 					throw error_syntax_error(ps->get_view(), t, "expected ')'");
@@ -243,6 +247,21 @@ namespace
 		return parse_op_binop(ps, PARSE_COMPARE_TOKENS, parse_op_expression, parse_op_expression);
 	}
 
+	node_op* parse_op_assign(const parser_scope* ps)
+	{
+		const auto t = ps->t;
+		if (t->type() == token_type::assign)
+		{
+			const auto assign = o2_new node_op_assign(ps->get_view());
+			auto guard = memory_guard(assign);
+			t->next_until_not(token_type::comment);
+			const parser_scope ps0(ps, assign);
+			assign->add_child(parse_op_assign(&ps0));
+			return guard.done();
+		}
+		return parse_op_compare(ps);
+	}
+
 	node* parse_op(const parser_scope* ps)
 	{
 		const auto t = ps->t;
@@ -288,7 +307,7 @@ namespace
 			throw error_syntax_error(ps->get_view(), t, "expected '}'");
 		}
 
-		return parse_op_compare(ps);
+		return parse_op_assign(ps);
 	}
 
 	/**
@@ -342,7 +361,7 @@ namespace
 
 		auto arr = memory_guard(o2_new node_type_array(ps->get_view()));
 		t->next();
-		const auto op = parse_op_compare(ps);
+		const auto op = parse_op_assign(ps);
 		arr->add_child(op);
 
 		if (ps->t->type() != token_type::square_right)
@@ -432,7 +451,7 @@ namespace
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto var = o2_new node_var(ps->get_view(), t->value());
+		const auto var = o2_new node_var(ps->get_view(), t->value(), 0);
 		auto guard = memory_guard(var);
 		t->next();
 		var->add_child(parse_arg_type(ps));
@@ -548,6 +567,10 @@ namespace
 
 	node* parse_named_constant(const parser_scope* ps)
 	{
+		// constants must have one of the following syntax
+		// const <name> = <expr>
+		// const <name> <type> = <expr>
+
 		const auto t = ps->t;
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
@@ -557,21 +580,29 @@ namespace
 		const parser_scope ps1(ps, var);
 		if (t->next() == token_type::identity)
 		{
-			// const NAME <type>
+			// const <name> <type> = <expr>
 			var->add_child(parse_arg_type(&ps1));
 			if (t->type() != token_type::assign)
-				throw new error_syntax_error(ps1.get_view(), t, "expected '='");
-			t->next();
-			var->add_child(parse_op(&ps1));
+				throw error_syntax_error(ps1.get_view(), t, "expected '='");
+			t->next_until_not(token_type::comment);
+			var->add_child(parse_op_compare(&ps1));
 		}
 		else
 		{
+			// const <name> = <expr>
 			const auto implicit = o2_new node_type_implicit(ps1.get_view());
 			var->add_child(implicit);
+
 			if (t->type() != token_type::assign)
-				throw new error_syntax_error(ps1.get_view(), t, "expected '='");
-			t->next();
-			implicit->add_child(parse_op(&ps1));
+				throw error_syntax_error(ps1.get_view(), t, "expected '='");
+			t->next_until_not(token_type::comment);
+
+			// create a link that can be used between the implicit_type and the expression
+			const auto link = o2_new node_link(ps->get_view());
+			implicit->add_child(link);
+			const auto op = parse_op_compare(&ps1);
+			op->add_child(link->new_link());
+			var->add_child(op);
 			ps->state->add_resolve_size(implicit);
 		}
 

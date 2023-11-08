@@ -10,7 +10,21 @@
 namespace o2
 {
 	/**
-	 * \brief a type that is resolved by it's children
+	 * \brief a type that is resolved by a child node_op
+	 *
+	 * the implicit type is used in the following use-cases:
+	 * - const <name> = <expr>
+	 * - var <name> = <expr>
+	 * - var <name1>,<name2> = <expr>, <expr>
+	 * - <name> := <expr>
+	 * - <name1>,<name2> := <expr>, <expr>
+	 * - func <name>() -> <expr>
+	 * - const func <name>() -> <expr>
+	 *
+	 * implicit types must have a child node that associates itself with
+	 * an operation node that has a real type.
+	 *
+	 *
 	 */
 	class node_type_implicit
 			: public node_type

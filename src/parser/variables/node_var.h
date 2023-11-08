@@ -11,13 +11,18 @@
 namespace o2
 {
 	/**
-	 * \brief a variable with a scope-unique name
+	 * \brief base class for variables
 	 */
 	class node_var
 			: public node_symbol
 	{
 	public:
-		node_var(const source_code_view& view, string_view name);
+		enum modifier
+		{
+			modifier_const = 1 << 0
+		};
+
+		node_var(const source_code_view& view, string_view name, int modifiers);
 
 		/**
 		 * \return the name of the variable
@@ -25,6 +30,22 @@ namespace o2
 		string_view get_name() const
 		{
 			return _name;
+		}
+
+		/**
+		 * \return modifiers applied to this variable
+		 */
+		int get_modifiers() const
+		{
+			return _modifiers;
+		}
+
+		/**
+		 * \return true if this variable a const variable
+		 */
+		bool is_const() const
+		{
+			return bit_isset(_modifiers, modifier_const);
 		}
 
 		/**
@@ -37,16 +58,19 @@ namespace o2
 
 #pragma region node
 
-		void debug(std::basic_ostream<char>& stream, int indent) const final;
+		void debug(std::basic_ostream<char>& stream, int indent) const override;
 
-		node* on_child_added(node* n) final;
+		node* on_child_added(node* n) override;
 
-		void on_child_removed(node* n) final;
+		void on_child_removed(node* n) override;
+
+		void on_parent_node(node* p) final;
 
 #pragma endregion
 
 	protected:
 		const string_view _name;
+		const int _modifiers;
 		node_type* _type;
 	};
 }

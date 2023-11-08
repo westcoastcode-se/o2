@@ -107,7 +107,7 @@ namespace o2
         semicolon /* ; */,
         attribute /* @??? */,
         assign /* = */,
-        separator /* :: */,
+		decl_assign /* := */,
         not_ /* ! */,
         plus /* + */,
         minus /* - */,
