@@ -710,17 +710,21 @@ token_type token::hint_keyword_type() const
 	}
 	else if (len == 4)
 	{
+		static const string_view THIS("this");
 		static const string_view FUNC("func");
 		static const string_view TYPE("type");
 		static const string_view ELSE("else");
 		static const string_view CAST("cast");
 		static const string_view TRUE_("true");
+		static const string_view BASE("base");
 
+		if (str == THIS) return token_type::this_;
 		if (str == FUNC) return token_type::func;
 		if (str == TYPE) return token_type::type;
 		if (str == ELSE) return token_type::else_;
 		if (str == CAST) return token_type::cast;
 		if (str == TRUE_) return token_type::boolean;
+		if (str == BASE) return token_type::base;
 	}
 	else if (len == 5)
 	{

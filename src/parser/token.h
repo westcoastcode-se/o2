@@ -54,6 +54,8 @@ namespace o2
         return_ /* return */,
 		struct_ /* struct */,
 		as /* as */,
+		this_ /* this */,
+		base /* base */ ,
         keyword_end,
 
         storage_class_start,

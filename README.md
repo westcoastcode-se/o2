@@ -179,7 +179,7 @@ Then you can
 ### Struct
 
 - [x] `type` structs without inheritance
-- [ ] require the use of `var` for local variables
+- [x] require the use of `var` for local variables
 - [ ] add `static` scope for static variables and functions
 - [ ] structs with inheritance
 - [ ] `constructor` definition
@@ -285,8 +285,8 @@ using the syntax: `<type>.<function name>()` - accessibility keywords apply norm
 allowed to read `static` data and has to be put inside a `static` scope
 
 You can also have `method` functions. Method functions are functions that's put directly inside the type scope. A
-`method` function have a `this` pointer and a `base` pointer available inside the scope of the function. 
-You have to use `this` to access data that's available inside memory of the type. 
+`method` function have a `this` pointer and a `base` pointer available inside the scope of the function.
+You have to use `this` to access data that's available inside memory of the type.
 You can rename how you access `this` by adding a `this` argument (see example below).
 
 Consider the following:
@@ -318,7 +318,7 @@ type User {
         var five = 5
         
         func Get5() int {
-            return five
+            return User.five
         }    
     }
 }
@@ -342,7 +342,7 @@ Hello o2
 Value is 5
 ```
 
-If you want to call a method of the same type 
+If you want to call a method of the same type
 
 ### Virtual method functions
 
@@ -383,7 +383,7 @@ type AnimatedComponent : Component {
 
 - [ ] add support for anonymous functions using `f := func (){}` syntax
 - [ ] add support for returning function pointers and anonymous functions
-  - suggestions: `func GetFunc() Func<(int) string>`
+    - suggestions: `func GetFunc() Func<(int) string>`
 
 ## Interface
 
@@ -420,7 +420,7 @@ override func WebService.Call(w this, name string) {
 - [ ] automatically create scope if no scope is provided
 - [ ] allow for specifying scope manually for some use-cases
 - [ ] add support for returning lambda expressions
-  - suggestion: `func GetLambda() Lambda<(int)bool>`
+    - suggestion: `func GetLambda() Lambda<(int)bool>`
 
 ## Trait
 
