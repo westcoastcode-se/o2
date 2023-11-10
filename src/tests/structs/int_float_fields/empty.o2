@@ -1,6 +1,6 @@
 type empty {
-    first int
+    var /*comment*/ first int
 
     // comment
-    second float32
+    var second float32
 }

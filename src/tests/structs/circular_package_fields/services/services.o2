@@ -1,7 +1,7 @@
 import "westcoastcode.se/tests/models"
 
 type s1 {
-    f m1
+    var f m1
 }
 
 type s2 {

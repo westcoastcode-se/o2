@@ -1,3 +1,3 @@
 type empty {
-    first int
+    var first int
 }

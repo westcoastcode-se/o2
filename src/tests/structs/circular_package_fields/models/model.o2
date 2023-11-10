@@ -1,5 +1,5 @@
 import "westcoastcode.se/tests/services"
 
 type m1 {
-    f s2
+    var f s2
 }

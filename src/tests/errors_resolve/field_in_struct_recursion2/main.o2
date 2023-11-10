@@ -1,6 +1,6 @@
 type List {
-    head Node
+    var head Node
 }
 type Node {
-    list List
+    var list List
 }

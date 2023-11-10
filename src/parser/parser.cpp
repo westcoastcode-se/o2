@@ -676,7 +676,7 @@ namespace
 		// type <name> {\n}
 
 		const auto t = ps->t;
-		if (t->next() != token_type::identity)
+		if (t->next_until_not(token_type::comment) != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
 		const auto identity = t->value();
@@ -709,18 +709,23 @@ namespace
 		}
 		else if (t->type() == token_type::bracket_left)
 		{
+			// types can have the following keywords:
+			// var - variables
+			// func - methods
+			// static - static scope for static variables and functions
+
 			// types have fields, functions etc.
 			auto fields = o2_new node_type_struct_fields(type->get_source_code());
 			type->add_child(fields);
 
-			// TODO Add container for functions? or should fields be put directly under the type node
-
+			// Seek the first token
 			while (t->next_until_not(token_type::newline, token_type::comment) != token_type::bracket_right)
 			{
 				switch (t->type())
 				{
-				case token_type::identity:
+				case token_type::var:
 				{
+					t->next_until_not(token_type::comment);
 					const parser_scope ps1(&ps0, fields);
 					fields->add_child(parse_type_field(&ps1));
 					continue;
@@ -731,12 +736,14 @@ namespace
 					type->add_child(parse_type(&ps1));
 					continue;
 				}
-				case token_type::eof:
+				case token_type::func:
+					throw error_not_implemented(ps->get_view(), "method functions");
+				case token_type::static_:
+					throw error_not_implemented(ps->get_view(), "static scope");
 				default:
-					goto type_brackets_done;
+					throw error_syntax_error(ps->get_view(), t, "expected 'var', 'type', 'func' or 'static'");
 				}
 			}
-		type_brackets_done:
 			t->next();
 		}
 		else if (t->type() == token_type::eof)

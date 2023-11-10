@@ -1,5 +1,5 @@
 import "westcoastcode.se/tests/models" as models
 
 type empty {
-    f models.empty
+    var f models.empty
 }

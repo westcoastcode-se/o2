@@ -2,15 +2,18 @@
 
 ## Table of content
 
-1. [Why](#Why)
-2. [Primitives](#Primitives)
-3. [Modules](#Modules)
-4. [Type](#Type)
-5. [Const](#Const)
-6. [Func](#Func)
-7. [Trait](#Trait)
-8. [Macro](#Macro)
-9. [License](LICENSE.txt)
+1. [License](LICENSE.txt)
+2. [Why](#Why)
+3. [Primitives](#Primitives)
+4. [Modules](#Modules)
+5. [Type](#Type)
+6. [Const](#Const)
+7. [Func](#Func)
+8. [Interface](#Interface)
+9. [Lambda](#Lambda)
+10. [Trait](#Trait)
+11. [Macro](#Macro)
+12. [Attribute](#Attribute)
 
 ## Why?
 
@@ -135,6 +138,9 @@ Then if you import `mydomain.io/mymodule/models` then all files in the `models` 
 - [ ] resolve references when a package's imports are all resolved
     - should be possible to do in parallel parsing source code since we know, for sure, that a reference
       can only be resolved into something that's imported
+    - if we allow for resolving references during parse phase, how would pre-compile annotation driven
+      syntax tree manipulation work? Or should we only allow for post-resolve processing?
+    -
 
 You import a package with the syntax: `import "mymodule.io/module/package"`. You can also specify an alias for your
 import using the format `import "<path>" as alias_name`.
@@ -145,8 +151,10 @@ import using the format `import "<path>" as alias_name`.
 - [x] implicit type deduction for constants
 - [ ] implicit type deduction for variables
 - [ ] implicit types deducted from constants can be automatically resolved during parse phase
-  - `var name = 10` is always known to be an `int32`
+    - `var name = 10` is always known to be an `int32`
 - [ ] inheritance
+- [ ] lookup of inherited symbols must be done with "closest" first
+    - search one level at a time, beginning from the left of the inheritance list
 
 ### Typedef
 
@@ -171,7 +179,13 @@ Then you can
 ### Struct
 
 - [x] `type` structs without inheritance
+- [ ] require the use of `var` for local variables
+- [ ] add `static` scope for static variables and functions
 - [ ] structs with inheritance
+- [ ] `constructor` definition
+- [ ] `destructor` definition
+- [ ] `move` definition
+- [ ] default non-args and all-args `constructor` if no constructor added in definition
 
 ### Enum
 
@@ -215,15 +229,198 @@ const func MyFunc() int {
 ## Func
 
 - [x] simple `func` function definitions
+- [ ] `extern` function definitions
+    - use attribute to specify exactly how an `extern` static and/or dynamically linked dependency
+      handles arguments and return values
+    - `extern` should only be used for statically link with c libraries or dynamically link
+      with c, c++ and o2 libraries
 - [ ] `const` functions that can be compile-time evaluated
 - [ ] consider functions with implicit return type based on `return` statement
-  - common syntax from other languages would be: `func Pow2(value int) -> value * value`
+    - common syntax from other languages would be: `func Pow2(value int) -> value * value`
 - [ ] add support for local `var` statements
 - [ ] add support for short-hand `decl_assign` statement for creating one or more variables
 - [ ] add support for multiple `var` statements using the `,` delimiter
-  - example: `var i,j = 0,1`
+    - example: `var i,j = 0,1`
 - [ ] add support for multiple `decl_assign` statements using the `,` delimiter
     - example: `i,j := 0,1`
+- [ ] add access privileges for functions: `module` (default), `public`, `private`
+    - a function marked with the `module` accessor should only be accessible from within the same module
+    - a function marked with the `public` accessor should only be accessible from everywhere
+    - a function marked with the `private` accessor should only be accessible from within the package
+
+### Package level function
+
+- [x] add `global` level functions at package level
+- [ ] add `global` level functions at function level
+- [ ] add support for `variadic` arguments
+- [ ] add support for optional arguments
+    - allow for a syntax like `MyFunc(10, ArgWithName=5)` if you have multiple optional arguments
+
+You can add functions at the package level. This type of function is called a `global` function.
+
+Consider the following:
+
+```
+func Get10() int {
+    return 10
+}
+```
+
+The example above creates a `global` function called `Get10` that returns the value `10` as an `int` primitive
+
+### Type level functions
+
+- [ ] add `static` functions at type level
+- [ ] add `method` level functions at type level
+- [ ] older languages differ between pointer accessors and non-pointer accessors using `->` and `.`
+    - can't we always use `.`? IfWhen is it appropriate to use `.` on a pointer
+- [ ] add access privileges for functions: `module` (default), `public`, `private`
+    - a function marked with the `module` accessor should only be accessible from within the same module
+    - a function marked with the `public` accessor should only be accessible from everywhere
+    - a function marked with the `private` accessor should only be accessible from within the package
+
+You can have two different types of functions on the type level. The first one is `static` functions.
+`static` functions do not require a pointer to a memory block in which the type resides. You can access it
+using the syntax: `<type>.<function name>()` - accessibility keywords apply normally. A `static` function is only
+allowed to read `static` data and has to be put inside a `static` scope
+
+You can also have `method` functions. Method functions are functions that's put directly inside the type scope. A
+`method` function have a `this` pointer and a `base` pointer available inside the scope of the function. 
+You have to use `this` to access data that's available inside memory of the type. 
+You can rename how you access `this` by adding a `this` argument (see example below).
+
+Consider the following:
+
+```
+import "stdio"
+
+type User {
+    var name string
+    
+    func new(name string) {
+        this.name = name
+    }
+    
+    func delete() {
+        // do something
+    }
+    
+    private innerGetName() string {
+        return this.name
+    }
+        
+    // alternate name for the this pointer calling another method in this type
+    func GetName(u this) string {
+        return u.innerGetName()
+    }
+    
+    static {
+        var five = 5
+        
+        func Get5() int {
+            return five
+        }    
+    }
+}
+
+func main() {
+    user := User("o2")
+    
+    Printf(`Hello ${user.GetName()}\n`)
+    Printf(`Value is ${User.Get5()}`)
+}
+```
+
+The `Get5` function is a static function and is available without a `User` instance. It does not have
+access to the type's internal memory. If you mark the first argument as `this` then that function will be turned
+into a `method` function.
+
+The example itself will have the output:
+
+```
+Hello o2
+Value is 5
+```
+
+If you want to call a method of the same type 
+
+### Virtual method functions
+
+- [ ] add `virtual`, `abstract`, `override` and `final` prefix for functions
+- [ ] add `vtable` for function calls when using inheritence
+- [ ] add support for preventing overriding `final` functions
+- [ ]
+
+Consider the following:
+
+```
+type Component {
+    virtual func Init() bool {
+        return true
+    }
+    
+    abstract func Update(dt float32) string
+}
+
+type AnimatedComponent : Component {
+    skeleton *Skeleton
+    
+    final func Init() bool {
+        if (!base.Init()) {
+            return false
+        }
+        // do something
+        return true
+    }
+    
+    override func Update(dt float32) {
+        this.skeleton.Animate(dt)
+    }
+}
+```
+
+### Anonymous functions
+
+- [ ] add support for anonymous functions using `f := func (){}` syntax
+- [ ] add support for returning function pointers and anonymous functions
+  - suggestions: `func GetFunc() Func<(int) string>`
+
+## Interface
+
+- [ ] add support for `interface` symbol
+
+Consider the following:
+
+```
+interface Service {
+    func Call(name string)
+}
+```
+
+The `Service` is an interface. We know this because of the `interface` keyword.
+
+The content of an `interface` can only be virtual `method` functions, thus all functions are automatically
+marked as `virtual` with a `this` argument.
+
+Interface can be inherited using the type inheritance syntax. With the given example above
+then well allowed to do:
+
+```
+type WebService : Service {
+}
+
+override func WebService.Call(w this, name string) {
+    // Do something
+}
+```
+
+## Lambda
+
+- [ ] add support for anonymous function with scope using `l := lambda (){}`
+- [ ] automatically create scope if no scope is provided
+- [ ] allow for specifying scope manually for some use-cases
+- [ ] add support for returning lambda expressions
+  - suggestion: `func GetLambda() Lambda<(int)bool>`
 
 ## Trait
 
@@ -322,7 +519,12 @@ Will turn into:
 const stringified string = "value is 20"
 ```
 
-###       
+## Attribute
+
+- [ ] add support for the `@Attribute` syntax for functions
+- [ ] add support for the `@Attribute` syntax for arguments
+- [ ] add support for the `@Attribute` syntax for global variables
+- [ ] consider adding support for the `@Attribute` syntax for local variables
 
 ## Features
 
@@ -354,16 +556,12 @@ const stringified string = "value is 20"
 - [ ] `yield` stream statement in function
 - [ ] `async` and `await` suspension statements
     - should be triggered by interupts from drivers (sockets, io, ...)
-- [ ] compile-time `extern` functions linkage
-- [ ] runtime `extern` functions linkage
-    - if called and not linked then `panic`
 - [ ] types in `extern` libraries that use inheritance
     - expose vtable
 - [ ] `panic` statements
 - [ ] full multi-threaded support
     - [x] multi-thread friendly source code parse
     - [ ] allow for multi-threaded resolve (maybe)
-- [ ] argument name specification using `call(name_arg = "test")`
 - [ ] code complexity analyser and reporting
     - will be needed anyways for the optimizer to be good
 
