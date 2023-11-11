@@ -801,21 +801,21 @@ namespace
 			{
 			case token_type::var:
 			{
-				if (static_->get_fields() == nullptr)
+				if (static_->get_vars() == nullptr)
 				{
-					const auto fields = o2_new node_type_struct_static::fields(static_->get_source_code());
-					static_->add_child(fields);
+					const auto vars = o2_new node_type_struct_static_vars(static_->get_source_code());
+					static_->add_child(vars);
 				}
 				t->next_until_not(token_type::comment);
-				const parser_scope ps1(ps, static_->get_fields());
-				static_->get_fields()->add_child(parse_type_field(&ps1));
+				const parser_scope ps1(ps, static_->get_vars());
+				static_->get_vars()->add_child(parse_type_field(&ps1));
 				continue;
 			}
 			case token_type::func:
 			{
 				if (static_->get_funcs() == nullptr)
 				{
-					const auto funcs = o2_new node_type_struct_static::funcs(static_->get_source_code());
+					const auto funcs = o2_new node_type_struct_static_funcs(static_->get_source_code());
 					static_->add_child(funcs);
 				}
 				const parser_scope ps1(ps, static_->get_funcs());

@@ -260,7 +260,7 @@ void structs()
 			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 1);
 
-			const auto fields = assert_type<node_type_struct_static::fields>(type_S_static->get_child(0));
+			const auto fields = assert_type<node_type_struct_static_vars>(type_S_static->get_child(0));
 			assert_equals(fields->get_children().size(), 1);
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "I");
@@ -283,7 +283,7 @@ void structs()
 			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 1);
 
-			const auto fields = assert_type<node_type_struct_static::fields>(type_S_static->get_child(0));
+			const auto fields = assert_type<node_type_struct_static_vars>(type_S_static->get_child(0));
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "I");
 			assert_equals(field1->get_field_type(), root->get_child(7));
@@ -312,7 +312,7 @@ void structs()
 			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 1);
 
-			const auto type_S_static_funcs = assert_type<node_type_struct_static::funcs>(type_S_static->get_child(0));
+			const auto type_S_static_funcs = assert_type<node_type_struct_static_funcs>(type_S_static->get_child(0));
 			const auto func_M = assert_type<node_func>(type_S_static_funcs->get_child(0));
 			assert_equals(func_M->get_name(), "F");
 			assert_not_null(func_M->get_body());
