@@ -17,7 +17,7 @@ namespace o2
 	class node_func_method
 			: public node_func
 	{
-	private:
+	public:
 		node_func_method(const source_code_view& view, string_view name)
 				: node_func(view, name), _this()
 		{

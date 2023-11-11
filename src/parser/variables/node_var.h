@@ -19,7 +19,8 @@ namespace o2
 	public:
 		enum modifier
 		{
-			modifier_const = 1 << 0
+			modifier_const = 1 << 0,
+			modifier_readonly = 1 << 1
 		};
 
 		node_var(const source_code_view& view, string_view name, int modifiers);

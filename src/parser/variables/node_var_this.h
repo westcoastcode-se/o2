@@ -16,25 +16,17 @@ namespace o2
 			: public node_var
 	{
 	public:
-		node_var_this(const source_code_view& view, string_view name, int modifiers)
-				: node_var(view, name, modifiers)
+		node_var_this(const source_code_view& view, string_view name, node_type* type)
+				: node_var(view, name, modifier_readonly)
 		{
+			_type = type;
 		}
 
-		node_var_this(const source_code_view& view, string_view name, int modifiers, string_view this_name)
-				: node_var(view, name, modifiers), _this_name(this_name)
-		{
-		}
+#pragma region node
 
-		/**
-		 * \return the name for the "this" variable
-		 */
-		string_view get_this_name() const
-		{
-			return _this_name;
-		}
+		void debug(std::basic_ostream<char>& stream, int indent) const final;
 
-	private:
-		string_view _this_name;
+#pragma endregion
+
 	};
 }

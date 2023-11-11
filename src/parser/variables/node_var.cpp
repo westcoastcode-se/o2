@@ -17,7 +17,12 @@ node_var::node_var(const source_code_view& view, string_view name, int modifiers
 void node_var::debug(std::basic_ostream<char>& stream, int indent) const
 {
 	stream << this << in(indent);
-	stream << "var(name=" << _name << ")" << std::endl;
+	stream << "var(name=" << _name << ",type=" << _type;
+	if (bit_isset(_modifiers, modifier_readonly))
+		stream << ",readonly";
+	if (bit_isset(_modifiers, modifier_const))
+		stream << ",const";
+	stream << ")" << std::endl;
 	node_symbol::debug(stream, indent);
 }
 

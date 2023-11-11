@@ -79,7 +79,7 @@ error_not_implemented::error_not_implemented(source_code_view view, const char* 
 		: parse_error(error_types::not_implemented, view)
 {
 	std::stringstream s;
-	s << message << " is not implemented yet";
+	s << message << " are not implemented yet";
 	set(s.str());
 }
 

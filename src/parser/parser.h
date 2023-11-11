@@ -10,6 +10,7 @@
 #include "functions/node_func_const.h"
 #include "functions/node_func_method.h"
 #include "functions/node_func_body.h"
+#include "variables/node_var_this.h"
 #include "node_import.h"
 #include "node_ref.h"
 #include "types/node_type_accessor.h"

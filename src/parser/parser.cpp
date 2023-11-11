@@ -464,6 +464,19 @@ namespace
 		return guard.done();
 	}
 
+	void parse_func_returns(const parser_scope* ps, node_func* func)
+	{
+		const auto returns = o2_new node_func_returns(ps->get_view());
+		func->add_child(returns);
+
+		const auto t = ps->t;
+		if (t->type() != token_type::bracket_left && t->type() != token_type::newline)
+		{
+			const parser_scope ps0(ps, returns);
+			returns->add_child(parse_type_ref(&ps0));
+		}
+	}
+
 	node_func* parse_func0(const parser_scope* ps)
 	{
 		const auto t = ps->t;
@@ -510,14 +523,7 @@ namespace
 		}
 		t->next();
 
-		const auto returns = o2_new node_func_returns(ps->get_view());
-		func->add_child(returns);
-
-		if (t->type() != token_type::bracket_left && t->type() != token_type::newline)
-		{
-			const parser_scope ps0(ps, returns);
-			returns->add_child(parse_type_ref(&ps0));
-		}
+		parse_func_returns(ps, func);
 		return guard.done();
 	}
 
@@ -597,20 +603,97 @@ namespace
 		}
 		t->next();
 
-		const auto returns = o2_new node_func_returns(ps->get_view());
-		func->add_child(returns);
-
-		if (t->type() != token_type::bracket_left || t->type() != token_type::newline)
-		{
-			const parser_scope ps0(ps, returns);
-			returns->add_child(parse_type_ref(&ps0));
-		}
+		parse_func_returns(ps, func);
 		return guard.done();
 	}
 
 	node_func_const* parse_func_const(const parser_scope* ps)
 	{
 		const auto func = parse_func_const0(ps);
+		auto guard = memory_guard(func);
+
+		// this function definition have a body
+		const auto t = ps->t;
+		if (t->type() == token_type::bracket_left)
+		{
+			const parser_scope ps0(ps, func);
+			func->add_child(parse_func_body(&ps0));
+		}
+
+		return guard.done();
+	}
+
+	node_func_method* parse_func_method0(const parser_scope* ps)
+	{
+		const auto t = ps->t;
+		auto tt = t->next();
+		if (tt != token_type::identity)
+			throw error_expected_identity(ps->get_view(), t);
+
+		const auto func = o2_new node_func_method(ps->get_view(), t->value());
+		auto guard = memory_guard(func);
+
+		tt = t->next();
+		if (tt == token_type::test_gt)
+			throw error_not_implemented(ps->get_view(), "macros not supported yet");
+		if (tt != token_type::parant_left)
+			throw error_syntax_error(ps->get_view(), t, "expected '('");
+
+		// parse arguments:
+		// syntax: name type[, name type, ...]
+		const auto arguments = o2_new node_func_arguments(ps->get_view());
+		func->add_child(arguments);
+		tt = t->next();
+
+		if (tt == token_type::parant_right)
+		{
+			// automatically add the this argument
+			const auto this_var = o2_new node_var_this(ps->get_view(), "this", ps->type);
+			arguments->add_child(this_var);
+		}
+		else
+		{
+			// first argument might be a this argument
+			if (t->type() == token_type::this_)
+			{
+				const auto this_var = o2_new node_var_this(ps->get_view(), "this", ps->type);
+				arguments->add_child(this_var);
+				t->next();
+			}
+			else
+			{
+				// It might still be a this argument
+				// TODO: Add support for named this arguments
+				const auto this_var = o2_new node_var_this(ps->get_view(), "this", ps->type);
+				arguments->add_child(this_var);
+			}
+
+			const parser_scope ps0(ps, arguments);
+			while (true)
+			{
+				arguments->add_child(parse_func_arg(&ps0));
+				switch (t->type())
+				{
+				case token_type::comma:
+					t->next();
+					continue;
+				case token_type::parant_right:
+					goto done;
+				default:
+					throw error_syntax_error(ps->get_view(), t, "expected ')' or ','");
+				}
+			}
+		done:;
+		}
+		t->next();
+
+		parse_func_returns(ps, func);
+		return guard.done();
+	}
+
+	node_func_method* parse_func_method(const parser_scope* ps)
+	{
+		const auto func = parse_func_method0(ps);
 		auto guard = memory_guard(func);
 
 		// this function definition have a body
@@ -807,14 +890,18 @@ namespace
 				}
 				case token_type::type:
 				{
-					const parser_scope ps1(&ps0, fields);
+					const parser_scope ps1(&ps0, type);
 					type->add_child(parse_type(&ps1));
 					continue;
 				}
 				case token_type::func:
-					throw error_not_implemented(ps->get_view(), "method functions");
+				{
+					const parser_scope ps1(&ps0, type);
+					type->add_child(parse_func_method(&ps1));
+					continue;
+				}
 				case token_type::static_:
-					throw error_not_implemented(ps->get_view(), "static scope");
+					throw error_not_implemented(ps->get_view(), "static scopes");
 				default:
 					throw error_syntax_error(ps->get_view(), t, "expected 'var', 'type', 'func' or 'static'");
 				}
