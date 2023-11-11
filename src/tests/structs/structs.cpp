@@ -205,7 +205,8 @@ void structs()
 			const auto field = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field->get_field_type(), models_m1);
 		});
-		test({ "method_void", "method_explicit_this_void", "method_explicit_void", "method_explicit_this_explicit_void" },
+		test({ "method_void", "method_explicit_this_void", "method_explicit_void",
+			   "method_explicit_this_explicit_void" },
 				ROOT_PATH, [](syntax_tree& st)
 				{
 					const auto root = st.get_root_package();
@@ -259,7 +260,7 @@ void structs()
 			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 1);
 
-			const auto fields = assert_type<node_type_struct_fields>(type_S_static->get_child(0));
+			const auto fields = assert_type<node_type_struct_static::fields>(type_S_static->get_child(0));
 			assert_equals(fields->get_children().size(), 1);
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "I");
@@ -282,7 +283,7 @@ void structs()
 			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 1);
 
-			const auto fields = assert_type<node_type_struct_fields>(type_S_static->get_child(0));
+			const auto fields = assert_type<node_type_struct_static::fields>(type_S_static->get_child(0));
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "I");
 			assert_equals(field1->get_field_type(), root->get_child(7));
@@ -296,6 +297,30 @@ void structs()
 			const auto field2_type_ref = assert_type<node_type_ref>(field2->get_child(0));
 			const auto field2_ref = assert_type<node_ref>(field2_type_ref->get_child(0));
 			assert_equals(field2_ref->get_query_text(), "float");
+		});
+		test({ "static_func_void", "static_func_explicit_void" }, ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 15);
+			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(type_S->get_name(), "S");
+			assert_equals(type_S->get_child_count(), 1);
+			assert_null(type_S->get_fields());
+			assert_null(type_S->get_methods());
+			assert_not_null(type_S->get_static());
+
+			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
+			assert_equals(type_S_static->get_child_count(), 1);
+
+			const auto type_S_static_funcs = assert_type<node_type_struct_static::funcs>(type_S_static->get_child(0));
+			const auto func_M = assert_type<node_func>(type_S_static_funcs->get_child(0));
+			assert_equals(func_M->get_name(), "F");
+			assert_not_null(func_M->get_body());
+			assert_equals(func_M, func_M->get_body()->get_def());
+			assert_not_null(func_M->get_arguments());
+			assert_equals(func_M->get_arguments()->num_arguments(), 0);
+			assert_not_null(func_M->get_returns());
+			assert_equals(func_M->get_returns()->get_children().size(), 0);
 		});
 	});
 }

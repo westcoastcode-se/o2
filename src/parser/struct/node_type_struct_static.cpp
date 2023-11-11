@@ -17,9 +17,15 @@ void node_type_struct_static::debug(std::basic_ostream<char>& stream, int indent
 
 node* node_type_struct_static::on_child_added(node* n)
 {
-	const auto fields = dynamic_cast<node_type_struct_fields*>(n);
-	if (fields != nullptr)
-		_fields = fields;
+	const auto fi = dynamic_cast<fields*>(n);
+	if (fi != nullptr)
+		_fields = fi;
+	else
+	{
+		const auto fu = dynamic_cast<funcs*>(n);
+		if (fu != nullptr)
+			_funcs = fu;
+	}
 	return n;
 }
 
@@ -27,4 +33,20 @@ void node_type_struct_static::on_child_removed(node* n)
 {
 	if (_fields == n)
 		_fields = nullptr;
+	else if (_funcs == n)
+		_funcs = nullptr;
+}
+
+void node_type_struct_static::fields::debug(std::basic_ostream<char>& stream, int indent) const
+{
+	stream << this << in(indent);
+	stream << "type_struct_static::fields()" << std::endl;
+	node::debug(stream, indent);
+}
+
+void node_type_struct_static::funcs::debug(std::basic_ostream<char>& stream, int indent) const
+{
+	stream << this << in(indent);
+	stream << "type_struct_static::funcs()" << std::endl;
+	node::debug(stream, indent);
 }

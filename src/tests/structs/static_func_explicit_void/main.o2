@@ -1,0 +1,5 @@
+type S {
+    static {
+        func F() void {}
+    }
+}
