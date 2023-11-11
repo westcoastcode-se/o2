@@ -7,7 +7,7 @@
 #include "node_package.h"
 #include "types/node_type.h"
 #include "types/node_type_primitive.h"
-#include "types/node_type_struct.h"
+#include "struct/node_type_struct.h"
 #include "node_import.h"
 
 using namespace o2;

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "node_type.h"
+#include "../types/node_type.h"
 #include "node_type_struct_field.h"
 #include "node_type_struct_methods.h"
 
