@@ -61,6 +61,9 @@ void node_func::on_parent_node(node* p)
 void node_func::debug(std::basic_ostream<char>& stream, int indent) const
 {
 	stream << this << in(indent);
-	stream << "func(name=" << _name << ",body=" << get_body() << ")" << std::endl;
+	stream << "func(name=" << _name << ",body=" << get_body();
+	if (is_const())
+		stream << ",const";
+	stream << ")" << std::endl;
 	node::debug(stream, indent);
 }

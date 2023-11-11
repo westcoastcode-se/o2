@@ -26,6 +26,8 @@ namespace o2
         hint_float,
 		// Hint that the value is considered empty, such as an identity
 		hint_empty,
+		// value is an identity but also a void
+		hint_void,
     };
 
     enum class token_type
@@ -56,6 +58,7 @@ namespace o2
 		as /* as */,
 		this_ /* this */,
 		base /* base */ ,
+		void_ /* void */,
         keyword_end,
 
         storage_class_start,

@@ -57,7 +57,7 @@ void const_()
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
-			const auto func = assert_type<node_func_const>(root->get_child(14));
+			const auto func = assert_type<node_func>(root->get_child(14));
 			assert_equals(func->get_name(), "Get5");
 			assert_not_null(func->get_body());
 			assert_equals(func, func->get_body()->get_def());

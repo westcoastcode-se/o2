@@ -717,6 +717,7 @@ token_type token::hint_keyword_type() const
 		static const string_view CAST("cast");
 		static const string_view TRUE_("true");
 		static const string_view BASE("base");
+		static const string_view VOID("void");
 
 		if (str == THIS) return token_type::this_;
 		if (str == FUNC) return token_type::func;
@@ -725,6 +726,7 @@ token_type token::hint_keyword_type() const
 		if (str == CAST) return token_type::cast;
 		if (str == TRUE_) return token_type::boolean;
 		if (str == BASE) return token_type::base;
+		if (str == VOID) return token_type::void_;
 	}
 	else if (len == 5)
 	{

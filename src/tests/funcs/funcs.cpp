@@ -14,23 +14,24 @@ void funcs()
 
 	suite("funcs", []()
 	{
-		test("args_0_return_void", ROOT_PATH, [](syntax_tree& st)
-		{
-			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+		test({ "args_0_return_void", "args_0_return_explicit_void", "args_1_void_return_void" }, ROOT_PATH,
+				[](syntax_tree& st)
+				{
+					const auto root = st.get_root_package();
+					assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<node_module>(root->get_child(13));
-			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+					const auto project_module = assert_type<node_module>(root->get_child(13));
+					assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
-			const auto func = assert_type<node_func>(root->get_child(14));
-			assert_equals(func->get_name(), "f");
-			assert_not_null(func->get_body());
-			assert_equals(func, func->get_body()->get_def());
-			assert_not_null(func->get_arguments());
-			assert_equals(func->get_arguments()->num_arguments(), 0);
-			assert_not_null(func->get_returns());
-			assert_equals(func->get_returns()->get_children().size(), 0);
-		});
+					const auto func = assert_type<node_func>(root->get_child(14));
+					assert_equals(func->get_name(), "f");
+					assert_not_null(func->get_body());
+					assert_equals(func, func->get_body()->get_def());
+					assert_not_null(func->get_arguments());
+					assert_equals(func->get_arguments()->num_arguments(), 0);
+					assert_not_null(func->get_returns());
+					assert_equals(func->get_returns()->get_children().size(), 0);
+				});
 		test("args_0_return_float", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
@@ -144,7 +145,7 @@ void funcs()
 			assert_equals(body->get_children().size(), 1);
 			assert_type<node_scope>(body->get_child(0));
 		});
-		test("inner_func", ROOT_PATH, [](syntax_tree& st)
+		test({ "inner_func", "inner_func_explicit_void" }, ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);

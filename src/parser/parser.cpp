@@ -21,13 +21,11 @@ using namespace o2;
 
 namespace
 {
-	node_func_const* parse_func_const(const parser_scope* ps);
-
 	node_func_method* parse_func_method(const parser_scope* ps);
 
 	node_func* parse_func_extern(const parser_scope* ps);
 
-	node_func* parse_func(const parser_scope* ps);
+	node_func* parse_func(const parser_scope* ps, int modifier);
 
 	node_type* parse_type(const parser_scope* ps);
 
@@ -275,7 +273,7 @@ namespace
 		{
 			if (t->type() == token_type::func)
 			{
-				return parse_func(ps);
+				return parse_func(ps, 0);
 			}
 			else if (t->type() == token_type::type)
 			{
@@ -473,8 +471,7 @@ namespace
 		if (t->type() != token_type::bracket_left && t->type() != token_type::newline)
 		{
 			// ignore void keyword
-			static const string_view VOID("void");
-			if (t->value() == VOID)
+			if (t->type() == token_type::void_)
 			{
 				t->next();
 				return;
@@ -485,7 +482,7 @@ namespace
 		}
 	}
 
-	node_func* parse_func0(const parser_scope* ps)
+	node_func* parse_func0(const parser_scope* ps, int modifiers)
 	{
 		const auto t = ps->t;
 		auto tt = t->next();
@@ -495,6 +492,10 @@ namespace
 		node_func* func;
 		if (ps->func != nullptr)
 			func = o2_new node_func(ps->get_view(), t->value(), node_func::inner_function{});
+		else if (bit_isset(modifiers, node_func::modifier_const))
+			func = o2_new node_func(ps->get_view(), t->value(), node_func::const_function{});
+		else if (bit_isset(modifiers, node_func::modifier_extern))
+			func = o2_new node_func(ps->get_view(), t->value(), node_func::extern_function{});
 		else
 			func = o2_new node_func(ps->get_view(), t->value());
 		auto guard = memory_guard(func);
@@ -509,12 +510,21 @@ namespace
 		// syntax: name type[, name type, ...]
 		const auto arguments = o2_new node_func_arguments(ps->get_view());
 		func->add_child(arguments);
-		tt = t->next();
+		tt = t->next_until_not(token_type::comment);
 		if (tt != token_type::parant_right)
 		{
 			const parser_scope ps0(ps, arguments);
 			while (true)
 			{
+				if (t->type() == token_type::void_)
+				{
+					if (t->next_until_not(token_type::comment) != token_type::parant_right)
+					{
+						throw error_syntax_error(ps->get_view(), t, "expected ')' after void keyword");
+					}
+					break;
+				}
+
 				arguments->add_child(parse_func_arg(&ps0));
 				switch (t->type())
 				{
@@ -560,74 +570,12 @@ namespace
 
 	node_func* parse_func_extern(const parser_scope* ps)
 	{
-		const auto func = parse_func0(ps);
+		const auto func = parse_func0(ps, node_func::modifier_extern);
 		auto guard = memory_guard(func);
 		// TODO should it be possible to specify a function, but then
 		//      allow it to be overridden by external library?
 		if (ps->t->type() != token_type::newline)
 			throw error_unexpected_extern_func_body(ps->get_view());
-		return guard.done();
-	}
-
-	node_func_const* parse_func_const0(const parser_scope* ps)
-	{
-		const auto t = ps->t;
-		auto tt = t->next();
-		if (tt != token_type::identity)
-			throw error_expected_identity(ps->get_view(), t);
-
-		const auto func = o2_new node_func_const(ps->get_view(), t->value());
-		auto guard = memory_guard(func);
-
-		tt = t->next();
-		if (tt == token_type::test_gt)
-			throw error_not_implemented(ps->get_view(), "macros not supported yet");
-		if (tt != token_type::parant_left)
-			throw error_syntax_error(ps->get_view(), t, "expected '('");
-
-		// parse arguments:
-		// syntax: name type[, name type, ...]
-		const auto arguments = o2_new node_func_arguments(ps->get_view());
-		func->add_child(arguments);
-		tt = t->next();
-		if (tt != token_type::parant_right)
-		{
-			const parser_scope ps0(ps, arguments);
-			while (true)
-			{
-				arguments->add_child(parse_func_arg(&ps0));
-				switch (t->type())
-				{
-				case token_type::comma:
-					t->next();
-					continue;
-				case token_type::parant_right:
-					goto done;
-				default:
-					throw error_syntax_error(ps->get_view(), t, "expected ')' or ','");
-				}
-			}
-		done:;
-		}
-		t->next();
-
-		parse_func_returns(ps, func);
-		return guard.done();
-	}
-
-	node_func_const* parse_func_const(const parser_scope* ps)
-	{
-		const auto func = parse_func_const0(ps);
-		auto guard = memory_guard(func);
-
-		// this function definition have a body
-		const auto t = ps->t;
-		if (t->type() == token_type::bracket_left)
-		{
-			const parser_scope ps0(ps, func);
-			func->add_child(parse_func_body(&ps0));
-		}
-
 		return guard.done();
 	}
 
@@ -725,9 +673,9 @@ namespace
 		return guard.done();
 	}
 
-	node_func* parse_func(const parser_scope* ps)
+	node_func* parse_func(const parser_scope* ps, int modifiers)
 	{
-		const auto func = parse_func0(ps);
+		const auto func = parse_func0(ps, modifiers);
 		auto guard = memory_guard(func);
 
 		// this function definition have a body
@@ -816,7 +764,7 @@ namespace
 		switch (t->type())
 		{
 		case token_type::func:
-			return parse_func_const(ps);
+			return parse_func(ps, node_func::modifier_const);
 		case token_type::identity:
 			return parse_named_constant(ps);
 		default:
@@ -1021,7 +969,7 @@ namespace
 				throw error_syntax_error(ps->get_view(), t,
 						"imports are only allowed at the top of the package segment");
 			case token_type::func:
-				ps->closest->add_child(parse_func(ps));
+				ps->closest->add_child(parse_func(ps, 0));
 				continue;
 			case token_type::const_:
 				ps->closest->add_child(parse_const(ps));

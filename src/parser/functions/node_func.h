@@ -21,12 +21,18 @@ namespace o2
 			: public node_symbol
 	{
 	public:
+		enum modifier
+		{
+			modifier_const = 1 << 0,
+			modifier_extern = 1 << 1,
+		};
+
 		/**
 		 * \param view information of the source code
 		 * \param name the name of the function
 		 */
 		node_func(const source_code_view& view, string_view name)
-				: node_symbol(view), _name(name), _body(), _arguments(), _returns()
+				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers()
 		{
 		}
 
@@ -40,7 +46,7 @@ namespace o2
 		 * \param name the name of the function
 		 */
 		node_func(const source_code_view& view, string_view name, inner_function)
-				: node_symbol(view), _name(name), _body(), _arguments(), _returns()
+				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers()
 		{
 			set_query_access_flags(query_access_modifier_no_siblings);
 		}
@@ -55,9 +61,38 @@ namespace o2
 		 * \param name the name of the function
 		 */
 		node_func(const source_code_view& view, string_view name, static_function)
-				: node_symbol(view), _name(name), _body(), _arguments(), _returns()
+				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers()
 		{
 			set_query_access_flags(query_access_modifier_no_siblings);
+		}
+
+		struct const_function
+		{
+		};
+
+		/**
+		 * \brief specialized constructor for const functions
+		 * \param view information of the source code
+		 * \param name the name of the function
+		 */
+		node_func(const source_code_view& view, string_view name, const_function)
+				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers(modifier_const)
+		{
+			set_query_access_flags(query_access_modifier_no_siblings);
+		}
+
+		struct extern_function
+		{
+		};
+
+		/**
+		 * \brief specialized constructor for const functions
+		 * \param view information of the source code
+		 * \param name the name of the function
+		 */
+		node_func(const source_code_view& view, string_view name, extern_function)
+				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers(modifier_extern)
+		{
 		}
 
 		/**
@@ -92,6 +127,22 @@ namespace o2
 			return _returns;
 		}
 
+		/**
+		 * \return true if this function is a constant function
+		 */
+		bool is_const() const
+		{
+			return bit_isset(_modifiers, modifier_const);
+		}
+
+		/**
+		 * \return true if this function is an external function
+		 */
+		bool is_extern() const
+		{
+			return bit_isset(_modifiers, modifier_extern);
+		}
+
 #pragma region node_symbol
 
 		void resolve_symbol_id() override;
@@ -115,5 +166,6 @@ namespace o2
 		node_func_body* _body;
 		node_func_arguments* _arguments;
 		node_func_returns* _returns;
+		int _modifiers;
 	};
 }
