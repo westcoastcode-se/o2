@@ -40,6 +40,12 @@ void node_symbol::test_collision()
 	parent->query(&v, query_flag_children | query_flag_downwards);
 }
 
+bool node_symbol::is_allowed(node* n) const
+{
+	// TODO iterate upwards in order to figure out if this symbol is allowed to be accessed
+	return true;
+}
+
 void collision_detector::add(node_symbol* c)
 {
 	_colliders.add(c);

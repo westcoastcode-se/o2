@@ -25,7 +25,7 @@ void imports()
 
 			const auto import_models = assert_type<node_import>(root->get_children()[14]);
 			assert_equals(import_models->get_children().size(), 1);
-			const auto f = assert_type<node_func_def>(import_models->get_child(0));
+			const auto f = assert_type<node_func>(import_models->get_child(0));
 			assert_equals(f->get_name(), "f");
 
 		});
@@ -43,7 +43,7 @@ void imports()
 
 			const auto import_models = assert_type<node_import>(root->get_children()[14]);
 			const auto import_services = assert_type<node_import>(import_models->get_children()[0]);
-			const auto f = assert_type<node_func_def>(import_services->get_children()[0]);
+			const auto f = assert_type<node_func>(import_services->get_children()[0]);
 			assert_equals(f->get_name(), "f");
 		});
 	});

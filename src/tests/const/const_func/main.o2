@@ -1,0 +1,3 @@
+const func Get5() int {
+    return 5
+}

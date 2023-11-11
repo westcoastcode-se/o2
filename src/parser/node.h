@@ -226,6 +226,14 @@ namespace o2
 		}
 
 		/**
+		 * \brief method called when the supplied parent is removed
+		 * \param p the node that we are removing
+		 */
+		virtual void on_removed_parent_node(node* p)
+		{
+		}
+
+		/**
 		 * \brief add a child node
 		 * \param n
 		 * \return the added child

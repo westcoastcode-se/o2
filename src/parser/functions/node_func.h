@@ -15,30 +15,49 @@ namespace o2
 	class node_func_body;
 
 	/**
-	 * \brief the function definition
+	 * \brief base class for all types of functions, such as global functions, method functions and static functions
 	 */
-	class node_func_def
+	class node_func
 			: public node_symbol
 	{
 	public:
 		/**
-		 * \brief modifiers that can be applied to a function
+		 * \param view information of the source code
+		 * \param name the name of the function
 		 */
-		enum modifiers
+		node_func(const source_code_view& view, string_view name)
+				: node_symbol(view), _name(name), _body(), _arguments(), _returns()
 		{
-			modifier_extern = 1 << 0,
-			modifier_const = 1 << 1,
-			modifier_macro = 1 << 2,
-			modifier_inner_func = 1 << 3
+		}
+
+		struct inner_function
+		{
 		};
 
-		node_func_def(const source_code_view& view, string_view name, int modifiers)
-				: node_symbol(view), _name(name), _modifiers(modifiers), _body(), _arguments(), _returns()
+		/**
+		 * \brief specialized constructor for inner functions (function in function)
+		 * \param view information of the source code
+		 * \param name the name of the function
+		 */
+		node_func(const source_code_view& view, string_view name, inner_function)
+				: node_symbol(view), _name(name), _body(), _arguments(), _returns()
 		{
-			if (bit_isset(modifiers, modifier_inner_func))
-			{
-				set_query_access_flags(query_access_modifier_no_siblings);
-			}
+			set_query_access_flags(query_access_modifier_no_siblings);
+		}
+
+		struct static_function
+		{
+		};
+
+		/**
+		 * \brief specialized constructor for static functions (function in static block inside a type)
+		 * \param view information of the source code
+		 * \param name the name of the function
+		 */
+		node_func(const source_code_view& view, string_view name, static_function)
+				: node_symbol(view), _name(name), _body(), _arguments(), _returns()
+		{
+			set_query_access_flags(query_access_modifier_no_siblings);
 		}
 
 		/**
@@ -50,30 +69,11 @@ namespace o2
 		}
 
 		/**
-		 * \brief set the body this definition executes when called
-		 * \param body 
-		 */
-		void set_body(node_func_body* body)
-		{
-			_body = body;
-		}
-
-		/**
 		 * \return the body that this function executes
 		 */
 		node_func_body* get_body() const
 		{
 			return _body;
-		}
-
-		bool is_const() const
-		{
-			return (_modifiers & modifier_const) == modifier_const;
-		}
-
-		bool is_macro() const
-		{
-			return (_modifiers & modifier_macro) == modifier_macro;
 		}
 
 		/**
@@ -94,13 +94,13 @@ namespace o2
 
 #pragma region node_symbol
 
-		void resolve_symbol_id() final;
+		void resolve_symbol_id() override;
 
 #pragma endregion
 
 #pragma region node
 
-		void debug(std::basic_ostream<char>& stream, int indent) const final;
+		void debug(std::basic_ostream<char>& stream, int indent) const override;
 
 		node* on_child_added(node* n) final;
 
@@ -112,43 +112,8 @@ namespace o2
 
 	private:
 		string_view _name;
-		const int _modifiers;
 		node_func_body* _body;
 		node_func_arguments* _arguments;
 		node_func_returns* _returns;
-	};
-
-	/**
-	 * \brief the function body
-	 */
-	class node_func_body
-			: public node
-	{
-	public:
-		node_func_body(const source_code_view& view)
-				: node(view), _def()
-		{
-		}
-
-		// \brief set the definition for this function body
-		void set_def(node_func_def* def)
-		{
-			_def = def;
-		}
-
-		// \brief get the definition that refers to this body
-		node_func_def* get_def() const
-		{
-			return _def;
-		}
-
-#pragma region node
-
-		void debug(std::basic_ostream<char>& stream, int indent) const final;
-
-#pragma endregion
-
-	private:
-		node_func_def* _def;
 	};
 }

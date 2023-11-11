@@ -19,8 +19,32 @@ namespace o2
 			: public node
 	{
 	public:
-		node_symbol(const source_code_view& view)
-				: node(view)
+		enum accessor
+		{
+			// allow access to this symbol from only the current module
+			accessor_module = 1,
+			// allow anyone from accessing this symbol
+			accessor_public,
+			// only allow access from the same package
+			accessor_private
+		};
+
+		/**
+		 * \param view
+		 */
+		explicit node_symbol(const source_code_view& view)
+				: node_symbol(view, accessor_public)
+		{
+		}
+
+		/**
+		 * \param view
+		 * \param accessor whom are allowed to access this symbol
+		 *
+		 * TODO make sure to use the appropriate accessor for each symbol
+		 */
+		node_symbol(const source_code_view& view, accessor accessor)
+				: node(view), _accessor(accessor)
 		{
 		}
 
@@ -30,6 +54,34 @@ namespace o2
 		string_view get_id() const
 		{
 			return _id;
+		}
+
+		/**
+		 * \return whom are allowed to access this symbol
+		 */
+		accessor get_accessor() const
+		{
+			return _accessor;
+		}
+
+		/**
+		 * \return true if the current node is allowed to access this symbol
+		 */
+		bool is_allowed(node* n) const;
+
+		bool is_module_access() const
+		{
+			return _accessor == accessor_module;
+		}
+
+		bool is_public() const
+		{
+			return _accessor == accessor_public;
+		}
+
+		bool is_private() const
+		{
+			return _accessor == accessor_private;
 		}
 
 		/**
@@ -55,6 +107,7 @@ namespace o2
 
 	private:
 		string _id;
+		accessor _accessor;
 	};
 
 	/**

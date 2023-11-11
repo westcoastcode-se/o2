@@ -101,6 +101,14 @@ vector<node*> node::optimize(node_optimizer* optimizer)
 
 void node::set_parent(node* p)
 {
+	if (p == nullptr)
+	{
+		const auto temp = _parent;
+		_parent = nullptr;
+		on_removed_parent_node(temp);
+		return;
+	}
+
 	_parent = p;
 	on_parent_node(p);
 }

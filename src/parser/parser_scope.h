@@ -47,7 +47,7 @@ namespace o2
 		/**
 		 * \brief the closest function node
 		*/
-		node_func_def* const func;
+		node_func* const func;
 
 		parser_scope(parser_state* state, token* t)
 				: state(state), t(t), closest(),
@@ -68,7 +68,7 @@ namespace o2
 		{
 		}
 
-		parser_scope(const parser_scope* parent, node_func_def* nf)
+		parser_scope(const parser_scope* parent, node_func* nf)
 				: state(parent->state), t(parent->t), closest(nf),
 				  package(parent->package), type(parent->type),
 				  func(nf)

@@ -17,7 +17,7 @@ namespace o2
 			: public node
 	{
 	public:
-		node_func_arguments(const source_code_view& view);
+		explicit node_func_arguments(const source_code_view& view);
 
 		/**
 		 * \return the number of arguments
@@ -25,7 +25,6 @@ namespace o2
 		int num_arguments() const;
 
 		/**
-		 * \brief
 		 * \return all arguments used by this function
 		 */
 		array_view<node_var*> get_arguments() const

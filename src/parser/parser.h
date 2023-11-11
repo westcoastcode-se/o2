@@ -7,6 +7,9 @@
 
 #include "node_package.h"
 #include "functions/node_func.h"
+#include "functions/node_func_const.h"
+#include "functions/node_func_method.h"
+#include "functions/node_func_body.h"
 #include "node_import.h"
 #include "node_ref.h"
 #include "types/node_type_accessor.h"

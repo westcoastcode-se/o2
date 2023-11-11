@@ -347,9 +347,9 @@ If you want to call a method of the same type
 ### Virtual method functions
 
 - [ ] add `virtual`, `abstract`, `override` and `final` prefix for functions
-- [ ] add `vtable` for function calls when using inheritence
+- [ ] add `vtable` for function calls when using inheritance
 - [ ] add support for preventing overriding `final` functions
-- [ ]
+- [ ] add `base` keywords that represents the base class
 
 Consider the following:
 

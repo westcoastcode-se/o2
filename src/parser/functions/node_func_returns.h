@@ -13,7 +13,7 @@ namespace o2
 			: public node
 	{
 	public:
-		node_func_returns(const source_code_view& view);
+		explicit node_func_returns(const source_code_view& view);
 
 #pragma region node
 

@@ -49,5 +49,30 @@ void const_()
 			const auto ref_FLOAT3 = assert_type<node_type_ref>(var_FLOAT3->get_type());
 			assert_equals(ref_FLOAT3->get_type(), root->get_child(11));
 		});
+		test("const_func", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 15);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+
+			const auto func = assert_type<node_func_const>(root->get_child(14));
+			assert_equals(func->get_name(), "Get5");
+			assert_not_null(func->get_body());
+			assert_equals(func, func->get_body()->get_def());
+			assert_not_null(func->get_arguments());
+			assert_equals(func->get_arguments()->num_arguments(), 0);
+			const auto ret = assert_not_null(func->get_returns());
+			assert_equals(ret->get_children().size(), 1);
+			const auto ret_ref_int = assert_type<node_type_ref>(ret->get_child(0));
+			assert_equals(ret_ref_int->get_size(), sizeof(int));
+			assert_equals(ret_ref_int->get_type(), root->get_child(7));
+			const auto ref_int = assert_type<node_ref>(ret_ref_int->get_child(0));
+			assert_equals(ref_int->get_query_text(), "int");
+			const auto body = assert_type<node_func_body>(func->get_child(2));
+			assert_equals(body->get_children().size(), 1);
+			assert_type<node_scope>(body->get_children()[0]);
+		});
 	});
 }

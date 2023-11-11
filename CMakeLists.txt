@@ -24,7 +24,6 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/types/node_type_array.cpp"
         "src/parser/types/node_type_accessor.cpp"
         "src/parser/operations/node_op_constant.cpp"
-        "src/parser/functions/node_expression.cpp"
         "src/parser/operations/node_op_unaryop.cpp"
         "src/parser/operations/node_op_binop.cpp"
         "src/parser/primitive_value.cpp"
@@ -58,6 +57,9 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/operations/node_op_assign.cpp"
         "src/parser/node_link.cpp"
         "src/parser/variables/node_var_const.cpp"
+        "src/parser/functions/node_func_const.cpp"
+        "src/parser/functions/node_func_method.cpp"
+        "src/parser/functions/node_func_body.cpp"
 )
 
 # Test
