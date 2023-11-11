@@ -44,6 +44,8 @@ namespace o2
 	public:
 		explicit filesystem_module_source_codes(string root_dir);
 
+		explicit filesystem_module_source_codes(string_view root_dir);
+
 		~filesystem_module_source_codes() final;
 
 #pragma region module_source_code_lookup

@@ -95,7 +95,7 @@ bool node_ref::resolve(const recursion_detector* rd)
 		leaf = static_cast<node_ref*>(leaf->get_child(0));
 	}
 	if (leaf->_results.empty())
-		throw std::runtime_error("unresolved reference");
+		throw resolve_error_unresolved_reference(get_source_code());
 	if (leaf == this)
 		return true;
 	_results = leaf->_results;

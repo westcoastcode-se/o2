@@ -1,0 +1,13 @@
+//
+// Part of the o2 Project, under the Apache License v2.0 with o2 Project Exceptions.
+// See the LICENSE file in the project root for license terms
+//
+
+// external reference to stdlib.h -> printf(...)
+extern func printf(s string)
+
+// print a string to the terminal
+// \param s the string we want to print
+func print(s string) {
+    printf(s)
+}

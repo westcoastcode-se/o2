@@ -37,7 +37,7 @@ namespace o2
 	 * \param imports a list of all imports that the source codes in the module want to load
 	 * \return the package to be added to the syntax tree
 	 */
-	extern node_package* parse_module_file(syntax_tree* st, module* m, source_code src,
+	extern node_package* parse_module_file(syntax_tree* st, const module* m, source_code src,
 			parser_state* state);
 
 	/**
@@ -48,7 +48,7 @@ namespace o2
 	 * \param imports a list of all imports that the source codes in the module want to load
 	 * \return the package to be added to the syntax tree
 	 */
-	extern node_package* parse_module_path(syntax_tree* st, module* m, string_view path,
+	extern node_package* parse_module_path(syntax_tree* st, const module* m, string_view path,
 			parser_state* state);
 
 	/**
@@ -59,7 +59,7 @@ namespace o2
 	 * \param imports a list of all imports that the source codes in the module want to load
 	 * \return the package to be added to the syntax tree
 	 */
-	extern node_package* parse_module_import(syntax_tree* st, module* m, string_view path,
+	extern node_package* parse_module_import(syntax_tree* st, const module* m, string_view path,
 			parser_state* state);
 
 	/**

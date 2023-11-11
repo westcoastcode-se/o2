@@ -14,7 +14,7 @@ namespace o2
 	 * \brief node that represents a module
 	 *
 	 * all modules are initially created by the modules parser phase. Packages are then put into their corresponding
-	 * module during the source code parse pahse
+	 * module during the source code parse phase
 	 *
 	 * modules can have child modules if they are marked as privately required. For example, the structure
 	 * might look something like this:
@@ -33,6 +33,12 @@ namespace o2
 			: public node
 	{
 	public:
+		/**
+		 * move the ownership of the module into this node
+		 *
+		 * \param view
+		 * \param m
+		 */
 		node_module(const source_code_view& view, module* m)
 				: node(view), _module(m)
 		{
@@ -40,7 +46,7 @@ namespace o2
 
 		~node_module() final;
 
-		module* get_module() const
+		const module* get_module() const
 		{
 			return _module;
 		}

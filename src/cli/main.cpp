@@ -5,10 +5,15 @@
 
 #include <iostream>
 #include <string_view>
-#include <string>
+#include <unordered_map>
 #include <fstream>
 
+#include "../parser/parser.h"
+#include "../parser/resolver.h"
+#include "../parser/module/module_source_code.h"
+
 using namespace std;
+using namespace o2;
 
 bool module_exists()
 {
@@ -19,6 +24,86 @@ bool module_exists()
 		return true;
 	}
 	return false;
+}
+
+int build(module* m, string_view path)
+{
+	// convert the "path" where the main source code is found in the module
+	// into a module-relative path
+	string app(m->get_name());
+	if (path.length() > 0)
+	{
+		app += "/";
+		app += path;
+	}
+
+	// TODO add support for a smarted standard lang module imports
+	unordered_map<string_view, node_module*> _builtin_modules;
+	_builtin_modules["stdio"] = o2_new node_module(source_code_view(),
+			o2_new module(string_view("stdio"),
+					string_view("../lang/stdio"),
+					new filesystem_module_source_codes(string("../lang/stdio"))));
+
+	syntax_tree* st;
+	try
+	{
+		st = new syntax_tree;
+
+		// Initialize the module node and add it to the syntax tree
+		const auto nm = o2_new node_module(source_code_view(), m);
+		st->get_root_package()->add_child(nm);
+		// Parse the source code
+		parser_state state(st);
+		parse_module_path(st, m, app, &state);
+		// TODO: add support for threads
+		auto imports = state.get_imports();
+		while (!imports.empty())
+		{
+			for (auto i: imports)
+			{
+				// TODO: figure out the module based on the import statement
+				const auto builtin_it = _builtin_modules.find(i->get_import_statement());
+				if (builtin_it != _builtin_modules.end())
+				{
+					// TODO figure out the path to where lang is located
+					if (builtin_it->second->get_parent() == nullptr)
+					{
+						// add the module
+						st->get_root_package()->add_child(builtin_it->second);
+					}
+					// TODO: This should be done in a "compiler" pipeline so that we can use multiple threads
+					auto package = parse_module_import(st, builtin_it->second->get_module(),
+							i->get_import_statement(),
+							&state);
+					if (package)
+						builtin_it->second->add_child(package);
+				}
+				else
+				{
+					auto package = parse_module_import(st, m, i->get_import_statement(),
+							&state);
+					if (package)
+						nm->add_child(package);
+				}
+			}
+			imports = std::move(state.get_imports());
+		}
+		resolve(st, &state);
+		optimize(st, 0);
+		st->debug();
+		delete st;
+	}
+	catch (const o2::error& e)
+	{
+		e.print(cerr);
+		delete st;
+	}
+	catch (const std::exception& e)
+	{
+		cerr << "unhandled exception: '" << e.what() << "'" << endl;
+		delete st;
+	}
+	return 0;
 }
 
 int main(int argc, char** argv)
@@ -59,10 +144,21 @@ int main(int argc, char** argv)
 			return 1;
 		}
 
-		const string_view main_path(argv[2]);
-
-
+		const string_view root_path(argv[2]);
+		string_view module_root_path = root_path;
+		if (module_root_path == ".")
+			module_root_path = string_view();
 		mod_file.close();
+
+		// TODO: Parse module file and figure out the module name form that
+
+		memory_tracker::begin();
+		const string_view module_name("westcoastcode.se/hello_world");
+		const auto m = o2_new module(module_name, module_root_path,
+				new filesystem_module_source_codes(root_path));
+		const auto ret = build(m, module_root_path);
+		memory_tracker::end();
+		return ret;
 	}
 	else if (command == PARSE)
 	{

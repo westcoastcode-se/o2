@@ -16,6 +16,11 @@ filesystem_module_source_codes::filesystem_module_source_codes(string root_dir)
 {
 }
 
+filesystem_module_source_codes::filesystem_module_source_codes(string_view root_dir)
+		: _root_dir(root_dir)
+{
+}
+
 filesystem_module_source_codes::~filesystem_module_source_codes()
 {
 	for (auto s: _all_source)

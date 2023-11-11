@@ -1041,7 +1041,7 @@ namespace
 	}
 }
 
-node_package* o2::parse_module_file(syntax_tree* st, module* m, source_code src,
+node_package* o2::parse_module_file(syntax_tree* st, const module* m, source_code src,
 		parser_state* state)
 {
 	assert(m);
@@ -1064,7 +1064,7 @@ node_package* o2::parse_module_file(syntax_tree* st, module* m, source_code src,
 	return app_package;
 }
 
-node_package* o2::parse_module_path(syntax_tree* st, module* m, string_view path,
+node_package* o2::parse_module_path(syntax_tree* st, const module* m, string_view path,
 		parser_state* state)
 {
 	assert(m);
@@ -1096,7 +1096,7 @@ node_package* o2::parse_module_path(syntax_tree* st, module* m, string_view path
 	return app_package;
 }
 
-node_package* o2::parse_module_import(syntax_tree* st, module* m, string_view path,
+node_package* o2::parse_module_import(syntax_tree* st, const module* m, string_view path,
 		parser_state* state)
 {
 	assert(m);
