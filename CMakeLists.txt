@@ -62,8 +62,8 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/variables/node_var_this.cpp"
         "src/parser/struct/node_type_struct_methods.cpp"
         "src/parser/struct/static/node_type_struct_static.cpp"
-        src/parser/struct/static/node_type_struct_static_funcs.cpp
-        src/parser/struct/static/node_type_struct_static_vars.cpp
+        "src/parser/struct/static/node_type_struct_static_funcs.cpp"
+        "src/parser/struct/static/node_type_struct_static_vars.cpp"
 )
 
 # Test
@@ -77,3 +77,8 @@ add_executable(o2_tests "src/tests/main.cpp"
         "src/tests/errors_parse/errors_parse.cpp"
 )
 target_link_libraries(o2_tests o2_parser)
+
+# CLI
+add_executable(o2
+        "src/cli/main.cpp")
+target_link_libraries(o2 o2_parser)

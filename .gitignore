@@ -10,3 +10,6 @@ cmake-build-release/
 
 # CMake files
 CMakePresets.json
+
+# A temporary directory
+temp/
