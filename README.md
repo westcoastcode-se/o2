@@ -271,7 +271,9 @@ The example above creates a `global` function called `Get10` that returns the va
 ### Type level functions
 
 - [ ] add `static` functions at type level
-- [ ] add `method` level functions at type level
+- [x] add `method` level functions at type level
+- [x] add default `this` argument
+- [ ] add custom `this` argument name
 - [ ] older languages differ between pointer accessors and non-pointer accessors using `->` and `.`
     - can't we always use `.`? IfWhen is it appropriate to use `.` on a pointer
 - [ ] add access privileges for functions: `module` (default), `public`, `private`

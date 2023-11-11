@@ -61,6 +61,7 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/functions/node_func_method.cpp"
         "src/parser/functions/node_func_body.cpp"
         "src/parser/variables/node_var_this.cpp"
+        "src/parser/types/node_type_struct_methods.cpp"
 )
 
 # Test

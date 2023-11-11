@@ -14,7 +14,7 @@ namespace o2
 			: public node
 	{
 	public:
-		node_type_struct_fields(const source_code_view& view);
+		explicit node_type_struct_fields(const source_code_view& view);
 
 #pragma region node
 

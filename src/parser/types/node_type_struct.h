@@ -7,6 +7,7 @@
 
 #include "node_type.h"
 #include "node_type_struct_field.h"
+#include "node_type_struct_methods.h"
 
 namespace o2
 {
@@ -30,7 +31,7 @@ namespace o2
 		/**
 		 * \return fields part of this struct
 		 */
-		node_type_struct_fields* get_fields()
+		node_type_struct_fields* get_fields() const
 		{
 			return _fields;
 		}
@@ -39,6 +40,14 @@ namespace o2
 		 * \return all fields part of this struct - included from all inherited structures
 		 */
 		vector<node_type_struct_field*> get_all_fields() const;
+
+		/**
+		 * \return methods container
+		 */
+		node_type_struct_methods* get_methods() const
+		{
+			return _methods;
+		}
 
 #pragma region node_symbol
 
@@ -72,5 +81,6 @@ namespace o2
 	private:
 		string_view _name;
 		node_type_struct_fields* _fields;
+		node_type_struct_methods* _methods;
 	};
 }

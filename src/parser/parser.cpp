@@ -872,9 +872,8 @@ namespace
 			// func - methods
 			// static - static scope for static variables and functions
 
-			// types have fields, functions etc.
-			auto fields = o2_new node_type_struct_fields(type->get_source_code());
-			type->add_child(fields);
+			node_type_struct_fields* fields = nullptr;
+			node_type_struct_methods* methods = nullptr;
 
 			// Seek the first token
 			while (t->next_until_not(token_type::newline, token_type::comment) != token_type::bracket_right)
@@ -883,6 +882,12 @@ namespace
 				{
 				case token_type::var:
 				{
+					if (fields == nullptr)
+					{
+						fields = o2_new node_type_struct_fields(type->get_source_code());
+						type->add_child(fields);
+					}
+
 					t->next_until_not(token_type::comment);
 					const parser_scope ps1(&ps0, fields);
 					fields->add_child(parse_type_field(&ps1));
@@ -890,14 +895,18 @@ namespace
 				}
 				case token_type::type:
 				{
-					const parser_scope ps1(&ps0, type);
-					type->add_child(parse_type(&ps1));
+					type->add_child(parse_type(&ps0));
 					continue;
 				}
 				case token_type::func:
 				{
-					const parser_scope ps1(&ps0, type);
-					type->add_child(parse_func_method(&ps1));
+					if (methods == nullptr)
+					{
+						methods = o2_new node_type_struct_methods(type->get_source_code());
+						type->add_child(methods);
+					}
+					const parser_scope ps1(&ps0, methods);
+					methods->add_child(parse_func_method(&ps1));
 					continue;
 				}
 				case token_type::static_:

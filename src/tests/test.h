@@ -263,9 +263,10 @@ namespace o2::testing
 	template<class H, class T>
 	inline H* assert_type(T* in)
 	{
+		assert_not_null(in);
 		if (dynamic_cast<H*>(in) == nullptr)
 		{
-			throw_(error() << typeid(*in).name() << " is not " << typeid(H).name());
+			throw_(error() << typeid(T).name() << " is not " << typeid(H).name());
 		}
 		return static_cast<H*>(in);
 	}
