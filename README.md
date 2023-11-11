@@ -330,8 +330,8 @@ type User {
 func main() {
     user := User("o2")
     
-    Printf(`Hello ${user.GetName()}\n`)
-    Printf(`Value is ${User.Get5()}`)
+    print(`Hello ${user.GetName()}\n`)
+    print(`Value is ${User.Get5()}`)
 }
 ```
 
@@ -389,6 +389,37 @@ type AnimatedComponent : Component {
 - [ ] add support for returning function pointers and anonymous functions
     - suggestions: `func GetFunc() Func<(int) string>`
 
+### Delegates
+
+- [ ] add support for delegate functions
+- [ ] investigate how to handle memory
+- [ ] investigate what to do if the method to be called is a virtual
+- [ ] investigate if it should be possible to create a delegate from an interface pointer
+
+Consider the following:
+
+```
+import "stdio"
+
+type User {
+    func GetName() string const {
+        return "o2"
+    }
+}
+
+func main() {
+    user := User()
+    d := user.GetName
+    print(d())
+}
+```
+
+The example itself will have the output:
+
+```
+o2
+```
+
 ## Interface
 
 - [ ] add support for `interface` symbol
@@ -411,10 +442,9 @@ then well allowed to do:
 
 ```
 type WebService : Service {
-}
-
-override func WebService.Call(w this, name string) {
-    // Do something
+    override func Call(w this, name string) {
+        // Do something
+    }
 }
 ```
 
