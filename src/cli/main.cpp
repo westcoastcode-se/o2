@@ -31,6 +31,7 @@ int main(int argc, char** argv)
 		cout << "The commands are:" << endl << endl;
 		cout << "\tbuild\t\tcompile packages and dependencies" << endl;
 		cout << "\tinit\t\tinitialize a new project" << endl;
+		cout << "\tparse\t\tparse source code into a code completion database" << endl;
 		cout << "\ttest\t\ttest packages" << endl;
 		return 0;
 	}
@@ -38,16 +39,51 @@ int main(int argc, char** argv)
 	const string_view command(argv[1]);
 	static const string_view BUILD("build");
 	static const string_view INIT("init");
+	static const string_view PARSE("parse");
 	static const string_view TEST("test");
 
 	if (command == BUILD)
 	{
+		if (argc < 3)
+		{
+			cout << "o2 build provides functionality compile o2 source code" << endl << endl;
+			cout << "usage: " << endl << endl;
+			cout << "\to2 build <main source code path>" << endl << endl;
+			return 0;
+		}
+
 		ifstream mod_file("o2.mod");
 		if (!mod_file.is_open())
 		{
 			cerr << "no o2.mod found" << endl;
 			return 1;
 		}
+
+		const string_view main_path(argv[2]);
+
+
+		mod_file.close();
+	}
+	else if (command == PARSE)
+	{
+		if (argc < 3)
+		{
+			cout << "o2 parse provides functionality that turns source code into a code completion database";
+			cout << endl << endl;
+			cout << "usage: " << endl << endl;
+			cout << "\to2 parse <main source code path>" << endl << endl;
+			return 0;
+		}
+
+		ifstream mod_file("o2.mod");
+		if (!mod_file.is_open())
+		{
+			cerr << "no o2.mod found" << endl;
+			return 1;
+		}
+
+		const string_view main_path(argv[2]);
+
 
 		mod_file.close();
 	}
@@ -67,6 +103,7 @@ int main(int argc, char** argv)
 		mod_file << "compiler 1.0" << endl;
 		mod_file << endl;
 		mod_file << "name \"" << module_name << "\"" << endl;
+		mod_file.close();
 		return 0;
 	}
 
