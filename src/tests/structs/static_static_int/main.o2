@@ -1,0 +1,6 @@
+type S {
+    static {}
+    static {
+        var I int
+    }
+}

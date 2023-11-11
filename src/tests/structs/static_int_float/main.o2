@@ -1,0 +1,6 @@
+type S {
+    static {
+        var I int
+        var F float
+    }
+}

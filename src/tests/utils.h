@@ -104,6 +104,14 @@ namespace o2
 		test(name, root_path, string_view(), std::move(t));
 	}
 
+	static void test(std::initializer_list<string_view> names, string_view root_path, std::function<void(syntax_tree&)> t)
+	{
+		for(auto name : names)
+		{
+			test(name, root_path, string_view(), t);
+		}
+	}
+
 	static void
 	test_error(string_view name, string_view root_path, string_view app_path,
 			std::function<void(const std::exception&)> t)

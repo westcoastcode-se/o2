@@ -16,6 +16,7 @@ namespace o2
 		explicit node_type_struct_methods(const source_code_view& view)
 				: node(view)
 		{
+			set_query_access_flags(query_access_modifier_passthrough);
 		}
 
 #pragma region node

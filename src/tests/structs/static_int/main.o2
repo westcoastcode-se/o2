@@ -1,0 +1,5 @@
+type S {
+    static {
+        var I int
+    }
+}

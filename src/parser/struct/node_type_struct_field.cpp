@@ -10,6 +10,7 @@ using namespace o2;
 node_type_struct_fields::node_type_struct_fields(const source_code_view& view)
 		: node(view)
 {
+	set_query_access_flags(query_access_modifier_passthrough);
 }
 
 void node_type_struct_fields::debug(std::basic_ostream<char>& stream, int indent) const

@@ -31,14 +31,12 @@ void structs()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<node_module>(root->get_children()[13]);
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto type_struct = assert_type<node_type_struct>(root->get_children()[14]);
 			assert_equals(type_struct->get_name(), "empty");
-			assert_equals(type_struct->get_children().size(), 1);
-			const auto fields = assert_type<node_type_struct_fields>(type_struct->get_child(0));
-			assert_equals(fields->get_children().size(), 0);
+			assert_equals(type_struct->get_child_count(), 0);
 		});
 		test("explicit_struct", ROOT_PATH, [](syntax_tree& st)
 		{
@@ -269,6 +267,58 @@ void structs()
 
 			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 0);
+		});
+		test({ "static_int", "static_static_int" }, ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 15);
+			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(type_S->get_name(), "S");
+			assert_equals(type_S->get_child_count(), 1);
+			assert_null(type_S->get_fields());
+			assert_null(type_S->get_methods());
+			assert_not_null(type_S->get_static());
+
+			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
+			assert_equals(type_S_static->get_child_count(), 1);
+
+			const auto fields = assert_type<node_type_struct_fields>(type_S_static->get_child(0));
+			assert_equals(fields->get_children().size(), 1);
+			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
+			assert_equals(field1->get_name(), "I");
+			const auto field1_type_ref = assert_type<node_type_ref>(field1->get_child(0));
+			const auto field1_ref = assert_type<node_ref>(field1_type_ref->get_child(0));
+			assert_equals(field1_ref->get_query_text(), "int");
+			assert_equals(field1->get_field_type(), root->get_child(7));
+		});
+		test({ "static_int_float", "static_int_static_float" }, ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 15);
+			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(type_S->get_name(), "S");
+			assert_equals(type_S->get_child_count(), 1);
+			assert_null(type_S->get_fields());
+			assert_null(type_S->get_methods());
+			assert_not_null(type_S->get_static());
+
+			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
+			assert_equals(type_S_static->get_child_count(), 1);
+
+			const auto fields = assert_type<node_type_struct_fields>(type_S_static->get_child(0));
+			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
+			assert_equals(field1->get_name(), "I");
+			assert_equals(field1->get_field_type(), root->get_child(7));
+			const auto field1_type_ref = assert_type<node_type_ref>(field1->get_child(0));
+			const auto field1_ref = assert_type<node_ref>(field1_type_ref->get_child(0));
+			assert_equals(field1_ref->get_query_text(), "int");
+
+			const auto field2 = assert_type<node_type_struct_field>(fields->get_child(1));
+			assert_equals(field2->get_name(), "F");
+			assert_equals(field2->get_field_type(), root->get_child(11));
+			const auto field2_type_ref = assert_type<node_type_ref>(field2->get_child(0));
+			const auto field2_ref = assert_type<node_ref>(field2_type_ref->get_child(0));
+			assert_equals(field2_ref->get_query_text(), "float");
 		});
 	});
 }

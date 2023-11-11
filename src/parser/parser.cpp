@@ -822,6 +822,40 @@ namespace
 		return guard.done();
 	}
 
+	void parse_type_statics(const parser_scope* ps, node_type_struct_static* static_)
+	{
+		const auto t = ps->t;
+		if (t->next_until_not(token_type::comment) != token_type::bracket_left)
+			throw error_syntax_error(ps->get_view(), t, "expected '{'");
+
+		// parse until we've reached the end of the static block
+		while (t->next_until_not(token_type::newline, token_type::comment) != token_type::bracket_right)
+		{
+			switch (t->type())
+			{
+			case token_type::var:
+			{
+				if (static_->get_fields() == nullptr)
+				{
+					const auto fields = o2_new node_type_struct_fields(static_->get_source_code());
+					static_->add_child(fields);
+				}
+				t->next_until_not(token_type::comment);
+				const parser_scope ps1(ps, static_->get_fields());
+				static_->get_fields()->add_child(parse_type_field(&ps1));
+				continue;
+			}
+			case token_type::bracket_right:
+				break;
+			default:
+				throw error_syntax_error(ps->get_view(), t, "expected 'var' or 'func'");
+			}
+		}
+
+		if (t->type() != token_type::bracket_right)
+			throw error_syntax_error(ps->get_view(), t, "expected '}'");
+	}
+
 	node_type* parse_type(const parser_scope* ps)
 	{
 		// types can have the format:
@@ -888,7 +922,6 @@ namespace
 						fields = o2_new node_type_struct_fields(type->get_source_code());
 						type->add_child(fields);
 					}
-
 					t->next_until_not(token_type::comment);
 					const parser_scope ps1(&ps0, fields);
 					fields->add_child(parse_type_field(&ps1));
@@ -917,12 +950,9 @@ namespace
 						static_ = o2_new node_type_struct_static(type->get_source_code());
 						type->add_child(static_);
 					}
-					if (t->next_until_not(token_type::comment) != token_type::bracket_left)
-						throw error_syntax_error(ps->get_view(), t, "expected '{'");
-					// TODO parse fields and functions here!
-					t->next_until_not(token_type::newline, token_type::comment);
-					if (t->type() != token_type::bracket_right)
-						throw error_syntax_error(ps->get_view(), t, "expected '}'");
+
+					const parser_scope ps1(&ps0, static_);
+					parse_type_statics(&ps1, static_);
 					continue;
 				}
 				default:
@@ -931,12 +961,7 @@ namespace
 			}
 			t->next();
 		}
-		else if (t->type() == token_type::eof)
-		{
-			auto fields = o2_new node_type_struct_fields(type->get_source_code());
-			type->add_child(fields);
-		}
-		else
+		else if (t->type() != token_type::eof)
 			throw error_syntax_error(ps->get_view(), t, "expected newline or '{' at the start of type definition");
 		return guard.done();
 	}
