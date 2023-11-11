@@ -180,7 +180,9 @@ Then you can
 
 - [x] `type` structs without inheritance
 - [x] require the use of `var` for local variables
-- [ ] add `static` scope for static variables and functions
+- [x] add `static` scope for static variables and functions
+- [x] add `static` variable definitions
+- [ ] add `static` function definitions
 - [ ] structs with inheritance
 - [ ] `constructor` definition
 - [ ] `destructor` definition

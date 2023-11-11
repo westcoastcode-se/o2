@@ -472,6 +472,14 @@ namespace
 		const auto t = ps->t;
 		if (t->type() != token_type::bracket_left && t->type() != token_type::newline)
 		{
+			// ignore void keyword
+			static const string_view VOID("void");
+			if (t->value() == VOID)
+			{
+				t->next();
+				return;
+			}
+
 			const parser_scope ps0(ps, returns);
 			returns->add_child(parse_type_ref(&ps0));
 		}
@@ -662,15 +670,25 @@ namespace
 			}
 			else
 			{
-				// It might still be a this argument
+				// It might still be a this argument if the "type" is this
 				// TODO: Add support for named this arguments
 				const auto this_var = o2_new node_var_this(ps->get_view(), "this", ps->type);
 				arguments->add_child(this_var);
 			}
 
 			const parser_scope ps0(ps, arguments);
-			while (true)
+			while (t->type() != token_type::parant_right)
 			{
+				static const string_view VOID("void");
+				if (t->type() == token_type::identity && t->value() == VOID)
+				{
+					if (t->next_until_not(token_type::comment) != token_type::parant_right)
+					{
+						throw error_syntax_error(ps->get_view(), t, "expected ')' after void keyword");
+					}
+					continue;
+				}
+
 				arguments->add_child(parse_func_arg(&ps0));
 				switch (t->type())
 				{
@@ -678,7 +696,7 @@ namespace
 					t->next();
 					continue;
 				case token_type::parant_right:
-					goto done;
+					continue;
 				default:
 					throw error_syntax_error(ps->get_view(), t, "expected ')' or ','");
 				}

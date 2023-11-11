@@ -205,31 +205,32 @@ void structs()
 			const auto field = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field->get_field_type(), models_m1);
 		});
-		test("one_method", ROOT_PATH, [](syntax_tree& st)
-		{
-			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
-			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
-			assert_equals(type_S->get_name(), "S");
-			assert_equals(type_S->get_child_count(), 1);
-			assert_not_null(type_S->get_methods());
-			assert_equals(type_S->get_methods()->get_child_count(), 1);
+		test({ "method_void", "method_explicit_this_void", "method_explicit_void", "method_explicit_this_explicit_void" },
+				ROOT_PATH, [](syntax_tree& st)
+				{
+					const auto root = st.get_root_package();
+					assert_equals(root->get_children().size(), 15);
+					const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+					assert_equals(type_S->get_name(), "S");
+					assert_equals(type_S->get_child_count(), 1);
+					assert_not_null(type_S->get_methods());
+					assert_equals(type_S->get_methods()->get_child_count(), 1);
 
-			const auto type_S_methods = assert_type<node_type_struct_methods>(type_S->get_child(0));
-			const auto func_M = assert_type<node_func>(type_S_methods->get_child(0));
-			assert_equals(func_M->get_name(), "M");
-			assert_not_null(func_M->get_body());
-			assert_equals(func_M, func_M->get_body()->get_def());
-			assert_not_null(func_M->get_arguments());
-			assert_equals(func_M->get_arguments()->num_arguments(), 1);
-			assert_not_null(func_M->get_returns());
-			assert_equals(func_M->get_returns()->get_children().size(), 0);
+					const auto type_S_methods = assert_type<node_type_struct_methods>(type_S->get_child(0));
+					const auto func_M = assert_type<node_func>(type_S_methods->get_child(0));
+					assert_equals(func_M->get_name(), "M");
+					assert_not_null(func_M->get_body());
+					assert_equals(func_M, func_M->get_body()->get_def());
+					assert_not_null(func_M->get_arguments());
+					assert_equals(func_M->get_arguments()->num_arguments(), 1);
+					assert_not_null(func_M->get_returns());
+					assert_equals(func_M->get_returns()->get_children().size(), 0);
 
-			const auto func_M_args = assert_type<node_func_arguments>(func_M->get_child(0));
-			const auto func_M_arg1 = assert_type<node_var>(func_M_args->get_child(0));
-			assert_equals("this", func_M_arg1->get_name());
-			assert_equals(func_M_arg1->get_type(), type_S);
-		});
+					const auto func_M_args = assert_type<node_func_arguments>(func_M->get_child(0));
+					const auto func_M_arg1 = assert_type<node_var>(func_M_args->get_child(0));
+					assert_equals("this", func_M_arg1->get_name());
+					assert_equals(func_M_arg1->get_type(), type_S);
+				});
 		test("zero_static", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
