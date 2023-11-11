@@ -8,6 +8,7 @@
 #include "../types/node_type.h"
 #include "node_type_struct_field.h"
 #include "node_type_struct_methods.h"
+#include "node_type_struct_static.h"
 
 namespace o2
 {
@@ -49,6 +50,14 @@ namespace o2
 			return _methods;
 		}
 
+		/**
+		 * \return static container
+		 */
+		node_type_struct_static* get_static() const
+		{
+			return _static;
+		}
+
 #pragma region node_symbol
 
 		void resolve_symbol_id() final;
@@ -82,5 +91,6 @@ namespace o2
 		string_view _name;
 		node_type_struct_fields* _fields;
 		node_type_struct_methods* _methods;
+		node_type_struct_static* _static;
 	};
 }

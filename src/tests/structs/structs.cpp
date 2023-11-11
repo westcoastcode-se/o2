@@ -256,5 +256,19 @@ void structs()
 			assert_equals("this", func_M_arg1->get_name());
 			assert_equals(func_M_arg1->get_type(), type_S);
 		});
+		test("zero_static", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 15);
+			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(type_S->get_name(), "S");
+			assert_equals(type_S->get_child_count(), 1);
+			assert_null(type_S->get_fields());
+			assert_null(type_S->get_methods());
+			assert_not_null(type_S->get_static());
+
+			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
+			assert_equals(type_S_static->get_child_count(), 0);
+		});
 	});
 }

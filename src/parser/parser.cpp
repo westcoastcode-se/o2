@@ -874,6 +874,7 @@ namespace
 
 			node_type_struct_fields* fields = nullptr;
 			node_type_struct_methods* methods = nullptr;
+			node_type_struct_static* static_ = nullptr;
 
 			// Seek the first token
 			while (t->next_until_not(token_type::newline, token_type::comment) != token_type::bracket_right)
@@ -910,7 +911,20 @@ namespace
 					continue;
 				}
 				case token_type::static_:
-					throw error_not_implemented(ps->get_view(), "static scopes");
+				{
+					if (static_ == nullptr)
+					{
+						static_ = o2_new node_type_struct_static(type->get_source_code());
+						type->add_child(static_);
+					}
+					if (t->next_until_not(token_type::comment) != token_type::bracket_left)
+						throw error_syntax_error(ps->get_view(), t, "expected '{'");
+					// TODO parse fields and functions here!
+					t->next_until_not(token_type::newline, token_type::comment);
+					if (t->type() != token_type::bracket_right)
+						throw error_syntax_error(ps->get_view(), t, "expected '}'");
+					continue;
+				}
 				default:
 					throw error_syntax_error(ps->get_view(), t, "expected 'var', 'type', 'func' or 'static'");
 				}
