@@ -1,0 +1,5 @@
+extern func F1() /*comment*/
+extern func F2(void)
+// comment
+extern func F3(void)void
+extern func F4()void

@@ -468,6 +468,9 @@ namespace
 		func->add_child(returns);
 
 		const auto t = ps->t;
+		if (t->type() == token_type::comment)
+			t->next_until_not(token_type::comment);
+
 		if (t->type() != token_type::bracket_left && t->type() != token_type::newline)
 		{
 			// ignore void keyword
@@ -529,7 +532,7 @@ namespace
 				switch (t->type())
 				{
 				case token_type::comma:
-					t->next();
+					t->next_until_not(token_type::comment);
 					continue;
 				case token_type::parant_right:
 					goto done;
@@ -574,7 +577,10 @@ namespace
 		auto guard = memory_guard(func);
 		// TODO should it be possible to specify a function, but then
 		//      allow it to be overridden by external library?
-		if (ps->t->type() != token_type::newline)
+		const auto t = ps->t;
+		if (t->type() == token_type::comment)
+			t->next_until_not(token_type::comment);
+		if (t->type() != token_type::newline && t->type() != token_type::eof)
 			throw error_unexpected_extern_func_body(ps->get_view());
 		return guard.done();
 	}
