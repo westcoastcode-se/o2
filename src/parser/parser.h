@@ -52,6 +52,16 @@ namespace o2
 			parser_state* state);
 
 	/**
+	 * \brief parse the supplied list of sources
+	 * \param sources
+	 * \param package_name
+	 * \param state
+	 * \return the package node
+	 */
+	extern node_package* parse_module_import(array_view<source_code*> sources, string_view package_name,
+			parser_state* state);
+
+	/**
 	 * \brief parse the supplied module and put the result into the syntax tree
 	 * \param st the syntax tree
 	 * \param m the module

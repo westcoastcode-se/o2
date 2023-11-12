@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for license terms
 //
 
+import "stdlib"
+
 // external reference to stdlib.h -> printf(...)
 extern func printf(s string)
 

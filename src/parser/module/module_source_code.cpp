@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 using namespace o2;
 using namespace std;
@@ -39,6 +40,8 @@ array_view<source_code*> filesystem_module_source_codes::get_files(string_view i
 
 array_view<source_code*> filesystem_module_source_codes::load(string_view import_path, bool* loaded)
 {
+	static const filesystem::path O2_SUFFIX(".o2");
+
 	stringstream ss;
 	ss << _root_dir << '/' << import_path;
 	entry* one_of_them = nullptr;
@@ -48,8 +51,8 @@ array_view<source_code*> filesystem_module_source_codes::load(string_view import
 		if (!fe.is_regular_file())
 			continue;
 		// is this a source code file?
-		const auto path = fe.path();
-		if (path.extension() != filesystem::path(".o2"))
+		const auto& path = fe.path();
+		if (path.extension() != O2_SUFFIX)
 			continue;
 		ifstream f(path);
 		one_of_them = new entry{
@@ -78,7 +81,7 @@ memory_module_source_codes::~memory_module_source_codes()
 
 void memory_module_source_codes::add(string_view import_path, vector<source_code*> sources)
 {
-	_sources[import_path] = sources;
+	_sources[import_path] = std::move(sources);
 }
 
 array_view<source_code*> memory_module_source_codes::get_files(string_view import_path, bool* loaded)

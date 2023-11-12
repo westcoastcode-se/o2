@@ -83,6 +83,11 @@ namespace o2
 	public:
 		~memory_module_source_codes() final;
 
+		/**
+		 * \brief manually add a list of sources
+		 * \param import_path
+		 * \param sources the sources
+		 */
 		void add(string_view import_path, vector<source_code*> sources);
 
 #pragma region module_source_code_lookup

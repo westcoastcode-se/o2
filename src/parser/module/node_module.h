@@ -21,13 +21,13 @@ namespace o2
 	 *
 	 * root
 	 * |- module github.com/my_company/framework
-	 *    |- package ./
-	 *    |- package ./services
+	 *    |- package /
+	 *    |- package /services
 	 * |- module github.com/another_company/lib
 	 *    |- module scope=private abcde.io/lib
-	 *       |- package ./
-	 *    |- package ./
-	 *    |- package ./parser
+	 *       |- package /
+	 *    |- package /
+	 *    |- package /parser
 	 */
 	class node_module final
 			: public node

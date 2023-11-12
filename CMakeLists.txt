@@ -80,5 +80,7 @@ target_link_libraries(o2_tests o2_parser)
 
 # CLI
 add_executable(o2
-        "src/cli/main.cpp")
+        "src/cli/main.cpp"
+        "src/cli/commands/build.cpp"
+)
 target_link_libraries(o2 o2_parser)

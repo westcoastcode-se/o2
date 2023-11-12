@@ -1096,6 +1096,30 @@ node_package* o2::parse_module_path(syntax_tree* st, const module* m, string_vie
 	return app_package;
 }
 
+node_package* o2::parse_module_import(array_view<source_code*> sources, string_view package_name, parser_state* state)
+{
+	assert(state);
+
+	// create a new package based on the import
+	auto package = o2_new node_package(source_code_view(), package_name);
+	auto guard = memory_guard(package);
+	// parse each source code found
+	for (auto src: sources)
+	{
+		lexer l(src->get_text());
+		token t(&l);
+		state->set_source_code(src);
+
+		collision_detector detector;
+		const parser_scope ps0(state, &t);
+		const parser_scope ps1(&ps0, package);
+		t.next();
+		parse_package_pre_scope(&ps1);
+	}
+
+	return guard.done();
+}
+
 node_package* o2::parse_module_import(syntax_tree* st, const module* m, string_view path,
 		parser_state* state)
 {

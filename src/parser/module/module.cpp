@@ -20,8 +20,6 @@ string_view module::get_relative_path(string_view path) const
 
 int module::matches(string_view import_path) const
 {
-	if (_name[0] == '.' && import_path[0] == '.')
-		return 0;
 	if (_name.size() > import_path.size())
 		return -1;
 	if (!import_path.starts_with(_name))
@@ -31,6 +29,7 @@ int module::matches(string_view import_path) const
 
 array_view<source_code*> module::imported_files(string_view import_path, bool* loaded) const
 {
-	// module-absolute path, for example: "westcoastcode.se/compiler/crypto"
+	// given the example of import_path = "westcoastcode.se/compiler/crypto" and the
+	// module is "westcoastcode.se/compiler" then the relative path is "/compiler"
 	return _sources->get_files(get_relative_path(import_path), loaded);
 }

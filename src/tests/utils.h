@@ -64,8 +64,7 @@ namespace o2
 				{
 					for (auto i: imports)
 					{
-						auto package = parse_module_import(st, m, i->get_import_statement(),
-								&state);
+						auto package = parse_module_import(st, m, i, &state);
 						if (package)
 							nm->add_child(package);
 					}
@@ -104,9 +103,10 @@ namespace o2
 		test(name, root_path, string_view(), std::move(t));
 	}
 
-	static void test(std::initializer_list<string_view> names, string_view root_path, std::function<void(syntax_tree&)> t)
+	static void
+	test(std::initializer_list<string_view> names, string_view root_path, std::function<void(syntax_tree&)> t)
 	{
-		for(auto name : names)
+		for (auto name: names)
 		{
 			test(name, root_path, string_view(), t);
 		}
@@ -153,8 +153,7 @@ namespace o2
 				{
 					for (auto i: imports)
 					{
-						auto package = parse_module_import(st, m, i->get_import_statement(),
-								&state);
+						auto package = parse_module_import(st, m, i, &state);
 						if (package)
 							nm->add_child(package);
 					}

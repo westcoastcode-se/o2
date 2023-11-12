@@ -5,8 +5,14 @@
 
 #include "parser_state.h"
 #include "syntax_tree.h"
+#include "node_import.h"
 
 using namespace o2;
+
+void parser_state::add_import(const node_import* i)
+{
+	_imports.add_unique(i->get_import_statement());
+}
 
 node_type_primitive* parser_state::get_primitive_type(primitive_type type) const
 {

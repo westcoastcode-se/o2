@@ -56,7 +56,7 @@ namespace o2
 		/**
 		 * \return all imports collected during the parse phase
 		 */
-		inline vector<node_import*> get_imports()
+		inline vector<string_view> get_imports()
 		{
 			return std::move(_imports);
 		}
@@ -75,10 +75,7 @@ namespace o2
 		 * \brief add an import
 		 * \param i
 		 */
-		inline void add_import(node_import* i)
-		{
-			_imports.add_unique(i);
-		}
+		void add_import(const node_import* i);
 
 		/**
 		 * \brief
@@ -90,7 +87,7 @@ namespace o2
 	private:
 		syntax_tree* const _syntax_tree;
 		const source_code* _source_code;
-		vector<node_import*> _imports;
+		vector<string_view> _imports;
 		vector<node_type*> _resolve_size;
 	};
 }
