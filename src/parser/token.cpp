@@ -164,7 +164,7 @@ int token::offset() const
 
 token_type token::next()
 {
-	_modifier = token_modifier::none;
+	_modifiers = (int)token_modifier::none;
 	auto c = *_pos;
 	if (c == 0)
 		return eof();
@@ -456,8 +456,13 @@ void token::next_string(char c)
 	_string_end = _pos;
 	_pos++;
 	_type = token_type::string;
+	if (*_pos == 'b')
+	{
+		_modifiers |= (int)token_modifier::hint_bytes;
+		_pos++;
+	}
 	if (value_length() == 0)
-		_modifier = token_modifier::hint_empty;
+		_modifiers |= (int)token_modifier::hint_empty;
 }
 
 void token::next_number()
@@ -496,7 +501,7 @@ void token::next_number()
 
 		if (*_pos == 'f')
 		{
-			_modifier = token_modifier::hint_float;
+			_modifiers |= (int)token_modifier::hint_float;
 			_pos++;
 		}
 
@@ -518,7 +523,7 @@ void token::next_number()
 	// Hint that this value is an unsigned constant
 	if (*_pos == 'u')
 	{
-		_modifier = token_modifier::hint_unsigned;
+		_modifiers |= (int)token_modifier::hint_unsigned;
 		_pos++;
 	}
 
@@ -530,14 +535,14 @@ void token::next_keyword()
 {
 	const auto start = _pos++;
 
-	// Ignore all chacters
+	// Ignore all characters
 	while (is_keyword_mid(*_pos)) _pos++;
 
 	_string_start = start;
 	_string_end = _pos;
 	_type = hint_keyword_type();
 	if (value_length() == 1 && *_string_start == '_')
-		_modifier = token_modifier::hint_empty;
+		_modifiers |= (int)token_modifier::hint_empty;
 }
 
 void token::next_attribute()

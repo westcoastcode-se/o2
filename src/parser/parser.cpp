@@ -46,7 +46,7 @@ namespace
 		switch (t->type())
 		{
 		case token_type::number:
-			if (t->get_modifier() == token_modifier::hint_unsigned)
+			if (t->is_modifier(token_modifier::hint_unsigned))
 			{
 				const auto value = t->value_uint64();
 				if (value > UINT32_MAX)
@@ -89,7 +89,7 @@ namespace
 			pmv.bool_ = t->value_bool() ? 1 : 0;
 			break;
 		case token_type::decimal:
-			if (t->get_modifier() == token_modifier::hint_float)
+			if (t->is_modifier(token_modifier::hint_float))
 			{
 				pmv.type = primitive_type::float32;
 				pmv.f32 = t->value_float32();
@@ -686,8 +686,7 @@ namespace
 			const parser_scope ps0(ps, arguments);
 			while (t->type() != token_type::parant_right)
 			{
-				static const string_view VOID("void");
-				if (t->type() == token_type::identity && t->value() == VOID)
+				if (t->type() == token_type::void_)
 				{
 					if (t->next_until_not(token_type::comment) != token_type::parant_right)
 					{

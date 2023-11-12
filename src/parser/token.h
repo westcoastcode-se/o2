@@ -15,19 +15,19 @@ namespace o2
     typedef std::string string;
 
     // \brief modifiers for the token. For example if a string is multiline
-    enum class token_modifier
+    enum class token_modifier : int
     {
-        none,
+        none = 0,
         // Normally used for strings and comments. Indicates that the token is a multiline value
-        multiline,
+        multiline = 1 << 0,
         // Hint that the supplied number is an unsigned 64bit value
-        hint_unsigned,
+        hint_unsigned = 1 << 1,
         // Hint that the supplied decimal value is a 32bit decimal
-        hint_float,
+        hint_float = 1 << 2,
 		// Hint that the value is considered empty, such as an identity
-		hint_empty,
-		// value is an identity but also a void
-		hint_void,
+		hint_empty = 1 << 3,
+		// string as a byte array and not the string type
+		hint_bytes = 1 << 4,
     };
 
     enum class token_type
@@ -151,7 +151,8 @@ namespace o2
     {
     public:
         token(const lexer* l)
-            : _lexer(l), _pos(l->first()), _type(token_type::unknown), _modifier(token_modifier::none),
+            : _lexer(l), _pos(l->first()), _type(token_type::unknown),
+			_modifiers((int)token_modifier::none),
             _string_start(_pos), _string_end(_pos),
             _line(0), _line_offset(_pos)
         {
@@ -172,7 +173,16 @@ namespace o2
         /**
          * \return a modifier associated with the current token
          */
-        token_modifier get_modifier() const { return _modifier; }
+        int get_modifiers() const { return _modifiers; }
+
+		/**
+		 * \param mod
+		 * \return true if the supplied modifier is set
+		 */
+		bool is_modifier(token_modifier mod) const
+		{
+			return (_modifiers & (int)mod) == (int)mod;
+		}
 
         /// <returns>Get the token string</returns>
         string_view value() const { return string_view(_string_start, _string_end); }
@@ -380,7 +390,7 @@ namespace o2
         const lexer* const _lexer;
         const string_view::value_type* _pos;
         token_type _type;
-        token_modifier _modifier;
+        int _modifiers;
 
         const string_view::value_type* _string_start;
         const string_view::value_type* _string_end;
