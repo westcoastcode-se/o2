@@ -9,6 +9,7 @@
 #include "types/node_type_primitive.h"
 #include "struct/node_type_struct.h"
 #include "node_import.h"
+#include "functions/node_func.h"
 
 using namespace o2;
 
@@ -41,6 +42,9 @@ void node_ref::debug(std::basic_ostream<char>& stream, int indent) const
 				break;
 			case node_ref::func:
 				stream << "func";
+				break;
+			case node_ref::method:
+				stream << "method";
 				break;
 			case node_ref::arg:
 				stream << "arg";
@@ -157,6 +161,16 @@ bool node_ref::resolve_from_parent(node* parent)
 			if ((query & query_types::type))
 			{
 				const auto impl = dynamic_cast<node_type_struct*>(n);
+				if (impl && impl->get_name() == text)
+				{
+					add(impl);
+					return;
+				}
+			}
+
+			if ((query & query_types::func))
+			{
+				const auto impl = dynamic_cast<node_func*>(n);
 				if (impl && impl->get_name() == text)
 				{
 					add(impl);

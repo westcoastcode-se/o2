@@ -21,6 +21,7 @@
 #include "operations/node_op_unaryop.h"
 #include "operations/node_op_binop.h"
 #include "operations/node_op_return.h"
+#include "operations/node_op_callfunc.h"
 #include "syntax_tree.h"
 #include "source_code.h"
 #include "module/module.h"

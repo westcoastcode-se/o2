@@ -289,5 +289,23 @@ void funcs()
 			assert_null(func_F4->get_body());
 			assert_true(func_F4->is_extern());
 		});
+		test("calling_func_args_0_return_void", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 16);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+
+			const auto func_F1 = assert_type<node_func>(root->get_child(14));
+			assert_equals(func_F1->get_name(), "F1");
+
+			const auto func_F2 = assert_type<node_func>(root->get_child(15));
+			assert_equals(func_F2->get_name(), "F2");
+			const auto F2_body = assert_not_null(func_F2->get_body());
+			const auto F2_scope = assert_type<node_scope>(F2_body->get_child(0));
+			const auto F2_scope_call_F1 = assert_type<node_op_callfunc>(F2_scope->get_child(0));
+			assert_equals(F2_scope_call_F1->get_func(), func_F1);
+		});
 	});
 }

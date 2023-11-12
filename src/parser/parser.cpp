@@ -16,6 +16,7 @@
 #include "operations/node_op_assign.h"
 #include "node_link.h"
 #include "variables/node_var_const.h"
+#include "operations/node_op_callfunc.h"
 
 using namespace o2;
 
@@ -28,6 +29,8 @@ namespace
 	node_func* parse_func(const parser_scope* ps, int modifier);
 
 	node_type* parse_type(const parser_scope* ps);
+
+	node_ref* parse_ref(const parser_scope* ps, int query, int chain_types, int query_flags);
 
 	node_type* resolve_type_from_pmv(const parser_scope* ps, const primitive_value& pmv)
 	{
@@ -148,7 +151,57 @@ namespace
 				return guard.done();
 			}
 		case token_type::identity:
-			throw error_not_implemented(ps->get_view(), t);
+		{
+			// todo: add support for variables
+			const auto ref = parse_ref(ps, node_ref::only_callable,
+					node_ref::only_callable_chain_types,
+					node::query_flag_parents |
+					node::query_flag_follow_refs |
+					node::query_flag_children_from_root);
+			auto guard = memory_guard(ref);
+
+			// is the token after the identity a '(' then assume that we are making a function call
+			if (t->type() == token_type::parant_left)
+			{
+				const auto call = o2_new node_op_callfunc(ref->get_source_code());
+				auto guard0 = memory_guard(call);
+				call->add_child(guard.done());
+
+				t->next_until_not(token_type::comment);
+				if (t->type() != token_type::parant_right)
+				{
+					const parser_scope ps0(ps, call);
+					while (true)
+					{
+						call->add_child(parse_op_assign(&ps0));
+
+						switch (t->type())
+						{
+						case token_type::comma:
+							t->next_until_not(token_type::comment);
+							continue;
+						case token_type::parant_right:
+							goto done;
+						default:
+							throw error_syntax_error(ps->get_view(), t, "expected ')' or ','");
+						}
+					}
+				done:;
+				}
+				t->next();
+				return guard0.done();
+			}
+			else if (t->type() == token_type::test_lt)
+			{
+				throw error_not_implemented(ps->get_view(),
+						"macro style function calls or type references are not supported yet");
+			}
+			else
+			{
+				throw error_not_implemented(ps->get_view(),
+						"variables not supported yet");
+			}
+		}
 		default:
 			throw error_not_implemented(ps->get_view(), t);
 		}
@@ -647,7 +700,7 @@ namespace
 				switch (t->type())
 				{
 				case token_type::comma:
-					t->next();
+					t->next_until_not(token_type::comment);
 					continue;
 				case token_type::parant_right:
 					continue;

@@ -64,6 +64,7 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/struct/static/node_type_struct_static.cpp"
         "src/parser/struct/static/node_type_struct_static_funcs.cpp"
         "src/parser/struct/static/node_type_struct_static_vars.cpp"
+        src/parser/operations/node_op_callfunc.cpp
 )
 
 # Test

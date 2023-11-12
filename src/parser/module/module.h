@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "../memory.h"
 #include "../source_code.h"
 #include "../source_code_view.h"
@@ -29,6 +31,17 @@ namespace o2
 		module(string_view name, string_view root_path,
 				module_source_codes* lookup)
 				: _parent(), _name(name), _root_path(root_path), _sources(lookup)
+		{
+		}
+
+		/**
+		 * \param name the name of the module
+		 * \param root_path path to where the root can be found for this module
+		 * \param lookup type used when fetching source code managed by this module
+		 */
+		module(string name, string root_path,
+				module_source_codes* lookup)
+				: _parent(), _name(std::move(name)), _root_path(std::move(root_path)), _sources(lookup)
 		{
 		}
 
@@ -117,8 +130,8 @@ namespace o2
 
 	private:
 		module* const _parent;
-		const string_view _name;
-		const string_view _root_path;
+		const string _name;
+		const string _root_path;
 		module_source_codes* const _sources;
 		vector<module*> _requirements;
 	};

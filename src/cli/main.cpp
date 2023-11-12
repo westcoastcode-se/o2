@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 		const string_view root_path(argv[2]);
 		o2::build b(build::config{
 				root_path,
-				"../lang/stdio",
+				"../lang",
 				1
 		});
 		return b.execute();

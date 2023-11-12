@@ -9,18 +9,27 @@
 
 using namespace o2;
 
+namespace
+{
+	static inline unsigned long long now()
+	{
+		return std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch()).count();
+	}
+}
+
 build::build(config cfg)
 		: _config(cfg), _import_statements_running(0)
 {
 	// TODO: use config
 	_builtin_modules["stdio"] = o2_new node_module(source_code_view(),
-			o2_new module(string_view("stdio"),
-					string_view("../lang/stdio"),
-					new filesystem_module_source_codes(string("../lang/stdio"))));
+			o2_new module(string("stdio"),
+					string(cfg.lang_path) + string("/stdio"),
+					new filesystem_module_source_codes(string(cfg.lang_path) + string("/stdio"))));
 	_builtin_modules["stdlib"] = o2_new node_module(source_code_view(),
-			o2_new module(string_view("stdlib"),
-					string_view("../lang/stdlib"),
-					new filesystem_module_source_codes(string("../lang/stdlib"))));
+			o2_new module(string("stdlib"),
+					string(cfg.lang_path) + string("/stdlib"),
+					new filesystem_module_source_codes(string(cfg.lang_path) + string("/stdlib"))));
 }
 
 build::~build()
@@ -30,6 +39,8 @@ build::~build()
 
 int build::execute()
 {
+	const auto start = now();
+
 	string_view module_root_path = _config.path;
 	if (module_root_path == ".")
 		module_root_path = string_view();
@@ -115,7 +126,7 @@ int build::execute()
 			if (cs == nullptr)
 				cs = new compile_state(new parser_state(&_syntax_tree));
 			do_import(cs->init(package_name, i, sources));
-			// ownership is now in the import block
+			// ownership is now in the import
 			cs = nullptr;
 		}
 		// delete any state that's pending
@@ -131,6 +142,9 @@ int build::execute()
 		_syntax_tree.debug();
 	}
 
+	const auto diff = now() - start;
+	if (_config.verbose_level > 0)
+		std::cout << "build took " << diff << " milliseconds" << std::endl;
 	return success ? 0 : 1;
 }
 

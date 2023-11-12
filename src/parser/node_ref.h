@@ -23,11 +23,12 @@ namespace o2
 			package = 1 << 0,
 			type = 1 << 1,
 			func = 1 << 2,
-			arg = 1 << 3,
-			local = 1 << 4,
-			global = 1 << 5,
-			primitive = 1 << 6,
-			const_ = 1 << 7
+			method = 1 << 3,
+			arg = 1 << 4,
+			local = 1 << 5,
+			global = 1 << 6,
+			primitive = 1 << 7,
+			const_ = 1 << 8
 		};
 
 		static constexpr int only_types = type | primitive;
@@ -36,6 +37,16 @@ namespace o2
 		 * \brief types that limits to only locations where we can read and write data to
 		 */
 		static constexpr int only_variables = arg | local | global;
+
+		/**
+		 * \brief types that limit to only locations where one can find a function to call
+		 */
+		static constexpr int only_callable = arg | local | global | func | method;
+
+		/**
+		 * \brief Query types that allow for a chain of references until we get to a function to call
+		 */
+		static constexpr int only_callable_chain_types = package | type | func;
 
 		/**
 		 * \brief Query types that allow for a chain of references until we get to a type
