@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "token.h"
 
 namespace o2
@@ -15,13 +17,13 @@ namespace o2
 	class source_code
 	{
 	public:
-		source_code(string_view text)
-				: _text(text), _filename()
+		explicit source_code(string text)
+				: _text(std::move(text)), _filename()
 		{
 		}
 
-		source_code(string_view text, string_view filename)
-				: _text(text), _filename(filename)
+		source_code(string text, string filename)
+				: _text(std::move(text)), _filename(std::move(filename))
 		{
 		}
 
@@ -42,7 +44,7 @@ namespace o2
 		}
 
 	private:
-		const string_view _text;
-		const string_view _filename;
+		const string _text;
+		const string _filename;
 	};
 }

@@ -214,6 +214,9 @@ async_data* build::parse(async_data* cs)
 {
 	try
 	{
+		// load the actual string source code
+		cs->module->load(cs->sources);
+		// parse the source code
 		cs->package = parse_module_import(cs->sources->sources, cs->package_name, &cs->state);
 	}
 	catch (const error& e)

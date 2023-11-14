@@ -1125,9 +1125,11 @@ node_package* o2::parse_module_path(syntax_tree* st, const module* m, string_vie
 
 	// get all files found in the supplied path
 	const auto package_sources = m->imported_files(path);
-	assert(!package_sources->sources.empty());
+	assert(package_sources->sources.empty());
 	assert(package_sources->load_status == package_source_code::not_loaded);
 	package_sources->load_status = package_source_code::loading;
+	m->load(package_sources);
+	assert(!package_sources->sources.empty());
 
 	// application entry point functionality is always put in the root package
 	const auto app_package = st->get_root_package();
@@ -1185,6 +1187,7 @@ node_package* o2::parse_module_import(syntax_tree* st, const module* m, string_v
 	if (package_sources->load_status != package_source_code::not_loaded)
 		return nullptr;
 	package_sources->load_status = package_source_code::loading;
+	m->load(package_sources);
 
 	// create a new package based on the import
 	auto package = o2_new node_package(source_code_view(), m->get_relative_path(path));

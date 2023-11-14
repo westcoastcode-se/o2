@@ -33,6 +33,11 @@ package_source_code* module::imported_files(string_view import_path) const
 	return _sources->get_files(get_relative_path(import_path));
 }
 
+void module::load(package_source_code* package_sources) const
+{
+	_sources->load(package_sources);
+}
+
 void module::debug(std::basic_ostream<char>& stream, int indent) const
 {
 	stream << this << in(indent);

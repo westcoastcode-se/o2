@@ -24,8 +24,8 @@ filesystem_module_source_codes::filesystem_module_source_codes(string_view root_
 
 filesystem_module_source_codes::~filesystem_module_source_codes()
 {
-	for (auto s: _all_source)
-		delete s;
+	for (auto s: _sources)
+		delete s.second;
 }
 
 namespace
@@ -39,9 +39,18 @@ package_source_code* filesystem_module_source_codes::get_files(string_view relat
 	if (it != _sources.end())
 		return it->second;
 
+	const auto package_sources = new package_source_code{
+			relative_import_path,
+			package_source_code::not_loaded
+	};
+	_sources[relative_import_path] = package_sources;
+	return package_sources;
+}
+
+void filesystem_module_source_codes::load(package_source_code* package_sources) const
+{
 	stringstream ss;
-	ss << _root_dir << relative_import_path;
-	vector<source_code*> sources;
+	ss << _root_dir << package_sources->relative_path;
 	for (const auto& fe: filesystem::directory_iterator(ss.str()))
 	{
 		if (!fe.is_regular_file())
@@ -51,21 +60,11 @@ package_source_code* filesystem_module_source_codes::get_files(string_view relat
 		if (path.extension() != O2_SUFFIX)
 			continue;
 		ifstream f(path);
-		const auto one_of_them = new entry{
+		package_sources->sources.add(new source_code(
 				std::move(string(istreambuf_iterator<char>(f), istreambuf_iterator<char>())),
-				fe.path().generic_string()
-		};
-		_all_source.add(one_of_them);
-		sources.add(new source_code(one_of_them->_text, one_of_them->_filename));
+				fe.path().generic_string()));
+		f.close();
 	}
-
-	const auto package_sources = new package_source_code{
-			relative_import_path,
-			package_source_code::not_loaded,
-			std::move(sources)
-	};
-	_sources[relative_import_path] = package_sources;
-	return package_sources;
 }
 
 memory_module_source_codes::~memory_module_source_codes()

@@ -54,10 +54,16 @@ namespace o2
 		 * \brief get all sources found at the supplied import path
 		 * \param relative_import_path relative path to a directory where one or more sources can be found
 		 * \return all source codes part of this package
-		 *
-		 * this will load the sources found in the supplied directory if not already cached in-memory.
 		 */
 		virtual package_source_code* get_files(string_view relative_import_path) = 0;
+
+		/**
+		 * \brief load the source code data
+		 * \param package_sources
+		 */
+		virtual void load(package_source_code* package_sources) const
+		{
+		}
 	};
 
 	/**
@@ -77,18 +83,13 @@ namespace o2
 
 		package_source_code* get_files(string_view relative_import_path) final;
 
+		void load(package_source_code* package_sources) const final;
+
 #pragma endregion
 
 	private:
 		string _root_dir;
 		std::unordered_map<string_view, package_source_code*> _sources;
-
-		struct entry
-		{
-			string _text;
-			string _filename;
-		};
-		vector<entry*> _all_source;
 	};
 
 	/**

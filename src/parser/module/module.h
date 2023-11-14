@@ -132,6 +132,12 @@ namespace o2
 		 */
 		package_source_code* imported_files(string_view import_path) const;
 
+		/**
+		 * \brief load the supplied source code content
+		 * \param package_sources where to put the loaded source code into
+		 */
+		void load(package_source_code* package_sources) const;
+
 #pragma region node
 
 		void debug(std::basic_ostream<char>& stream, int indent) const final;
