@@ -115,10 +115,8 @@ int build::execute()
 		{
 			// the load failed
 			cs->sources->load_status = package_source_code::failed;
-
-			//for (const auto& e: cs->errors)
-			//	std::cerr << e << std::endl;
-			//cs->errors.clear();
+			for (const auto& e: cs->errors)
+				std::cerr << e << std::endl;
 			success = false;
 		}
 		else if (_config.verbose_level > 0)
