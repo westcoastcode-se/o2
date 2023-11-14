@@ -4,7 +4,7 @@
 //
 
 #include "node_import.h"
-#include "module/node_module.h"
+#include "module/module.h"
 #include <iostream>
 
 using namespace o2;
@@ -27,7 +27,7 @@ bool node_import::resolve(const recursion_detector* rd)
 		{
 		public:
 			const string_view text;
-			vector<node_module*> modules;
+			vector<module*> modules;
 
 			modules_visitor(string_view text)
 					: text(text)
@@ -36,7 +36,7 @@ bool node_import::resolve(const recursion_detector* rd)
 
 			void visit(node* const n) final
 			{
-				const auto impl = dynamic_cast<node_module*>(n);
+				const auto impl = dynamic_cast<module*>(n);
 				if (impl && text.starts_with(impl->get_name()))
 					modules.add(impl);
 			}
@@ -46,7 +46,7 @@ bool node_import::resolve(const recursion_detector* rd)
 		// this is because private packages are put as children under the module node
 		get_parent()->query(&v1, node::query_flag_parents | node::query_flag_children_from_root);
 		if (v1.modules.empty())
-			throw std::runtime_error("could not find modules matching import statements");
+			throw resolve_error_unresolved_reference(get_source_code());
 
 		// look for packages in each module
 		class package_visitor
@@ -72,7 +72,7 @@ bool node_import::resolve(const recursion_detector* rd)
 		vector<node_package*> packages;
 		for (auto m: v1.modules)
 		{
-			package_visitor v2(m->get_module()->get_relative_path(_import_statement),
+			package_visitor v2(m->get_relative_path(_import_statement),
 					packages);
 			m->query(&v2, query_flag_children | query_flag_downwards);
 			if (!packages.empty())
@@ -83,7 +83,7 @@ bool node_import::resolve(const recursion_detector* rd)
 		}
 
 		if (packages.empty())
-			throw std::runtime_error("unresolved import statements");
+			throw resolve_error_unresolved_reference(get_source_code());
 		_package = packages[0];
 		if (_package == nullptr)
 			return false;

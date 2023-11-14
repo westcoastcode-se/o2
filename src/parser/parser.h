@@ -25,7 +25,6 @@
 #include "syntax_tree.h"
 #include "source_code.h"
 #include "module/module.h"
-#include "module/node_module.h"
 #include "parser_state.h"
 
 namespace o2

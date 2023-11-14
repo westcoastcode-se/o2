@@ -19,7 +19,7 @@ void imports()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<node_module>(root->get_children()[13]);
+			const auto project_module = assert_type<module>(root->get_children()[13]);
 			const auto package_models = assert_type<node_package>(project_module->get_children()[0]);
 			assert_equals(package_models->get_name(), "/models");
 
@@ -34,7 +34,7 @@ void imports()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<node_module>(root->get_children()[13]);
+			const auto project_module = assert_type<module>(root->get_children()[13]);
 			assert_equals(project_module->get_children().size(), 2);
 			const auto package_models = assert_type<node_package>(project_module->get_children()[0]);
 			assert_equals(package_models->get_name(), "/models");

@@ -26,46 +26,24 @@ namespace o2
 		}
 
 		/**
-		 * \brief pop a value from this channel
-		 * \return the value
-		 */
-		T pop()
-		{
-			std::unique_lock l(_mutex);
-			_condition.wait(l, [&]()
-			{
-				return _closed || _queue.size() > 0;
-			});
-			if (_closed)
-				throw std::runtime_error("channel is closed");
-			auto ret = std::move(_queue.front());
-			_queue.pop();
-			_condition.notify_one();
-			return ret;
-		}
-
-		/**
 		 * \brief try to pop a value from t
 		 * \param val
 		 * \return
 		 */
-		template<class _Rep, class _Period>
-		bool try_pop(T* val, const std::chrono::duration<_Rep, _Period>& time)
+		bool try_pop(T* val)
 		{
+			// wait for the channel to be triggered
 			std::unique_lock l(_mutex);
-			const bool st = _condition.wait_for(l, time, [&]()
-			{
-				return _closed || _queue.size() > 0;
-			});
-			if (!st || _queue.size() == 0)
-				return false;
+			_condition.wait(l);
+
+			// is the channel closed?
 			if (_closed)
-				throw std::runtime_error("channel is closed");
+				return false;
+
+			// get the value from the queue
 			*val = std::move(_queue.front());
 			_queue.pop();
-			_condition.notify_one();
 			return true;
-
 		}
 
 		/**
@@ -74,7 +52,7 @@ namespace o2
 		 */
 		void put(const T& t)
 		{
-			std::unique_lock l(_mutex);
+			std::lock_guard l(_mutex);
 			_queue.push(t);
 			_condition.notify_one();
 		}
@@ -84,26 +62,28 @@ namespace o2
 		 */
 		void close()
 		{
+			std::lock_guard l(_mutex);
 			_closed = true;
-			_condition.notify_one();
+			_condition.notify_all();
 		}
 
 		/**
 		 * \return true if this channel is still opened
 		 */
-		bool is_open() const
+		bool is_open()
 		{
+			std::lock_guard l(_mutex);
 			return !_closed;
 		}
 
 		bool empty()
 		{
-			std::unique_lock l(_mutex);
+			std::lock_guard l(_mutex);
 			return _queue.empty();
 		}
 
 	private:
-		std::atomic_bool _closed;
+		bool _closed;
 		std::mutex _mutex;
 		std::condition_variable _condition;
 		std::queue<T> _queue;

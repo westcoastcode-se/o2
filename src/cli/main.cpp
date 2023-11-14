@@ -65,7 +65,8 @@ int main(int argc, char** argv)
 		o2::build b(build::config{
 				root_path,
 				"../lang",
-				1
+				1,
+				5
 		});
 		return b.execute();
 	}

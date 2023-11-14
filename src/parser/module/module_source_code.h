@@ -12,6 +12,37 @@
 namespace o2
 {
 	/**
+	 * \brief source code inside a package
+	 */
+	struct package_source_code
+	{
+		enum status
+		{
+			// the package is not loaded yet
+			not_loaded = 0,
+			// the package is being loaded
+			loading,
+			// the package is loaded
+			successful,
+			// the package failed to load
+			failed,
+		};
+
+		// the relative path to the source codes
+		string_view relative_path;
+		// the loading status
+		status load_status;
+		// sources inside this package
+		vector<source_code*> sources;
+
+		~package_source_code()
+		{
+			for (auto s: sources)
+				delete s;
+		}
+	};
+
+	/**
 	 * \brief source code contained inside a module
 	 */
 	class module_source_codes
@@ -22,17 +53,11 @@ namespace o2
 		/**
 		 * \brief get all sources found at the supplied import path
 		 * \param relative_import_path relative path to a directory where one or more sources can be found
-		 * \param loaded this will be set to true if new files are loaded
-		 * \return a list of all sources for this path
+		 * \return all source codes part of this package
 		 *
 		 * this will load the sources found in the supplied directory if not already cached in-memory.
-		 *
-		 * For example: importing "github.com/westcoastcode-se/parser/crypto" till load all files in the
-		 * "parser/crypto" directory inside the "github.com/westcoastcode-se" module. It might also
-		 * load all files in the "crypto" directory inside the "github.com/westcoastcode-se/parser" module. It depends
-		 * on your requirements
 		 */
-		virtual array_view<source_code*> get_files(string_view relative_import_path, bool* loaded) = 0;
+		virtual package_source_code* get_files(string_view relative_import_path) = 0;
 	};
 
 	/**
@@ -50,21 +75,13 @@ namespace o2
 
 #pragma region module_source_code_lookup
 
-		array_view<source_code*> get_files(string_view relative_import_path, bool* loaded) final;
+		package_source_code* get_files(string_view relative_import_path) final;
 
 #pragma endregion
 
 	private:
-		/**
-		 * \brief load source code files for the supplied import_path
-		 * \param import_path
-		 * \return
-		 */
-		array_view<source_code*> load(string_view import_path, bool* loaded);
-
-	private:
 		string _root_dir;
-		std::unordered_map<string_view, vector<source_code*>> _sources;
+		std::unordered_map<string_view, package_source_code*> _sources;
 
 		struct entry
 		{
@@ -88,15 +105,15 @@ namespace o2
 		 * \param import_path
 		 * \param sources the sources
 		 */
-		void add(string_view import_path, vector<source_code*> sources);
+		void add(string_view relative_import_path, vector<source_code*> sources);
 
 #pragma region module_source_code_lookup
 
-		array_view<source_code*> get_files(string_view import_path, bool* loaded) final;
+		package_source_code* get_files(string_view relative_import_path) final;
 
 #pragma endregion
 
 	private:
-		std::unordered_map<string_view, vector<source_code*>> _sources;
+		std::unordered_map<string_view, package_source_code*> _sources;
 	};
 }

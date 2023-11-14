@@ -6,6 +6,8 @@
 #include "build.h"
 #include <sstream>
 #include <iostream>
+#include <sstream>
+#include <filesystem>
 
 using namespace o2;
 
@@ -21,25 +23,32 @@ namespace
 build::build(config cfg)
 		: _config(cfg), _import_statements_running(0)
 {
-	// TODO: use config
-	_builtin_modules["stdio"] = o2_new node_module(source_code_view(),
-			o2_new module(string("stdio"),
-					string(cfg.lang_path) + string("/stdio"),
-					new filesystem_module_source_codes(string(cfg.lang_path) + string("/stdio"))));
-	_builtin_modules["stdlib"] = o2_new node_module(source_code_view(),
-			o2_new module(string("stdlib"),
-					string(cfg.lang_path) + string("/stdlib"),
-					new filesystem_module_source_codes(string(cfg.lang_path) + string("/stdlib"))));
 }
 
 build::~build()
 {
-	assert(!_channel.is_open());
+	assert(!_parse_responses.is_open());
+	assert(!_parse_requests.is_open());
 }
 
 int build::execute()
 {
 	const auto start = now();
+
+	for (int i = 0; i < _config.threads_count; ++i)
+	{
+		_threads.emplace_back([requests = &_parse_requests, responses = &_parse_responses]
+		{
+			// process requests as quickly as possible, as long as the request channel is open
+			while (requests->is_open())
+			{
+				async_data* data;
+				if (!requests->try_pop(&data))
+					continue;
+				responses->put(build::parse(data));
+			}
+		});
+	}
 
 	string_view module_root_path = _config.path;
 	if (module_root_path == ".")
@@ -47,13 +56,12 @@ int build::execute()
 
 	// TODO: Parse module file in the config root path and figure out the module name form that
 	const string_view module_name("westcoastcode.se/hello_world");
+	// Initialize the module we are compiling and add it to the syntax tree
 	_main_module = o2_new module(module_name, module_root_path,
 			new filesystem_module_source_codes(_config.path));
+	_syntax_tree.get_root_package()->add_child(_main_module);
 
-	// Initialize the module we are compiling and add it to the syntax tree
-	const auto nm = o2_new node_module(source_code_view(), _main_module);
-	_syntax_tree.get_root_package()->add_child(nm);
-	//
+	// Prepare a parser state used for the main application
 	parser_state state(&_syntax_tree);
 
 	bool success = true;
@@ -83,19 +91,20 @@ int build::execute()
 	// do import everything found in the main source code
 	for (auto i: state.get_imports())
 	{
-		auto cs = new compile_state(new parser_state(&_syntax_tree));
-		bool loaded = false;
-		string_view package_name;
-		auto sources = get_sources(i, &package_name, &loaded);
-		if (loaded)
-			do_import(cs->init(package_name, i, sources));
+		auto cs = new async_data(&_syntax_tree);
+		const auto m = get_module(i);
+		if (m != nullptr)
+		{
+			auto sources = m->imported_files(i);
+			try_import(cs, m, sources->relative_path, sources);
+		}
 	}
 
 	// handle each parse request and import statement
-	while (_channel.is_open() && _import_statements_running > 0)
+	while (_parse_responses.is_open() && _import_statements_running > 0)
 	{
-		compile_state* cs;
-		if (!_channel.try_pop(&cs, std::chrono::microseconds(0)))
+		async_data* cs;
+		if (!_parse_responses.try_pop(&cs))
 			continue;
 
 		// One import statement is done!
@@ -104,42 +113,75 @@ int build::execute()
 		// Did an error happen when we parsed the source code?
 		if (!cs->errors.empty())
 		{
-			for (const auto& e: cs->errors)
-				std::cerr << e << std::endl;
-			cs->errors.clear();
+			// the load failed
+			cs->sources->load_status = package_source_code::failed;
+
+			//for (const auto& e: cs->errors)
+			//	std::cerr << e << std::endl;
+			//cs->errors.clear();
 			success = false;
 		}
 		else if (_config.verbose_level > 0)
 		{
-			std::cout << "parsed '" << cs->import_statement << "' - done!" << std::endl;
+			if (cs->package_name.empty())
+				std::cout << "parsed '" << cs->module->get_name() << "' - done!" << std::endl;
+			else
+				std::cout << "parsed '" << cs->module->get_name() << "/" << cs->package_name << "' - done!"
+						  << std::endl;
+		}
+
+		if (cs->package)
+		{
+			// the load completed successfully
+			cs->sources->load_status = package_source_code::successful;
+
+			// add the package to the module
+			assert(cs->module);
+			cs->module->add_child(cs->package);
 		}
 
 		// collect all imports to be parsed
-		for (auto i: cs->state->get_imports())
+		auto imports = cs->state.get_imports();
+		for (auto i: imports)
 		{
-			bool loaded = false;
-			string_view package_name;
-			auto sources = get_sources(i, &package_name, &loaded);
-			if (!loaded)
-				continue;
-
-			if (cs == nullptr)
-				cs = new compile_state(new parser_state(&_syntax_tree));
-			do_import(cs->init(package_name, i, sources));
-			// ownership is now in the import
-			cs = nullptr;
+			const auto m = get_module(i);
+			if (m)
+			{
+				auto sources = m->imported_files(i);
+				if (cs == nullptr)
+					cs = new async_data(&_syntax_tree);
+				if (try_import(cs, m, sources->relative_path, sources))
+					cs = nullptr;
+			}
 		}
 		// delete any state that's pending
 		delete cs;
 	}
-	_channel.close();
+	_parse_responses.close();
+	_parse_requests.close();
+
+	// wait for all threads to shut down
+	std::for_each(_threads.begin(), _threads.end(), [](std::jthread& j) -> void
+	{
+		j.join();
+	});
 
 	if (success)
 	{
 		// TODO: move resolve phase to the parser thread
-		resolve(&_syntax_tree, &state);
-		optimize(&_syntax_tree, 0);
-		_syntax_tree.debug();
+		try
+		{
+			resolve(&_syntax_tree, &state);
+			optimize(&_syntax_tree, 0);
+		}
+		catch (const o2::error& e)
+		{
+			// print errors, but continue evaluating all other source code
+			// because it's tedious to having to fix one problem at a time
+			e.print(std::cerr);
+			success = false;
+			_syntax_tree.debug();
+		}
 	}
 
 	const auto diff = now() - start;
@@ -148,43 +190,33 @@ int build::execute()
 	return success ? 0 : 1;
 }
 
-void build::do_import(compile_state* cs)
+bool build::try_import(async_data* cs, module* m, string_view package_name,
+		package_source_code* sources)
 {
+	// we only care about package sources that's not loaded
+	if (sources->load_status != package_source_code::not_loaded)
+		return false;
+
+	// TODO: figure out a better way of doing this!
 	_import_statements_running++;
-	auto* ch = &_channel;
-	std::async(std::launch::async, [ch, cs]()
-	{
-		ch->put(build::parse(cs));
-	});
+
+	// initialize the async data
+	cs->errors.clear();
+	cs->module = m;
+	cs->package_name = package_name;
+	cs->sources = sources;
+	cs->sources->load_status = package_source_code::loading;
+	cs->package = nullptr;
+
+	_parse_requests.put(cs);
+	return true;
 }
 
-array_view<source_code*> build::get_sources(string_view import_statement, string_view* package_name, bool* loaded)
-{
-	// TODO: Figure out the module based on the import statement in a smarter way
-	const auto builtin_it = _builtin_modules.find(import_statement);
-	if (builtin_it != _builtin_modules.end())
-	{
-		auto result = builtin_it->second->get_module()->imported_files(import_statement, loaded);
-		if (*loaded)
-		{
-			*package_name = builtin_it->second->get_module()->get_relative_path(import_statement);
-			_syntax_tree.get_root_package()->add_child(builtin_it->second);
-		}
-		return result;
-	}
-	else
-	{
-		// TODO: get the appropriate module. Assume that we are parsing the main module for now
-		*package_name = _main_module->get_relative_path(import_statement);
-		return _main_module->imported_files(import_statement, loaded);
-	}
-}
-
-compile_state* build::parse(compile_state* cs)
+async_data* build::parse(async_data* cs)
 {
 	try
 	{
-		cs->package = parse_module_import(cs->sources, cs->package_name, cs->state);
+		cs->package = parse_module_import(cs->sources->sources, cs->package_name, &cs->state);
 	}
 	catch (const error& e)
 	{
@@ -197,4 +229,45 @@ compile_state* build::parse(compile_state* cs)
 		cs->errors.emplace_back(e.what());
 	}
 	return cs;
+}
+
+o2::module* build::get_module(string_view import_statement)
+{
+	// search among the required modules first
+	module* best_match = nullptr;
+	int match = _main_module->matches(import_statement);
+	for (auto m: _main_module->get_requirements())
+	{
+		const auto current_match = m->matches(import_statement);
+		// -1 will become super large by doing this, thus no need to check for -1
+		if ((unsigned int)current_match < (unsigned int)match)
+		{
+			best_match = m;
+			match = current_match;
+		}
+	}
+
+	if (best_match)
+		return best_match;
+
+	// If not then check among the built-in modules
+	const auto it = _builtin_modules.find(import_statement);
+	if (it == _builtin_modules.end())
+	{
+		// see if there's a directory in the language folder that might have modules in them
+		std::filesystem::path path(_config.lang_path);
+		path = path / std::filesystem::path(import_statement);
+		if (std::filesystem::is_directory(path))
+		{
+			best_match = o2_new module(string(import_statement),
+					path.generic_string(),
+					new filesystem_module_source_codes(path.generic_string()));
+			_builtin_modules[import_statement] = best_match;
+			_syntax_tree.get_root_package()->add_child(best_match);
+		}
+	}
+	else
+		best_match = it->second;
+
+	return best_match;
 }

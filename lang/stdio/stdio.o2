@@ -6,10 +6,10 @@
 import "stdlib"
 
 // external reference to stdlib.h -> printf(...)
-extern func printf(s string)
+extern func printf(s *byte)
 
 // print a string to the terminal
 // \param s the string we want to print
-func print(s string) {
+func print(s *byte) {
     printf(s)
 }

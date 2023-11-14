@@ -1124,15 +1124,16 @@ node_package* o2::parse_module_path(syntax_tree* st, const module* m, string_vie
 	assert(state);
 
 	// get all files found in the supplied path
-	bool ignored;
-	const auto source_codes = m->imported_files(path, &ignored);
-	assert(source_codes.size() > 0);
+	const auto package_sources = m->imported_files(path);
+	assert(!package_sources->sources.empty());
+	assert(package_sources->load_status == package_source_code::not_loaded);
+	package_sources->load_status = package_source_code::loading;
 
 	// application entry point functionality is always put in the root package
 	const auto app_package = st->get_root_package();
 
 	// parse each source code found
-	for (auto src: source_codes)
+	for (auto src: package_sources->sources)
 	{
 		lexer l(src->get_text());
 		token t(&l);
@@ -1144,7 +1145,7 @@ node_package* o2::parse_module_path(syntax_tree* st, const module* m, string_vie
 		t.next();
 		parse_package_pre_scope(&ps1);
 	}
-
+	package_sources->load_status = package_source_code::successful;
 	return app_package;
 }
 
@@ -1180,16 +1181,16 @@ node_package* o2::parse_module_import(syntax_tree* st, const module* m, string_v
 	assert(state);
 
 	// get all files found in the supplied path. If the module is already loaded then ignore
-	bool loaded = false;
-	const auto source_codes = m->imported_files(path, &loaded);
-	if (!loaded)
+	const auto package_sources = m->imported_files(path);
+	if (package_sources->load_status != package_source_code::not_loaded)
 		return nullptr;
+	package_sources->load_status = package_source_code::loading;
 
 	// create a new package based on the import
 	auto package = o2_new node_package(source_code_view(), m->get_relative_path(path));
 	auto guard = memory_guard(package);
 	// parse each source code found
-	for (auto src: source_codes)
+	for (auto src: package_sources->sources)
 	{
 		lexer l(src->get_text());
 		token t(&l);
@@ -1202,7 +1203,7 @@ node_package* o2::parse_module_import(syntax_tree* st, const module* m, string_v
 		t.next();
 		parse_package_pre_scope(&ps2);
 	}
-
+	package_sources->load_status = package_source_code::successful;
 	return guard.done();
 }
 

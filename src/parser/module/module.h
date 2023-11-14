@@ -7,20 +7,17 @@
 
 #include <utility>
 
-#include "../memory.h"
+#include "module_source_code.h"
+#include "../node.h"
 #include "../source_code.h"
-#include "../source_code_view.h"
-#include "../collections/vector.h"
 
 namespace o2
 {
-	class module_source_codes;
-
 	/**
 	 * \brief a module defines how a set of source code files relates to each other
 	 */
-	class module
-			: public memory_tracked
+	class module final
+			: public node
 	{
 	public:
 		/**
@@ -30,7 +27,8 @@ namespace o2
 		 */
 		module(string_view name, string_view root_path,
 				module_source_codes* lookup)
-				: _parent(), _name(name), _root_path(root_path), _sources(lookup)
+				: node(source_code_view()),
+				  _parent(), _name(name), _root_path(root_path), _sources(lookup)
 		{
 		}
 
@@ -41,7 +39,8 @@ namespace o2
 		 */
 		module(string name, string root_path,
 				module_source_codes* lookup)
-				: _parent(), _name(std::move(name)), _root_path(std::move(root_path)), _sources(lookup)
+				: node(source_code_view()),
+				  _parent(), _name(std::move(name)), _root_path(std::move(root_path)), _sources(lookup)
 		{
 		}
 
@@ -53,7 +52,8 @@ namespace o2
 		module(string_view name, string_view root_path,
 				module_source_codes* lookup,
 				std::initializer_list<module*> requirements)
-				: _parent(), _name(name), _root_path(root_path), _sources(lookup),
+				: node(source_code_view()),
+				  _parent(), _name(name), _root_path(root_path), _sources(lookup),
 				  _requirements(requirements)
 		{
 		}
@@ -61,12 +61,13 @@ namespace o2
 		module(string_view name, string_view root_path,
 				module_source_codes* lookup,
 				vector<module*> requirements)
-				: _parent(), _name(name), _root_path(root_path), _sources(lookup),
+				: node(source_code_view()),
+				  _parent(), _name(name), _root_path(root_path), _sources(lookup),
 				  _requirements(std::move(requirements))
 		{
 		}
 
-		~module();
+		~module() final;
 
 		/**
 		 * \return true if this module is the root module
@@ -109,9 +110,12 @@ namespace o2
 		}
 
 		/**
-		 * \return the relative path
+		 * \brief get the relative path from this module's point of view. it's assumed that
+		 *        you've verified that the path is compatible with this module beforehand
+		 * \param import_path the full import path
+		 * \return a relative path from this module's point of view
 		 */
-		string_view get_relative_path(string_view path) const;
+		string_view get_relative_path(string_view import_path) const;
 
 		/**
 		 * \param import_path
@@ -122,11 +126,17 @@ namespace o2
 		/**
 		 * \brief get all files found at the supplied relative path
 		 * \param import_path the path supplied in the imports statement
-		 * \return a list of all source codes for this path
+		 * \return information on the package's source code
 		 *
 		 * it is assumed that you've checked compatibility with the matches method before calling this
 		 */
-		array_view<source_code*> imported_files(string_view import_path, bool* loaded) const;
+		package_source_code* imported_files(string_view import_path) const;
+
+#pragma region node
+
+		void debug(std::basic_ostream<char>& stream, int indent) const final;
+
+#pragma endregion
 
 	private:
 		module* const _parent;

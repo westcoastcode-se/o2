@@ -22,39 +22,24 @@ namespace o2
 	/**
 	 * \brief state of a specific compilation
 	 */
-	struct compile_state
+	struct async_data
 	{
 		// the state - where you can find things like imports
-		parser_state* state;
-		// the package we are building
+		parser_state state;
+		// the module we are loading
+		module* module;
+		// the package, inside the module, we are processing
 		string_view package_name;
 		// all errors that occurred when compiling
 		std::vector<string> errors;
-		// current import
-		string_view import_statement;
 		// the resulting package to be added to the syntax tree
 		node_package* package;
 		// sources to be compiled
-		array_view<source_code*> sources;
+		package_source_code* sources;
 
-		explicit compile_state(parser_state* state)
-				: state(state), package_name(), errors(), package()
+		explicit async_data(syntax_tree* st)
+				: state(st), module(), package_name(), errors(), package(), sources()
 		{
-		}
-
-		~compile_state()
-		{
-			delete state;
-		}
-
-		compile_state* init(string_view pkg_name, string_view i, array_view<source_code*> s)
-		{
-			assert(errors.empty());
-			package_name = pkg_name;
-			import_statement = i;
-			package = nullptr;
-			sources = s;
-			return this;
 		}
 	};
 
@@ -72,9 +57,11 @@ namespace o2
 			string_view lang_path;
 			// How much should the builder print out in the terminal
 			int verbose_level;
+			// number of threads that's allowed to work with the source code
+			int threads_count;
 		};
 
-		build(config cfg);
+		explicit build(config cfg);
 
 		~build();
 
@@ -87,34 +74,46 @@ namespace o2
 	private:
 		/**
 		 * \brief push more items to be built in worker threads
-		 * \param ni
+		 * \param data asynchronous data
 		 * \param cs
-		 * \return
+		 * \return true if an import request is put to be processed
 		 */
-		void do_import(compile_state* cs);
+		bool try_import(async_data* data, module* m, string_view package_name, package_source_code* sources);
 
 		/**
-		 * \brief get all source codes found
-		 * \param ni
-		 * \return
+		 * \param import_statement
+		 * \return the module for the supplied import statement
 		 */
-		array_view<source_code*> get_sources(string_view import_statement, string_view* package_name, bool* loaded);
+		module* get_module(string_view import_statement);
 
 		/**
 		 * \brief parse the source code associated with the compile state
 		 * \param cs
 		 * \return
 		 */
-		static compile_state* parse(compile_state* cs);
+		static async_data* parse(async_data* cs);
+
+		/**
+		 *
+		 * \param data
+		 * \param from from what module's point of view is this import in case of private import statements
+		 * \param import_statement
+		 * \return a list of all futures to be expected
+		 */
+		std::vector<std::future<async_data*>> try_imports(async_data* data, module* from, string_view import_statement);
 
 	private:
 		const config _config;
 		syntax_tree _syntax_tree;
-		channel<compile_state*> _channel;
+		channel<async_data*> _parse_requests;
+		channel<async_data*> _parse_responses;
 		int _import_statements_running;
 
+		// threads that are doing stuff
+		std::vector<std::jthread> _threads;
+
 		// TODO add support for a smarted standard lang module imports
-		std::unordered_map<string_view, node_module*> _builtin_modules;
+		std::unordered_map<string_view, module*> _builtin_modules;
 		module* _main_module;
 	};
 }

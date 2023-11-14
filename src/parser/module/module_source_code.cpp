@@ -28,23 +28,19 @@ filesystem_module_source_codes::~filesystem_module_source_codes()
 		delete s;
 }
 
-array_view<source_code*> filesystem_module_source_codes::get_files(string_view import_path, bool* loaded)
-{
-	auto it = _sources.find(import_path);
-	if (it == _sources.end())
-		return load(import_path, loaded);
-	if (it->second.empty())
-		return load(import_path, loaded);
-	return it->second;
-}
-
-array_view<source_code*> filesystem_module_source_codes::load(string_view import_path, bool* loaded)
+namespace
 {
 	static const filesystem::path O2_SUFFIX(".o2");
+}
+
+package_source_code* filesystem_module_source_codes::get_files(string_view relative_import_path)
+{
+	auto it = _sources.find(relative_import_path);
+	if (it != _sources.end())
+		return it->second;
 
 	stringstream ss;
-	ss << _root_dir << '/' << import_path;
-	entry* one_of_them = nullptr;
+	ss << _root_dir << relative_import_path;
 	vector<source_code*> sources;
 	for (const auto& fe: filesystem::directory_iterator(ss.str()))
 	{
@@ -55,38 +51,41 @@ array_view<source_code*> filesystem_module_source_codes::load(string_view import
 		if (path.extension() != O2_SUFFIX)
 			continue;
 		ifstream f(path);
-		one_of_them = new entry{
-				string(istreambuf_iterator<char>(f), istreambuf_iterator<char>()),
+		const auto one_of_them = new entry{
+				std::move(string(istreambuf_iterator<char>(f), istreambuf_iterator<char>())),
 				fe.path().generic_string()
 		};
 		_all_source.add(one_of_them);
 		sources.add(new source_code(one_of_them->_text, one_of_them->_filename));
 	}
 
-	if (one_of_them == nullptr)
-		return {};
-	*loaded = true;
-	const auto it = _sources.insert(make_pair(import_path, std::move(sources)));
-	return it.first->second;
+	const auto package_sources = new package_source_code{
+			relative_import_path,
+			package_source_code::not_loaded,
+			std::move(sources)
+	};
+	_sources[relative_import_path] = package_sources;
+	return package_sources;
 }
 
 memory_module_source_codes::~memory_module_source_codes()
 {
 	for (const auto& pair: _sources)
-	{
-		for (const auto s: pair.second)
-			delete s;
-	}
+		delete pair.second;
 }
 
 void memory_module_source_codes::add(string_view import_path, vector<source_code*> sources)
 {
-	_sources[import_path] = std::move(sources);
+	_sources[import_path] = new package_source_code{
+			import_path,
+			package_source_code::not_loaded,
+			std::move(sources)
+	};
 }
 
-array_view<source_code*> memory_module_source_codes::get_files(string_view import_path, bool* loaded)
+package_source_code* memory_module_source_codes::get_files(string_view relative_import_path)
 {
-	auto it = _sources.find(import_path);
+	auto it = _sources.find(relative_import_path);
 	if (it == _sources.end())
 		return {};
 	return it->second;

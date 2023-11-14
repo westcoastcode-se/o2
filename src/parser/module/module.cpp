@@ -13,9 +13,10 @@ module::~module()
 	delete _sources;
 }
 
-string_view module::get_relative_path(string_view path) const
+string_view module::get_relative_path(string_view import_path) const
 {
-	return path.substr(_name.length());
+	assert(matches(import_path) >= 0);
+	return import_path.substr(_name.length());
 }
 
 int module::matches(string_view import_path) const
@@ -27,9 +28,14 @@ int module::matches(string_view import_path) const
 	return (int)(import_path.size() - _name.size());
 }
 
-array_view<source_code*> module::imported_files(string_view import_path, bool* loaded) const
+package_source_code* module::imported_files(string_view import_path) const
 {
-	// given the example of import_path = "westcoastcode.se/compiler/crypto" and the
-	// module is "westcoastcode.se/compiler" then the relative path is "/compiler"
-	return _sources->get_files(get_relative_path(import_path), loaded);
+	return _sources->get_files(get_relative_path(import_path));
+}
+
+void module::debug(std::basic_ostream<char>& stream, int indent) const
+{
+	stream << this << in(indent);
+	stream << "module(name=" << _name << ",path=" << _root_path << ")" << std::endl;
+	node::debug(stream, indent);
 }

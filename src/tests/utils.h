@@ -52,8 +52,7 @@ namespace o2
 				const auto m = o2_new
 						module(module_name, path,
 						new filesystem_module_source_codes(path));
-				const auto nm = o2_new node_module(source_code_view(), m);
-				st->get_root_package()->add_child(nm);
+				st->get_root_package()->add_child(m);
 
 				o2::parser_state state(st);
 				parse_module_path(st, m, string_view(app), &state);
@@ -66,7 +65,7 @@ namespace o2
 					{
 						auto package = parse_module_import(st, m, i, &state);
 						if (package)
-							nm->add_child(package);
+							m->add_child(package);
 					}
 					imports = std::move(state.get_imports());
 				}
@@ -141,8 +140,7 @@ namespace o2
 				const auto m = o2_new
 						module(module_name, path,
 						new filesystem_module_source_codes(path));
-				const auto nm = o2_new node_module(source_code_view(), m);
-				st->get_root_package()->add_child(nm);
+				st->get_root_package()->add_child(m);
 
 				o2::parser_state state(st);
 				parse_module_path(st, m, string_view(app), &state);
@@ -155,7 +153,7 @@ namespace o2
 					{
 						auto package = parse_module_import(st, m, i, &state);
 						if (package)
-							nm->add_child(package);
+							m->add_child(package);
 					}
 					imports = std::move(state.get_imports());
 				}
