@@ -7,7 +7,7 @@
 
 #include "../parser/parser.h"
 #include "../parser/resolver.h"
-#include "../parser/module/module_source_code.h"
+#include "../parser/module/module_package_lookup.h"
 #include "test.h"
 
 using namespace o2;
@@ -44,15 +44,14 @@ namespace o2
 			memory_tracker::begin();
 
 			syntax_tree* st;
+			module* m;
 			try
 			{
 				st = new syntax_tree;
 				// TODO parse module project file and pre_load all modules and put them into
 				//      the syntax tree
-				const auto m = o2_new
-						module(module_name, path,
-						new filesystem_module_source_codes(path));
-				st->get_root_package()->add_child(m);
+				m = o2_new module(module_name, path);
+				m->insert_into(st);
 
 				o2::parser_state state(st);
 				parse_module_path(st, m, string_view(app), &state);
@@ -65,13 +64,14 @@ namespace o2
 					{
 						auto package = parse_module_import(st, m, i, &state);
 						if (package)
-							m->add_child(package);
+							m->add_package(package);
 					}
 					imports = std::move(state.get_imports());
 				}
 				resolve(st, &state);
 				optimize(st, 0);
 				t(*st);
+				delete m;
 				delete st;
 			}
 			catch (const o2::error& e)
@@ -80,6 +80,7 @@ namespace o2
 					e.print(std::cout);
 				if (test_state::debugging())
 					debug(*st);
+				delete m;
 				delete st;
 				memory_tracker::end();
 				throw;
@@ -88,6 +89,7 @@ namespace o2
 			{
 				if (test_state::debugging())
 					debug(*st);
+				delete m;
 				delete st;
 				memory_tracker::end();
 				throw;
@@ -134,13 +136,12 @@ namespace o2
 
 			memory_tracker::begin();
 			syntax_tree* st;
+			module* m;
 			try
 			{
 				st = new syntax_tree;
-				const auto m = o2_new
-						module(module_name, path,
-						new filesystem_module_source_codes(path));
-				st->get_root_package()->add_child(m);
+				m = o2_new module(module_name, path);
+				m->insert_into(st);
 
 				o2::parser_state state(st);
 				parse_module_path(st, m, string_view(app), &state);
@@ -153,7 +154,7 @@ namespace o2
 					{
 						auto package = parse_module_import(st, m, i, &state);
 						if (package)
-							m->add_child(package);
+							m->add_package(package);
 					}
 					imports = std::move(state.get_imports());
 				}
@@ -165,6 +166,7 @@ namespace o2
 			{
 				if (test_state::debugging())
 					debug(*st);
+				delete m;
 				delete st;
 				throw;
 			}
@@ -173,6 +175,7 @@ namespace o2
 				try
 				{
 					t(e);
+					delete m;
 					delete st;
 					memory_tracker::end();
 				}
@@ -180,6 +183,7 @@ namespace o2
 				{
 					if (test_state::debugging())
 						debug(*st);
+					delete m;
 					delete st;
 					memory_tracker::end();
 					throw;

@@ -21,7 +21,7 @@ namespace
 }
 
 build::build(config cfg)
-		: _config(cfg), _import_statements_running(0)
+		: _config(cfg), _import_statements_running(0), _aborted()
 {
 }
 
@@ -35,6 +35,7 @@ int build::execute()
 {
 	const auto start = now();
 
+	// spawn all threads used for the actual processing
 	for (int i = 0; i < _config.threads_count; ++i)
 	{
 		_threads.emplace_back([requests = &_parse_requests, responses = &_parse_responses]
@@ -50,16 +51,11 @@ int build::execute()
 		});
 	}
 
-	string_view module_root_path = _config.path;
-	if (module_root_path == ".")
-		module_root_path = string_view();
-
 	// TODO: Parse module file in the config root path and figure out the module name form that
 	const string_view module_name("westcoastcode.se/hello_world");
 	// Initialize the module we are compiling and add it to the syntax tree
-	_main_module = o2_new module(module_name, module_root_path,
-			new filesystem_module_source_codes(_config.path));
-	_syntax_tree.get_root_package()->add_child(_main_module);
+	_main_module = o2_new module(module_name, _config.path);
+	_main_module->insert_into(&_syntax_tree);
 
 	// Prepare a parser state used for the main application
 	parser_state state(&_syntax_tree);
@@ -70,10 +66,10 @@ int build::execute()
 		// convert the "path" where the main source code is found in the module
 		// into a module-relative path
 		string app(_main_module->get_name());
-		if (module_root_path.length() > 0)
+		if (_config.path != ".")
 		{
 			app += "/";
-			app += module_root_path;
+			app += _config.path.generic_string();
 		}
 
 		parse_module_path(&_syntax_tree, _main_module, app, &state);
@@ -95,8 +91,8 @@ int build::execute()
 		const auto m = get_module(i);
 		if (m != nullptr)
 		{
-			auto sources = m->imported_files(i);
-			try_import(cs, m, sources->relative_path, sources);
+			auto sources = m->get_package_info(i);
+			try_import(cs, m, sources);
 		}
 	}
 
@@ -114,28 +110,28 @@ int build::execute()
 		if (!cs->errors.empty())
 		{
 			// the load failed
-			cs->sources->load_status = package_source_code::failed;
+			cs->package_info->load_status = package_source_info::failed;
 			for (const auto& e: cs->errors)
 				std::cerr << e << std::endl;
 			success = false;
 		}
 		else if (_config.verbose_level > 0)
 		{
-			if (cs->package_name.empty())
+			if (cs->package_info->relative_path.empty())
 				std::cout << "parsed '" << cs->module->get_name() << "' - done!" << std::endl;
 			else
-				std::cout << "parsed '" << cs->module->get_name() << "/" << cs->package_name << "' - done!"
-						  << std::endl;
+				std::cout << "parsed '" << cs->module->get_name() << "/" << cs->package_info->relative_path
+						  << "' - done!" << std::endl;
 		}
 
 		if (cs->package)
 		{
 			// the load completed successfully
-			cs->sources->load_status = package_source_code::successful;
+			cs->package_info->load_status = package_source_info::successful;
 
 			// add the package to the module
 			assert(cs->module);
-			cs->module->add_child(cs->package);
+			cs->module->add_package(cs->package);
 		}
 
 		// collect all imports to be parsed
@@ -145,10 +141,10 @@ int build::execute()
 			const auto m = get_module(i);
 			if (m)
 			{
-				auto sources = m->imported_files(i);
+				auto sources = m->get_package_info(i);
 				if (cs == nullptr)
 					cs = new async_data(&_syntax_tree);
-				if (try_import(cs, m, sources->relative_path, sources))
+				if (try_import(cs, m, sources))
 					cs = nullptr;
 			}
 		}
@@ -188,11 +184,10 @@ int build::execute()
 	return success ? 0 : 1;
 }
 
-bool build::try_import(async_data* cs, module* m, string_view package_name,
-		package_source_code* sources)
+bool build::try_import(async_data* cs, module* m, package_source_info* sources)
 {
 	// we only care about package sources that's not loaded
-	if (sources->load_status != package_source_code::not_loaded)
+	if (sources->load_status != package_source_info::not_loaded)
 		return false;
 
 	// TODO: figure out a better way of doing this!
@@ -201,9 +196,8 @@ bool build::try_import(async_data* cs, module* m, string_view package_name,
 	// initialize the async data
 	cs->errors.clear();
 	cs->module = m;
-	cs->package_name = package_name;
-	cs->sources = sources;
-	cs->sources->load_status = package_source_code::loading;
+	cs->package_info = sources;
+	cs->package_info->load_status = package_source_info::loading;
 	cs->package = nullptr;
 
 	_parse_requests.put(cs);
@@ -215,9 +209,11 @@ async_data* build::parse(async_data* cs)
 	try
 	{
 		// load the actual string source code
-		cs->module->load(cs->sources);
+		cs->module->load_package_sources(cs->package_info);
 		// parse the source code
-		cs->package = parse_module_import(cs->sources->sources, cs->package_name, &cs->state);
+		cs->package = parse_module_import(cs->package_info->sources,
+				cs->package_info->relative_path.generic_string(),
+				&cs->state);
 	}
 	catch (const error& e)
 	{
@@ -235,20 +231,19 @@ async_data* build::parse(async_data* cs)
 o2::module* build::get_module(string_view import_statement)
 {
 	// search among the required modules first
-	module* best_match = nullptr;
+	module* best_match = _main_module;
 	int match = _main_module->matches(import_statement);
 	for (auto m: _main_module->get_requirements())
 	{
 		const auto current_match = m->matches(import_statement);
-		// -1 will become super large by doing this, thus no need to check for -1
-		if ((unsigned int)current_match < (unsigned int)match)
+		if (current_match < match)
 		{
 			best_match = m;
 			match = current_match;
 		}
 	}
 
-	if (best_match)
+	if (best_match && match != module::MATCHES_NO_MATCH)
 		return best_match;
 
 	// If not then check among the built-in modules
@@ -256,19 +251,23 @@ o2::module* build::get_module(string_view import_statement)
 	if (it == _builtin_modules.end())
 	{
 		// see if there's a directory in the language folder that might have modules in them
-		std::filesystem::path path(_config.lang_path);
-		path = path / std::filesystem::path(import_statement);
+		const auto path = _config.lang_path / std::filesystem::path(import_statement);
 		if (std::filesystem::is_directory(path))
 		{
-			best_match = o2_new module(string(import_statement),
-					path.generic_string(),
-					new filesystem_module_source_codes(path.generic_string()));
+			best_match = o2_new module(string(import_statement), path.generic_string());
 			_builtin_modules[import_statement] = best_match;
-			_syntax_tree.get_root_package()->add_child(best_match);
+			best_match->insert_into(&_syntax_tree);
 		}
 	}
 	else
 		best_match = it->second;
 
 	return best_match;
+}
+
+void build::abort()
+{
+	_aborted = true;
+	_parse_requests.close();
+	_parse_requests.close();
 }

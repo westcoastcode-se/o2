@@ -27,7 +27,7 @@ bool node_import::resolve(const recursion_detector* rd)
 		{
 		public:
 			const string_view text;
-			vector<module*> modules;
+			vector<node_module*> modules;
 
 			modules_visitor(string_view text)
 					: text(text)
@@ -36,7 +36,7 @@ bool node_import::resolve(const recursion_detector* rd)
 
 			void visit(node* const n) final
 			{
-				const auto impl = dynamic_cast<module*>(n);
+				const auto impl = dynamic_cast<node_module*>(n);
 				if (impl && text.starts_with(impl->get_name()))
 					modules.add(impl);
 			}
@@ -64,7 +64,7 @@ bool node_import::resolve(const recursion_detector* rd)
 			void visit(node* const n) final
 			{
 				const auto impl = dynamic_cast<node_package*>(n);
-				if (impl && text.starts_with(impl->get_name()))
+				if (impl && text == impl->get_name())
 					packages.add(impl);
 			}
 		};
@@ -72,8 +72,7 @@ bool node_import::resolve(const recursion_detector* rd)
 		vector<node_package*> packages;
 		for (auto m: v1.modules)
 		{
-			package_visitor v2(m->get_relative_path(_import_statement),
-					packages);
+			package_visitor v2(m->get_relative_path(_import_statement), packages);
 			m->query(&v2, query_flag_children | query_flag_downwards);
 			if (!packages.empty())
 			{

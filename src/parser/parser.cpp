@@ -1124,11 +1124,11 @@ node_package* o2::parse_module_path(syntax_tree* st, const module* m, string_vie
 	assert(state);
 
 	// get all files found in the supplied path
-	const auto package_sources = m->imported_files(path);
+	const auto package_sources = m->get_package_info(path);
 	assert(package_sources->sources.empty());
-	assert(package_sources->load_status == package_source_code::not_loaded);
-	package_sources->load_status = package_source_code::loading;
-	m->load(package_sources);
+	assert(package_sources->load_status == package_source_info::not_loaded);
+	package_sources->load_status = package_source_info::loading;
+	m->load_package_sources(package_sources);
 	assert(!package_sources->sources.empty());
 
 	// application entry point functionality is always put in the root package
@@ -1141,13 +1141,13 @@ node_package* o2::parse_module_path(syntax_tree* st, const module* m, string_vie
 		token t(&l);
 		state->set_source_code(src);
 
-		collision_detector detector;
+		const collision_detector detector;
 		const parser_scope ps0(state, &t);
 		const parser_scope ps1(&ps0, app_package);
 		t.next();
 		parse_package_pre_scope(&ps1);
 	}
-	package_sources->load_status = package_source_code::successful;
+	package_sources->load_status = package_source_info::successful;
 	return app_package;
 }
 
@@ -1183,11 +1183,11 @@ node_package* o2::parse_module_import(syntax_tree* st, const module* m, string_v
 	assert(state);
 
 	// get all files found in the supplied path. If the module is already loaded then ignore
-	const auto package_sources = m->imported_files(path);
-	if (package_sources->load_status != package_source_code::not_loaded)
+	const auto package_sources = m->get_package_info(path);
+	if (package_sources->load_status != package_source_info::not_loaded)
 		return nullptr;
-	package_sources->load_status = package_source_code::loading;
-	m->load(package_sources);
+	package_sources->load_status = package_source_info::loading;
+	m->load_package_sources(package_sources);
 
 	// create a new package based on the import
 	auto package = o2_new node_package(source_code_view(), m->get_relative_path(path));
@@ -1206,7 +1206,7 @@ node_package* o2::parse_module_import(syntax_tree* st, const module* m, string_v
 		t.next();
 		parse_package_pre_scope(&ps2);
 	}
-	package_sources->load_status = package_source_code::successful;
+	package_sources->load_status = package_source_info::successful;
 	return guard.done();
 }
 

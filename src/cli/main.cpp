@@ -7,6 +7,7 @@
 #include <string_view>
 #include <fstream>
 #include <chrono>
+#include <csignal>
 
 #include "commands/build.h"
 
@@ -22,6 +23,14 @@ bool module_exists()
 		return true;
 	}
 	return false;
+}
+
+base_command* bcommand = nullptr;
+
+void abort_command(int sig)
+{
+	if (bcommand)
+		bcommand->abort();
 }
 
 int main(int argc, char** argv)
@@ -45,6 +54,8 @@ int main(int argc, char** argv)
 	static const string_view PARSE("parse");
 	static const string_view TEST("test");
 
+	signal(SIGINT, abort_command);
+
 	if (command == BUILD)
 	{
 		if (argc < 3)
@@ -63,11 +74,12 @@ int main(int argc, char** argv)
 
 		const string_view root_path(argv[2]);
 		o2::build b(build::config{
-				root_path,
-				"../lang",
+				std::filesystem::path(root_path),
+				std::filesystem::path("../lang"),
 				1,
 				5
 		});
+		bcommand = &b;
 		return b.execute();
 	}
 	else if (command == PARSE)

@@ -20,7 +20,7 @@ void funcs()
 					const auto root = st.get_root_package();
 					assert_equals(root->get_children().size(), 15);
 
-					const auto project_module = assert_type<module>(root->get_child(13));
+					const auto project_module = assert_type<node_module>(root->get_child(13));
 					assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 					const auto func = assert_type<node_func>(root->get_child(14));
@@ -37,7 +37,7 @@ void funcs()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto func = assert_type<node_func>(root->get_children()[14]);
@@ -62,7 +62,7 @@ void funcs()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto func = assert_type<node_func>(root->get_child(14));
@@ -87,7 +87,7 @@ void funcs()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto func = assert_type<node_func>(root->get_children()[14]);
@@ -107,7 +107,7 @@ void funcs()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto func = assert_type<node_func>(root->get_children()[14]);
@@ -129,7 +129,7 @@ void funcs()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto func = assert_type<node_func>(root->get_child(14));
@@ -266,7 +266,7 @@ void funcs()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 18);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto func_F1 = assert_type<node_func>(root->get_child(14));
@@ -294,7 +294,7 @@ void funcs()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 16);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto func_F1 = assert_type<node_func>(root->get_child(14));

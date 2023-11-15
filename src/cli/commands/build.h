@@ -11,11 +11,13 @@
 #include <string_view>
 #include <unordered_map>
 #include <atomic>
+#include <filesystem>
 
 #include "../channel.h"
 #include "../../parser/parser.h"
 #include "../../parser/resolver.h"
-#include "../../parser/module/module_source_code.h"
+#include "../../parser/module/module_package_lookup.h"
+#include "base_command.h"
 
 namespace o2
 {
@@ -28,17 +30,15 @@ namespace o2
 		parser_state state;
 		// the module we are loading
 		module* module;
-		// the package, inside the module, we are processing
-		string_view package_name;
 		// all errors that occurred when compiling
 		std::vector<string> errors;
 		// the resulting package to be added to the syntax tree
 		node_package* package;
-		// sources to be compiled
-		package_source_code* sources;
+		// information on the package to be loaded
+		package_source_info* package_info;
 
 		explicit async_data(syntax_tree* st)
-				: state(st), module(), package_name(), errors(), package(), sources()
+				: state(st), module(), errors(), package(), package_info()
 		{
 		}
 	};
@@ -46,15 +46,16 @@ namespace o2
 	/**
 	 * \brief the build command
 	 */
-	class build
+	class build final
+			: public base_command
 	{
 	public:
 		struct config
 		{
 			// Root path where the builder starts running
-			string_view path;
+			std::filesystem::path path;
 			// Path to where the built-in language modules can be found
-			string_view lang_path;
+			std::filesystem::path lang_path;
 			// How much should the builder print out in the terminal
 			int verbose_level;
 			// number of threads that's allowed to work with the source code
@@ -63,13 +64,18 @@ namespace o2
 
 		explicit build(config cfg);
 
-		~build();
+		~build() final;
 
 		/**
 		 * \brief execute the build command
 		 * \return
 		 */
 		int execute();
+
+		/**
+		 * \brief abort the execution if the build
+		 */
+		void abort() final;
 
 	private:
 		/**
@@ -78,7 +84,7 @@ namespace o2
 		 * \param cs
 		 * \return true if an import request is put to be processed
 		 */
-		bool try_import(async_data* data, module* m, string_view package_name, package_source_code* sources);
+		bool try_import(async_data* data, module* m, package_source_info* sources);
 
 		/**
 		 * \param import_statement
@@ -115,5 +121,8 @@ namespace o2
 		// TODO add support for a smarted standard lang module imports
 		std::unordered_map<string_view, module*> _builtin_modules;
 		module* _main_module;
+
+		// Is the build aborted?
+		std::atomic_bool _aborted;
 	};
 }

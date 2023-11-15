@@ -3,7 +3,7 @@
 // See the LICENSE file in the project root for license terms
 //
 
-#include "module_source_code.h"
+#include "module_package_lookup.h"
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -12,17 +12,17 @@
 using namespace o2;
 using namespace std;
 
-filesystem_module_source_codes::filesystem_module_source_codes(string root_dir)
-		: _root_dir(std::move(root_dir))
-{
-}
-
-filesystem_module_source_codes::filesystem_module_source_codes(string_view root_dir)
+filesystem_module_package_lookup::filesystem_module_package_lookup(const std::filesystem::path& root_dir)
 		: _root_dir(root_dir)
 {
 }
 
-filesystem_module_source_codes::~filesystem_module_source_codes()
+filesystem_module_package_lookup::filesystem_module_package_lookup(string_view root_dir)
+		: _root_dir(root_dir)
+{
+}
+
+filesystem_module_package_lookup::~filesystem_module_package_lookup()
 {
 	for (auto s: _sources)
 		delete s.second;
@@ -33,25 +33,24 @@ namespace
 	static const filesystem::path O2_SUFFIX(".o2");
 }
 
-package_source_code* filesystem_module_source_codes::get_files(string_view relative_import_path)
+package_source_info* filesystem_module_package_lookup::get_info(string_view relative_import_path)
 {
 	auto it = _sources.find(relative_import_path);
 	if (it != _sources.end())
 		return it->second;
 
-	const auto package_sources = new package_source_code{
+	const auto package_sources = new package_source_info{
 			relative_import_path,
-			package_source_code::not_loaded
+			package_source_info::not_loaded
 	};
 	_sources[relative_import_path] = package_sources;
 	return package_sources;
 }
 
-void filesystem_module_source_codes::load(package_source_code* package_sources) const
+void filesystem_module_package_lookup::load_sources(package_source_info* package_sources) const
 {
-	stringstream ss;
-	ss << _root_dir << package_sources->relative_path;
-	for (const auto& fe: filesystem::directory_iterator(ss.str()))
+	const std::filesystem::path p = _root_dir / package_sources->relative_path.relative_path();
+	for (const auto& fe: filesystem::directory_iterator(p))
 	{
 		if (!fe.is_regular_file())
 			continue;
@@ -67,22 +66,22 @@ void filesystem_module_source_codes::load(package_source_code* package_sources) 
 	}
 }
 
-memory_module_source_codes::~memory_module_source_codes()
+memory_module_package_lookup::~memory_module_package_lookup()
 {
 	for (const auto& pair: _sources)
 		delete pair.second;
 }
 
-void memory_module_source_codes::add(string_view import_path, vector<source_code*> sources)
+void memory_module_package_lookup::add(string_view import_path, vector<source_code*> sources)
 {
-	_sources[import_path] = new package_source_code{
+	_sources[import_path] = new package_source_info{
 			import_path,
-			package_source_code::not_loaded,
+			package_source_info::not_loaded,
 			std::move(sources)
 	};
 }
 
-package_source_code* memory_module_source_codes::get_files(string_view relative_import_path)
+package_source_info* memory_module_package_lookup::get_info(string_view relative_import_path)
 {
 	auto it = _sources.find(relative_import_path);
 	if (it == _sources.end())

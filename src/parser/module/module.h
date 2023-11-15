@@ -7,63 +7,38 @@
 
 #include <utility>
 
-#include "module_source_code.h"
-#include "../node.h"
+#include "module_package_lookup.h"
 #include "../source_code.h"
+#include "node_module.h"
 
 namespace o2
 {
+	class syntax_tree;
+
+	class node_package;
+
 	/**
 	 * \brief a module defines how a set of source code files relates to each other
 	 */
 	class module final
-			: public node
+			: public memory_tracked
 	{
 	public:
-		/**
-		 * \param name the name of the module
-		 * \param root_path path to where the root can be found for this module
-		 * \param lookup type used when fetching source code managed by this module
-		 */
-		module(string_view name, string_view root_path,
-				module_source_codes* lookup)
-				: node(source_code_view()),
-				  _parent(), _name(name), _root_path(root_path), _sources(lookup)
+		enum modifiers
 		{
-		}
+			// tells us that the module is added to the syntax tree
+			modifier_added = 1 << 0
+		};
 
 		/**
 		 * \param name the name of the module
-		 * \param root_path path to where the root can be found for this module
-		 * \param lookup type used when fetching source code managed by this module
+		 * \param root_path path to where the the source code is found for this moduke
 		 */
-		module(string name, string root_path,
-				module_source_codes* lookup)
-				: node(source_code_view()),
-				  _parent(), _name(std::move(name)), _root_path(std::move(root_path)), _sources(lookup)
-		{
-		}
-
-		/**
-		 * \param name the name of the module
-		 * \param root_path path to where the root can be found for this module
-		 * \param lookup type used when fetching source code managed by this module
-		 */
-		module(string_view name, string_view root_path,
-				module_source_codes* lookup,
-				std::initializer_list<module*> requirements)
-				: node(source_code_view()),
-				  _parent(), _name(name), _root_path(root_path), _sources(lookup),
-				  _requirements(requirements)
-		{
-		}
-
-		module(string_view name, string_view root_path,
-				module_source_codes* lookup,
-				vector<module*> requirements)
-				: node(source_code_view()),
-				  _parent(), _name(name), _root_path(root_path), _sources(lookup),
-				  _requirements(std::move(requirements))
+		module(string_view name, const std::filesystem::path& root_path)
+				: _parent(), _name(name), _root_path(root_path),
+				  _sources(new filesystem_module_package_lookup(root_path)),
+				  _node_module(o2_new node_module(this)),
+				  _modifiers()
 		{
 		}
 
@@ -96,7 +71,7 @@ namespace o2
 		/**
 		 * \return the full path to where the module root is found
 		 */
-		string_view get_root_path() const
+		const std::filesystem::path& get_root_path() const
 		{
 			return _root_path;
 		}
@@ -117,38 +92,52 @@ namespace o2
 		 */
 		string_view get_relative_path(string_view import_path) const;
 
-		/**
-		 * \param import_path
-		 * \return a value on how close the import path is to the module. 0 is a perfect match
-		 */
-		int matches(string_view import_path) const;
+		// represents no match
+		static const int MATCHES_NO_MATCH = INT32_MAX;
 
 		/**
-		 * \brief get all files found at the supplied relative path
+		 * \param import_path a full import statement
+		 * \return a value on how close the import path is to the module. 0 is a perfect match
+		 * 		   and MATCHES_NO_MATCH is no match at all
+		 */
+		[[nodiscard]] int matches(string_view import_path) const;
+
+		/**
+		 * \brief get the package information for the supplied import path
 		 * \param import_path the path supplied in the imports statement
 		 * \return information on the package's source code
 		 *
 		 * it is assumed that you've checked compatibility with the matches method before calling this
 		 */
-		package_source_code* imported_files(string_view import_path) const;
+		[[nodiscard]] package_source_info* get_package_info(string_view import_path) const;
 
 		/**
 		 * \brief load the supplied source code content
-		 * \param package_sources where to put the loaded source code into
+		 * \param info where to put the loaded source code into
 		 */
-		void load(package_source_code* package_sources) const;
+		void load_package_sources(package_source_info* info) const;
 
-#pragma region node
+		/**
+		 * \brief add this module to the syntax tree
+		 * \param st
+		 * \return
+		 */
+		node_module* insert_into(syntax_tree* st);
 
-		void debug(std::basic_ostream<char>& stream, int indent) const final;
-
-#pragma endregion
+		/**
+		 * \brief add the supplied package to this module
+		 * \param p
+		 * \return
+		 */
+		node_package* add_package(node_package* p);
 
 	private:
 		module* const _parent;
 		const string _name;
-		const string _root_path;
-		module_source_codes* const _sources;
+		const std::filesystem::path _root_path;
+		module_package_lookup* const _sources;
 		vector<module*> _requirements;
+		node_module* const _node_module;
+		int _modifiers;
 	};
 }

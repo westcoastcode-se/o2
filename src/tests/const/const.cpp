@@ -21,7 +21,7 @@ void const_()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 19);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto var_INT = assert_type<node_var>(root->get_child(14));
@@ -54,7 +54,7 @@ void const_()
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 15);
 
-			const auto project_module = assert_type<module>(root->get_child(13));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
 			const auto func = assert_type<node_func>(root->get_child(14));

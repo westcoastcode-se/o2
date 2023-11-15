@@ -134,7 +134,7 @@ namespace o2
 	};
 
 	/**
-	 * \brief base class for all nodes in the syntax tree
+		 * \brief base class for all nodes in the syntax tree
 	 */
 	class node
 			: public memory_tracked
