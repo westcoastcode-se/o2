@@ -7,7 +7,7 @@
 
 using namespace o2;
 
-void node_var_const::debug(std::basic_ostream<char>& stream, int indent) const
+void node_var_const::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "var_const(name=" << _name << ")" << std::endl;

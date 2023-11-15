@@ -13,7 +13,7 @@ node_type_accessor::node_type_accessor(const source_code_view& view, accessor_ty
 {
 }
 
-void node_type_accessor::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_accessor::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_accessor(accessor=";

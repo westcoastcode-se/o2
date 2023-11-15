@@ -7,7 +7,7 @@
 
 using namespace o2;
 
-void node_type_struct_static_vars::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_struct_static_vars::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_struct_static_vars()" << std::endl;

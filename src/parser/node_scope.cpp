@@ -7,7 +7,7 @@
 
 using namespace o2;
 
-void node_scope::debug(std::basic_ostream<char>& stream, int indent) const
+void node_scope::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "scope()" << std::endl;

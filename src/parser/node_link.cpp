@@ -29,7 +29,7 @@ node_link* node_link::new_link()
 	return _link;
 }
 
-void node_link::debug(std::basic_ostream<char>& stream, int indent) const
+void node_link::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "link(node=" << _link << ")" << std::endl;

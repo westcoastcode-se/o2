@@ -7,12 +7,13 @@
 #include "strings.h"
 #include <cmath>
 #include <cfloat>
+#include <algorithm>
 
 using namespace o2;
 
 namespace
 {
-	inline bool is_keyword_start(string_view::value_type c)
+	inline bool is_keyword_start(string_literal c)
 	{
 		switch (c)
 		{
@@ -75,7 +76,7 @@ namespace
 		}
 	}
 
-	inline bool is_digit(string_view::value_type c)
+	inline bool is_digit(string_literal c)
 	{
 		switch (c)
 		{
@@ -231,31 +232,43 @@ std::uint64_t token::value_uint64() const
 
 bool token::value_bool() const
 {
-	return w_streqn(_string_start, static_cast<int>(_string_end - _string_start), "true", 4);
+	return w_streqn(_string_start, static_cast<int>(_string_end - _string_start), STR("true"), 4);
 }
 
 float token::value_float32() const
 {
-	char temp[64];
-	temp[sprintf(temp, "%.*s", static_cast<int>(_string_end - _string_start), _string_start)] = 0;
+	// copy each string literal into a char byte array
+	char buf[std::numeric_limits<float>::max_digits10 + 1];
+	char* dest = buf;
+	auto ptr = _string_start;
+	const auto end = _string_end;
+	for (; ptr != end;)
+		*dest++ = char(*ptr++);
+	*dest = 0;
 
-	const float v = strtof(temp, NULL);
+	const float v = strtof(buf, NULL);
 	if (v < (FLT_MAX - FLT_EPSILON) && v > (FLT_MIN + FLT_EPSILON))
 		return v;
 	else
-		return 0.0f;
+		return 0;
 }
 
 double token::value_float64() const
 {
-	char temp[64];
-	temp[sprintf(temp, "%.*s", static_cast<int>(_string_end - _string_start), _string_start)] = 0;
+	// copy each string literal into a char byte array
+	char buf[std::numeric_limits<double>::max_digits10 + 1];
+	char* dest = buf;
+	auto ptr = _string_start;
+	const auto end = _string_end;
+	for (; ptr != end;)
+		*dest++ = char(*ptr++);
+	*dest = 0;
 
-	const double v = strtod(temp, NULL);
+	const double v = strtod(buf, NULL);
 	if (v < (DBL_MAX - DBL_EPSILON) && v > (DBL_MIN + DBL_EPSILON))
 		return v;
 	else
-		return 0.0;
+		return 0;
 }
 
 void token::next0()
@@ -699,30 +712,30 @@ token_type token::hint_keyword_type() const
 
 	if (len == 2)
 	{
-		static const string_view IF("if");
-		static const string_view AS("as");
+		static const string_view IF(STR("if"));
+		static const string_view AS(STR("as"));
 
 		if (str == IF) return token_type::if_;
 		if (str == AS) return token_type::as;
 	}
 	else if (len == 3)
 	{
-		static const string_view FOR("for");
-		static const string_view VAR("var");
+		static const string_view FOR(STR("for"));
+		static const string_view VAR(STR("var"));
 
 		if (str == FOR) return token_type::for_;
 		if (str == VAR) return token_type::var;
 	}
 	else if (len == 4)
 	{
-		static const string_view THIS("this");
-		static const string_view FUNC("func");
-		static const string_view TYPE("type");
-		static const string_view ELSE("else");
-		static const string_view CAST("cast");
-		static const string_view TRUE_("true");
-		static const string_view BASE("base");
-		static const string_view VOID("void");
+		static const string_view THIS(STR("this"));
+		static const string_view FUNC(STR("func"));
+		static const string_view TYPE(STR("type"));
+		static const string_view ELSE(STR("else"));
+		static const string_view CAST(STR("cast"));
+		static const string_view TRUE_(STR("true"));
+		static const string_view BASE(STR("base"));
+		static const string_view VOID(STR("void"));
 
 		if (str == THIS) return token_type::this_;
 		if (str == FUNC) return token_type::func;
@@ -735,10 +748,10 @@ token_type token::hint_keyword_type() const
 	}
 	else if (len == 5)
 	{
-		static const string_view CONST("const");
-		static const string_view FINAL("final");
-		static const string_view FALSE_("false");
-		static const string_view TRAIT("trait");
+		static const string_view CONST(STR("const"));
+		static const string_view FINAL(STR("final"));
+		static const string_view FALSE_(STR("false"));
+		static const string_view TRAIT(STR("trait"));
 
 		if (str == CONST) return token_type::const_;
 		if (str == FINAL) return token_type::final_;
@@ -747,13 +760,13 @@ token_type token::hint_keyword_type() const
 	}
 	else if (len == 6)
 	{
-		static const string_view PUBLIC("public");
-		static const string_view STATIC("static");
-		static const string_view INLINE("inline");
-		static const string_view IMPORT("import");
-		static const string_view RETURN("return");
-		static const string_view STRUCT("struct");
-		static const string_view EXTERN("extern");
+		static const string_view PUBLIC(STR("public"));
+		static const string_view STATIC(STR("static"));
+		static const string_view INLINE(STR("inline"));
+		static const string_view IMPORT(STR("import"));
+		static const string_view RETURN(STR("return"));
+		static const string_view STRUCT(STR("struct"));
+		static const string_view EXTERN(STR("extern"));
 
 		if (str == PUBLIC) return token_type::public_;
 		if (str == STATIC) return token_type::static_;
@@ -765,21 +778,21 @@ token_type token::hint_keyword_type() const
 	}
 	else if (len == 7)
 	{
-		static const string_view PRIVATE("private");
-		static const string_view TYPEDEF("typedef");
+		static const string_view PRIVATE(STR("private"));
+		static const string_view TYPEDEF(STR("typedef"));
 
 		if (str == PRIVATE) return token_type::private_;
 		if (str == TYPEDEF) return token_type::typedef_;
 	}
 	else if (len == 8)
 	{
-		static const string_view OVERRIDE("override");
+		static const string_view OVERRIDE(STR("override"));
 
 		if (str == OVERRIDE) return token_type::override_;
 	}
 	else if (len == 9)
 	{
-		static const string_view INTERFACE("interface");
+		static const string_view INTERFACE(STR("interface"));
 
 		if (str == INTERFACE) return token_type::interface;
 	}

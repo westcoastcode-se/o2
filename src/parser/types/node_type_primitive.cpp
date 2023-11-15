@@ -12,7 +12,7 @@ node_type_primitive::node_type_primitive(const vector<string_view>& names, int s
 {
 }
 
-void node_type_primitive::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_primitive::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "primitive(names=[";

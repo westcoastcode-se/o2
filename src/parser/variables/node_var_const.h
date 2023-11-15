@@ -25,7 +25,7 @@ namespace o2
 
 #pragma region node
 
-		void debug(std::basic_ostream<char>& stream, int indent) const override;
+		void debug(debug_ostream& stream, int indent) const override;
 
 #pragma endregion
 

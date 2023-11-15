@@ -151,7 +151,7 @@ namespace o2
 
 #pragma region node
 
-		void debug(std::basic_ostream<char>& stream, int indent) const override;
+		void debug(debug_ostream& stream, int indent) const override;
 
 		node* on_child_added(node* n) final;
 

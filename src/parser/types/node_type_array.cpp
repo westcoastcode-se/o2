@@ -34,7 +34,7 @@ int node_type_array::resolve_size(const recursion_detector* rd)
 	return _count * sub_type->resolve_size(&rd0);
 }
 
-void node_type_array::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_array::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_array(count=" << _count << ")" << std::endl;

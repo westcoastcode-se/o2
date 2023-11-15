@@ -9,7 +9,7 @@
 
 using namespace o2;
 
-void node_import::debug(std::basic_ostream<char>& stream, int indent) const
+void node_import::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "import(statement=" << _import_statement << ",package=" << _package;

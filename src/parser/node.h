@@ -16,6 +16,8 @@
 
 namespace o2
 {
+	typedef std::basic_ostream<string_literal> debug_ostream;
+
 	class recursion_detector;
 
 	/**
@@ -293,7 +295,7 @@ namespace o2
 		 * \param stream
 		 * \param indent
 		 */
-		virtual void debug(std::basic_ostream<char>& stream, int indent) const;
+		virtual void debug(debug_ostream& stream, int indent) const;
 
 		/**
 		 * \brief resolve all references
@@ -470,11 +472,11 @@ namespace o2
 		}
 
 	protected:
-		static std::string in(int indent)
+		static string in(int indent)
 		{
-			std::string s;
+			string s;
 			for (int i = 0; i < indent; ++i)
-				s += "  ";
+				s += STR("  ");
 			return s;
 		}
 

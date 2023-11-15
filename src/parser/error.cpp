@@ -11,15 +11,15 @@
 
 using namespace o2;
 
-void error::print(std::basic_ostream<char>& stream) const
+void error::print(basic_ostream& stream) const
 {
 	auto src = _view.get_source_code();
 
 	stream << "Failed to compile " << src->get_filename() << ": " << std::endl;
 
 	auto text = src->get_text();
-	const char* s = text.data();
-	const char* end = s + text.length();
+	const string_literal* s = text.data();
+	const string_literal* end = s + text.length();
 	int line = 0;
 	for (; s != end; ++s)
 	{
@@ -35,7 +35,7 @@ void error::print(std::basic_ostream<char>& stream) const
 					else
 						stream << ' ';
 				}
-				stream << "^ " << std::setfill('0') << std::setw(6) << (int)_type;
+				stream << "^ " << std::setfill(STR('0')) << std::setw(6) << (int)_type;
 				stream << " " << what() << std::endl;
 			}
 		}
@@ -50,7 +50,7 @@ void error::print(std::basic_ostream<char>& stream) const
 			else
 				stream << ' ';
 		}
-		stream << "^ " << std::setfill('0') << std::setw(6) << (int)_type;
+		stream << "^ " << std::setfill(STR('0')) << std::setw(6) << (int)_type;
 		stream << " " << what() << std::endl;
 	}
 }
@@ -58,7 +58,7 @@ void error::print(std::basic_ostream<char>& stream) const
 error_syntax_error::error_syntax_error(source_code_view view, const token* t, const char* prefix)
 		: parse_error(error_types::syntax_error, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << prefix << " but was ";
 	if (t->type() == token_type::eof)
 		s << "<EOF>";
@@ -70,7 +70,7 @@ error_syntax_error::error_syntax_error(source_code_view view, const token* t, co
 error_not_implemented::error_not_implemented(source_code_view view, const token* t)
 		: parse_error(error_types::not_implemented, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "'" << t->value() << "' is not implemented yet";
 	set(s.str());
 }
@@ -78,7 +78,7 @@ error_not_implemented::error_not_implemented(source_code_view view, const token*
 error_not_implemented::error_not_implemented(source_code_view view, const char* message)
 		: parse_error(error_types::not_implemented, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << message << " are not implemented yet";
 	set(s.str());
 }
@@ -86,7 +86,7 @@ error_not_implemented::error_not_implemented(source_code_view view, const char* 
 error_expected_identity::error_expected_identity(source_code_view view, const token* t)
 		: parse_error(error_types::expected_identity, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "expected 'identity' but was ";
 	if (t->type() == token_type::eof)
 		s << "<EOF>";
@@ -98,7 +98,7 @@ error_expected_identity::error_expected_identity(source_code_view view, const to
 error_expected_constant::error_expected_constant(source_code_view view, const token* t)
 		: parse_error(error_types::expected_constant, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "expected a constant but was ";
 	if (t->type() == token_type::eof)
 		s << "<EOF>";
@@ -110,7 +110,7 @@ error_expected_constant::error_expected_constant(source_code_view view, const to
 error_unexpected_extern_func_body::error_unexpected_extern_func_body(const source_code_view& view)
 		: parse_error(error_types::unexpected_extern_func_body, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "unexpected extern function body";
 	set(s.str());
 }
@@ -118,7 +118,7 @@ error_unexpected_extern_func_body::error_unexpected_extern_func_body(const sourc
 error_named_symbol_already_declared::error_named_symbol_already_declared(const source_code_view& view, string_view name)
 		: parse_error(error_types::named_symbol_already_declared, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "symbol '" << name << "' is already declared";
 	set(s.str());
 }
@@ -126,7 +126,7 @@ error_named_symbol_already_declared::error_named_symbol_already_declared(const s
 expected_child_node::expected_child_node(const source_code_view& view, const char* expected_nodes)
 		: structure_error(error_types::expected_child_node, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "node doesn't have the necessary child nodes: " << expected_nodes;
 	set(s.str());
 }
@@ -134,7 +134,7 @@ expected_child_node::expected_child_node(const source_code_view& view, const cha
 unexpected_child_node::unexpected_child_node(const source_code_view& view, const char* expected_nodes)
 		: structure_error(error_types::unexpected_child_node, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "node expected child node of type " << expected_nodes << " but wasn't";
 	set(s.str());
 }
@@ -142,13 +142,13 @@ unexpected_child_node::unexpected_child_node(const source_code_view& view, const
 resolve_error_recursion::resolve_error_recursion(source_code_view view, const node* n, const recursion_detector* rd)
 		: resolve_error(error_types::recursion, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "recursion detected: '";
 
 	rd = rd->first_of_type<node_symbol>();
 	if (rd)
 	{
-		std::stringstream recursion;
+		stringstream recursion;
 
 		auto symbol = dynamic_cast<const node_symbol*>(n);
 		if (symbol)
@@ -172,7 +172,7 @@ resolve_error_recursion::resolve_error_recursion(source_code_view view, const no
 			rd = rd->next_of_type<node_symbol>();
 		}
 
-		std::string str = recursion.str();
+		string str = recursion.str();
 		std::reverse(str.rbegin(), str.rend());
 		s << str;
 		s << "'";
@@ -183,7 +183,7 @@ resolve_error_recursion::resolve_error_recursion(source_code_view view, const no
 resolve_error_multiple_refs::resolve_error_multiple_refs(source_code_view view)
 		: resolve_error(error_types::multiple_refs, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "multiple references found";
 	set(s.str());
 }
@@ -191,7 +191,7 @@ resolve_error_multiple_refs::resolve_error_multiple_refs(source_code_view view)
 resolve_error_unresolved_reference::resolve_error_unresolved_reference(source_code_view view)
 		: resolve_error(error_types::unresolved_reference, view)
 {
-	std::stringstream s;
+	stringstream s;
 	s << "unresolved reference";
 	set(s.str());
 }

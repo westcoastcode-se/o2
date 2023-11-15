@@ -663,7 +663,7 @@ namespace
 		if (tt == token_type::parant_right)
 		{
 			// automatically add the this argument
-			const auto this_var = o2_new node_var_this(ps->get_view(), "this", ps->type);
+			const auto this_var = o2_new node_var_this(ps->get_view(), STR("this"), ps->type);
 			arguments->add_child(this_var);
 		}
 		else
@@ -671,7 +671,7 @@ namespace
 			// first argument might be a this argument
 			if (t->type() == token_type::this_)
 			{
-				const auto this_var = o2_new node_var_this(ps->get_view(), "this", ps->type);
+				const auto this_var = o2_new node_var_this(ps->get_view(), STR("this"), ps->type);
 				arguments->add_child(this_var);
 				t->next();
 			}
@@ -679,7 +679,7 @@ namespace
 			{
 				// It might still be a this argument if the "type" is this
 				// TODO: Add support for named this arguments
-				const auto this_var = o2_new node_var_this(ps->get_view(), "this", ps->type);
+				const auto this_var = o2_new node_var_this(ps->get_view(), STR("this"), ps->type);
 				arguments->add_child(this_var);
 			}
 

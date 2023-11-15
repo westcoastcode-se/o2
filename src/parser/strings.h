@@ -6,9 +6,29 @@
 #pragma once
 
 #include <cinttypes>
+#include <string_view>
+#include <string>
+#include <sstream>
 
 namespace o2
 {
+#if defined(O2_UTF16_SUPPORT)
+	// TODO Add support for UTF-16 support
+	typedef std::u16string_view string_view;
+	typedef std::u16string string;
+	typedef string::value_type string_literal;
+	typedef std::basic_stringstream<string_literal, std::char_traits<string_literal>, std::allocator<string_literal>> stringstream;
+	typedef std::basic_ostream<string_literal> basic_ostream;
+#define STR(s) u##s
+#else
+	typedef std::string_view string_view;
+	typedef std::string string;
+	typedef string::value_type string_literal;
+	typedef std::basic_stringstream<string_literal, std::char_traits<string_literal>, std::allocator<string_literal>> stringstream;
+	typedef std::basic_ostream<string_literal> basic_ostream;
+#define STR(s) s
+#endif
+
 	/**
 	* \brief compare two non-null terminated strings with known sizes
 	* \param s1 the first string
@@ -16,12 +36,13 @@ namespace o2
 	* \param s2 the second string
 	* \param l2 the length of the second string
 	**/
-	static bool w_streqn(const char* s1, int l1, const char* s2, int l2)
+	static inline bool w_streqn(const string_literal* s1, int l1, const string_literal* s2, int l2)
 	{
-		if (l1 != l2) 
+		if (l1 != l2)
 			return false;
-		const char* end = s1 + l1;
-		for (; s1 != end;) {
+		const auto end = s1 + l1;
+		for (; s1 != end;)
+		{
 			if (*s1++ != *s2++)
 				return false;
 		}
@@ -33,7 +54,7 @@ namespace o2
 	* \param str the string
 	* \param len the length of the string
 	**/
-	static std::int64_t w_strtoi64(const char* str, int len)
+	static inline std::int64_t w_strtoi64(const string_literal* str, int len)
 	{
 		std::int64_t ret = 0;
 		std::int64_t multiplier = 1;
@@ -53,7 +74,7 @@ namespace o2
 	* \param str the string
 	* \param len the length of the string
 	**/
-	static std::uint64_t w_strtou64(const char* str, int len)
+	static inline std::uint64_t w_strtou64(const string_literal* str, int len)
 	{
 		std::uint64_t ret = 0;
 		const auto end = str + len;
@@ -70,7 +91,7 @@ namespace o2
 	 * \param c the hex key
 	 * \return the integer
 	 */
-	static int w_hkeytoint(const char c)
+	static inline int w_hkeytoint(const string_literal c)
 	{
 		switch (c)
 		{
@@ -110,10 +131,10 @@ namespace o2
 	 * \param len 
 	 * \return 
 	 */
-	static std::int64_t w_hextoi64(const char* hex, int len)
+	static inline std::int64_t w_hextoi64(const string_literal* hex, int len)
 	{
 		std::int64_t ret = 0;
-		const char* end = hex + len;
+		const auto end = hex + len;
 		if (len < 3)
 			return 0;
 		hex += 2;
@@ -128,10 +149,10 @@ namespace o2
 	 * \param len
 	 * \return
 	 */
-	std::uint64_t w_hextou64(const char* hex, int len)
+	static inline std::uint64_t w_hextou64(const string_literal* hex, int len)
 	{
 		std::uint64_t ret = 0;
-		const char* end = hex + len;
+		const auto end = hex + len;
 		if (len < 3)
 			return 0;
 		hex += 2;

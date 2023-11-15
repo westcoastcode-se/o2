@@ -19,7 +19,7 @@ node_type* node_op_assign::get_type()
 	return _variable->get_type();
 }
 
-void node_op_assign::debug(std::basic_ostream<char>& stream, int indent) const
+void node_op_assign::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "op_assign()" << std::endl;

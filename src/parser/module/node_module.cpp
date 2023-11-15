@@ -8,7 +8,7 @@
 
 using namespace o2;
 
-void node_module::debug(std::basic_ostream<char>& stream, int indent) const
+void node_module::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "module(name=" << _module->get_name() << ",path=" << _module->get_root_path() << ")" << std::endl;

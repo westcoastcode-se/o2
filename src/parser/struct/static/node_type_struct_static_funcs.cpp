@@ -7,7 +7,7 @@
 
 using namespace o2;
 
-void node_type_struct_static_funcs::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_struct_static_funcs::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_struct_static_funcs()" << std::endl;

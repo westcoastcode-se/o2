@@ -8,7 +8,7 @@
 
 using namespace o2;
 
-void node_func_body::debug(std::basic_ostream<char>& stream, int indent) const
+void node_func_body::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "func_body(def=" << _def << ")" << std::endl;

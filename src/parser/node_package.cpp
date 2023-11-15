@@ -69,7 +69,7 @@ void node_package::on_child_removed(node* n)
 	}
 }
 
-void node_package::debug(std::basic_ostream<char>& stream, int indent) const
+void node_package::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "package(name=" << _name << ")" << std::endl;
@@ -92,7 +92,7 @@ void node_package::resolve_symbol_id()
 	const auto symbol = get_parent_of_type<node_symbol>();
 	if (symbol)
 	{
-		std::stringstream ss;
+		stringstream ss;
 		ss << symbol->get_id();
 		ss << '.';
 		ss << _name;

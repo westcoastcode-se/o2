@@ -18,7 +18,7 @@ node_ref::node_ref(const source_code_view& view, node* result)
 {
 }
 
-void node_ref::debug(std::basic_ostream<char>& stream, int indent) const
+void node_ref::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "ref(text=" << _text << ",";

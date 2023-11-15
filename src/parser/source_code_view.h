@@ -43,7 +43,7 @@ namespace o2
 			return _line_offset;
 		}
 
-		inline const char* get_line_start() const
+		inline const string_literal* get_line_start() const
 		{
 			return _line_start;
 		}
@@ -57,7 +57,7 @@ namespace o2
 		const source_code* _source_code;
 		const int _line;
 		const int _line_offset;
-		const char* _line_start;
+		const string_literal* _line_start;
 		const int _offset;
 	};
 }

@@ -24,7 +24,7 @@ namespace o2
 
 #pragma region node
 
-		void debug(std::basic_ostream<char>& stream, int indent) const final;
+		void debug(debug_ostream& stream, int indent) const final;
 
 #pragma endregion
 	};

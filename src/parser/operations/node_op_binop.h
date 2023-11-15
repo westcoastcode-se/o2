@@ -101,7 +101,7 @@ namespace o2
 
 		void on_parent_node(node* n) final;
 
-		void debug(std::basic_ostream<char>& stream, int indent) const final;
+		void debug(debug_ostream& stream, int indent) const final;
 
 #pragma endregion
 

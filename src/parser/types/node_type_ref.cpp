@@ -32,7 +32,7 @@ int node_type_ref::resolve_size(const recursion_detector* rd)
 	return _size;
 }
 
-void node_type_ref::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_ref::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_ref(type=";

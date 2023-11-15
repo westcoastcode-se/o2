@@ -24,7 +24,7 @@ void node_op_callfunc::on_child_removed(node* n)
 	node::on_child_removed(n);
 }
 
-void node_op_callfunc::debug(std::basic_ostream<char>& stream, int indent) const
+void node_op_callfunc::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "op_callfunc()" << std::endl;

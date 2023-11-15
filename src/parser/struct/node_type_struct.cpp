@@ -13,7 +13,7 @@ node_type_struct::node_type_struct(const source_code_view& view, string_view nam
 {
 }
 
-void node_type_struct::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_struct::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_struct(name=" << _name << ",size=" << _size << ")" << std::endl;
@@ -99,7 +99,7 @@ void node_type_struct::resolve_symbol_id()
 	const auto symbol = get_parent_of_type<node_symbol>();
 	if (symbol)
 	{
-		std::stringstream ss;
+		stringstream ss;
 		ss << symbol->get_id();
 		ss << '.';
 		ss << _name;

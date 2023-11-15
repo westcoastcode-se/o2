@@ -13,7 +13,7 @@ node_type_struct_fields::node_type_struct_fields(const source_code_view& view)
 	set_query_access_flags(query_access_modifier_passthrough);
 }
 
-void node_type_struct_fields::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_struct_fields::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_struct_fields()" << std::endl;
@@ -25,7 +25,7 @@ node_type_struct_field::node_type_struct_field(const source_code_view& view, str
 {
 }
 
-void node_type_struct_field::debug(std::basic_ostream<char>& stream, int indent) const
+void node_type_struct_field::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_struct_field(name=" << _name << ",field_type=" << _field_type << ")" << std::endl;

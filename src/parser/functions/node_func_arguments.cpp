@@ -13,7 +13,7 @@ node_func_arguments::node_func_arguments(const source_code_view& view)
 	set_query_access_flags(query_access_modifier_passthrough);
 }
 
-void node_func_arguments::debug(std::basic_ostream<char>& stream, int indent) const
+void node_func_arguments::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "arguments(count=" << num_arguments() << ")" << std::endl;

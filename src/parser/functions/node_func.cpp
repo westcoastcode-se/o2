@@ -14,7 +14,7 @@ void node_func::resolve_symbol_id()
 	const auto symbol = get_parent_of_type<node_symbol>();
 	if (symbol)
 	{
-		std::stringstream ss;
+		stringstream ss;
 		ss << symbol->get_id();
 		ss << '.';
 		ss << _name;
@@ -58,7 +58,7 @@ void node_func::on_parent_node(node* p)
 	test_collision();
 }
 
-void node_func::debug(std::basic_ostream<char>& stream, int indent) const
+void node_func::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "func(name=" << _name << ",body=" << get_body();

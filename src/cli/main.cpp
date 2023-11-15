@@ -48,11 +48,11 @@ int main(int argc, char** argv)
 		return 0;
 	}
 
-	const string_view command(argv[1]);
-	static const string_view BUILD("build");
-	static const string_view INIT("init");
-	static const string_view PARSE("parse");
-	static const string_view TEST("test");
+	const o2::string_view command(argv[1]);
+	static const o2::string_view BUILD(STR("build"));
+	static const o2::string_view INIT(STR("init"));
+	static const o2::string_view PARSE(STR("parse"));
+	static const o2::string_view TEST(STR("test"));
 
 	signal(SIGINT, abort_command);
 

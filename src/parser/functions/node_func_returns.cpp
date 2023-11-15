@@ -13,7 +13,7 @@ node_func_returns::node_func_returns(const source_code_view& view)
 	set_query_access_flags(query_access_modifier_passthrough);
 }
 
-void node_func_returns::debug(std::basic_ostream<char>& stream, int indent) const
+void node_func_returns::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "returns()" << std::endl;

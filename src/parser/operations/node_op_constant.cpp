@@ -8,7 +8,7 @@
 
 using namespace o2;
 
-void node_op_constant::debug(std::basic_ostream<char>& stream, int indent) const
+void node_op_constant::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "constant(";

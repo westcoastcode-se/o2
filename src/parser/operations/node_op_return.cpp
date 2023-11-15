@@ -12,7 +12,7 @@ node_op_return::node_op_return(const source_code_view& view)
 {
 }
 
-void node_op_return::debug(std::basic_ostream<char>& stream, int indent) const
+void node_op_return::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "return()" << std::endl;

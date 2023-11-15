@@ -38,7 +38,7 @@ namespace o2
 		 * \brief output debug information about the entire syntax tree
 		 * \param stream where to put the debug information into
 		 */
-		void debug(std::basic_ostream<char>& stream) const;
+		void debug(debug_ostream& stream) const;
 
 		/**
 		 * \brief resolve all soft references, types etc

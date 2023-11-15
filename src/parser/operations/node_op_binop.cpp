@@ -28,7 +28,7 @@ node* node_op_binop::get_right() const
 	return nullptr;
 }
 
-void node_op_binop::debug(std::basic_ostream<char>& stream, int indent) const
+void node_op_binop::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "binop(op=";

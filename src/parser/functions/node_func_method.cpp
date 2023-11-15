@@ -12,7 +12,7 @@ void node_func_method::resolve_symbol_id()
 	const auto symbol = get_parent_of_type<node_symbol>();
 	if (symbol)
 	{
-		std::stringstream ss;
+		stringstream ss;
 		ss << symbol->get_id();
 		ss << '.';
 		ss << get_name();
@@ -23,7 +23,7 @@ void node_func_method::resolve_symbol_id()
 	}
 }
 
-void node_func_method::debug(std::basic_ostream<char>& stream, int indent) const
+void node_func_method::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "func_method(name=" << get_name() << ",body=" << get_body() << ")" << std::endl;

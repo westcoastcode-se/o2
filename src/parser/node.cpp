@@ -61,7 +61,7 @@ void node::destroy_children()
 	_children.clear();
 }
 
-void node::debug(std::basic_ostream<char>& stream, int indent) const
+void node::debug(debug_ostream& stream, int indent) const
 {
 	for (auto c: _children)
 		c->debug(stream, indent + 1);

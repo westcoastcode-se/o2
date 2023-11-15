@@ -52,7 +52,7 @@ int build::execute()
 	}
 
 	// TODO: Parse module file in the config root path and figure out the module name form that
-	const string_view module_name("westcoastcode.se/hello_world");
+	const string_view module_name(STR("westcoastcode.se/hello_world"));
 	// Initialize the module we are compiling and add it to the syntax tree
 	_main_module = o2_new module(module_name, _config.path);
 	_main_module->insert_into(&_syntax_tree);
@@ -68,7 +68,7 @@ int build::execute()
 		string app(_main_module->get_name());
 		if (_config.path != ".")
 		{
-			app += "/";
+			app += STR("/");
 			app += _config.path.generic_string();
 		}
 

@@ -54,14 +54,20 @@ void filesystem_module_package_lookup::load_sources(package_source_info* package
 	{
 		if (!fe.is_regular_file())
 			continue;
+
 		// is this a source code file?
 		const auto& path = fe.path();
 		if (path.extension() != O2_SUFFIX)
 			continue;
+
+		// read the actual file content into a string
 		ifstream f(path);
-		package_sources->sources.add(new source_code(
-				std::move(string(istreambuf_iterator<char>(f), istreambuf_iterator<char>())),
-				fe.path().generic_string()));
+		std::stringstream ss;
+		ss << f.rdbuf();
+		std::string const& s = ss.str();
+
+		// TODO: check what type of file this is. It might be ASCII, UTF-8, UTF-16 and various little and big endian
+		package_sources->sources.add(new source_code(ss.str(), fe.path().generic_string()));
 		f.close();
 	}
 }

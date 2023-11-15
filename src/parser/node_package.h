@@ -50,7 +50,7 @@ namespace o2
 
 		void on_child_removed(node* n) final;
 
-		void debug(std::basic_ostream<char>& stream, int indent) const final;
+		void debug(debug_ostream& stream, int indent) const final;
 
 		void query(query_node_visitor* visitor, int flags) final;
 

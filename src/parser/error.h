@@ -64,7 +64,7 @@ namespace o2
 		error(const error_types type, const source_code_view& view, Args... args)
 				: _type(type), _view(view)
 		{
-			std::stringstream ss;
+			stringstream ss;
 			_set(ss, args...);
 			set(ss.str());
 		}
@@ -78,35 +78,35 @@ namespace o2
 
 #pragma endregion
 
-		// \brief an integer representation of this error
+		/**
+		 * \return the error as a string
+		 */
+		string_view get_error() const
+		{
+			return _error;
+		}
+
+		/**
+		 * \return an integer representation of this error
+		 */
 		error_types get_code() const
 		{
 			return _type;
 		}
 
 		// \brief helper method printing the error out to stderr
-		void print(std::basic_ostream<char>& stream) const;
+		void print(basic_ostream& stream) const;
 
 	protected:
-		void setf(const char* fmt, ...)
+		void set(string error)
 		{
-			_error = fmt;
-		}
-
-		void set(const std::string& error)
-		{
-			_error = error;
-		}
-
-		void set(std::string_view error)
-		{
-			_error = error;
+			_error = std::move(error);
 		}
 
 	private:
 		const error_types _type;
 		const source_code_view _view;
-		std::string _error;
+		string _error;
 	};
 
 	/**
