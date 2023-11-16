@@ -25,12 +25,6 @@ namespace o2
 		}
 
 		/**
-		 * \param name the name of the package
-		 * \return a package with the supplied name
-		 */
-		node_package* find_package(string_view name) const;
-
-		/**
 		 * \return the name of the package
 		 */
 		inline string_view get_name() const
@@ -58,7 +52,6 @@ namespace o2
 
 	private:
 		const string_view _name;
-		std::unordered_map<string_view, node_package*> _packages;
 		std::unordered_map<string_view, node_var*> _variables;
 	};
 

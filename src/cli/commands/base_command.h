@@ -7,12 +7,13 @@
 
 namespace o2
 {
+	/**
+	 * \brief base class for all commands
+	 */
 	class base_command
 	{
 	public:
-		virtual ~base_command()
-		{
-		}
+		virtual ~base_command() = default;
 
 		/**
 		 * \brief abort this command
