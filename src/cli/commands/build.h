@@ -26,19 +26,29 @@ namespace o2
 	 */
 	struct async_data
 	{
-		// the state - where you can find things like imports
-		parser_state state;
-		// the module we are loading
-		module* module;
-		// all errors that occurred when compiling
-		std::vector<string> errors;
-		// the resulting package to be added to the syntax tree
-		node_package* package;
-		// information on the package to be loaded
-		package_source_info* package_info;
+		// data sent into the processor
+		struct _in
+		{
+			// the module where the source code is loaded from
+			module* module;
+			// information on the package sources to be loaded
+			package_source_info* package_info;
+		} in;
+
+		// data coming out from the processor
+		struct _out
+		{
+			// the state - where you can find things like imports
+			parser_state state;
+			// all errors that occurred when compiling
+			std::vector<string> errors;
+			// the resulting package to be added to the syntax tree
+			node_package* package;
+		} out;
 
 		explicit async_data(syntax_tree* st)
-				: state(st), module(), errors(), package(), package_info()
+				: in({ nullptr, nullptr }),
+				  out({ parser_state(st), {}, nullptr })
 		{
 		}
 	};
@@ -80,40 +90,40 @@ namespace o2
 	private:
 		/**
 		 * \brief push more items to be built in worker threads
-		 * \param data asynchronous data
-		 * \param cs
-		 * \return true if an import request is put to be processed
+		 * \param data asynchronous data that can be associated with this import
+		 * \param import_request the import where this request originates
+		 * \param m the module where the source code can be found in
+		 * \param sources information on the source code to be loaded
+		 * \return true if an import request is being processed
+		 * \remark if the return value is true and the supplied data is not nullptr, then the ownership of
+		 *         that memory is moved to the processor.
 		 */
-		bool try_import(async_data* data, module* m, package_source_info* sources);
+		bool try_import(async_data* data, node_import* import_request, module* m, package_source_info* sources);
 
 		/**
-		 * \param import_statement
+		 * \brief search for a module that matches the supplied import
+		 * \param m the module we are using when searching for a compatible module to load
+		 * \param i the import that we want to load
 		 * \return the module for the supplied import statement
+		 * TODO return a list of modules that matches the import statement instead of one, then load the source code from
+		 *      the module that matches the path the best in the loader thread
 		 */
-		module* get_module(string_view import_statement);
+		module* find_module(module* m, node_import* i);
 
 		/**
 		 * \brief parse the source code associated with the compile state
-		 * \param cs
+		 * \param data
 		 * \return
 		 */
-		static async_data* parse(async_data* cs);
-
-		/**
-		 *
-		 * \param data
-		 * \param from from what module's point of view is this import in case of private import statements
-		 * \param import_statement
-		 * \return a list of all futures to be expected
-		 */
-		std::vector<std::future<async_data*>> try_imports(async_data* data, module* from, string_view import_statement);
+		static async_data* parse(async_data* data);
 
 	private:
 		const config _config;
 		syntax_tree _syntax_tree;
+
+		int _pending_requests;
 		channel<async_data*> _parse_requests;
 		channel<async_data*> _parse_responses;
-		int _import_statements_running;
 
 		// threads that are doing stuff
 		std::vector<std::jthread> _threads;

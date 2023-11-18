@@ -8,6 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <filesystem>
+#include <utility>
 
 using namespace o2;
 
@@ -21,7 +22,7 @@ namespace
 }
 
 build::build(config cfg)
-		: _config(cfg), _import_statements_running(0), _aborted()
+		: _config(std::move(cfg)), _pending_requests(), _aborted()
 {
 }
 
@@ -44,7 +45,7 @@ int build::execute()
 			while (requests->is_open())
 			{
 				async_data* data;
-				if (!requests->try_pop(&data))
+				if (!requests->wait_pop(&data))
 					continue;
 				responses->put(build::parse(data));
 			}
@@ -72,7 +73,12 @@ int build::execute()
 			app += _config.path.generic_string();
 		}
 
-		parse_module_path(&_syntax_tree, _main_module, app, &state);
+		auto sources = _main_module->get_package_info(app);
+		_main_module->load_package_sources(sources);
+		sources->load_status = package_source_info::loading;
+		const auto package = parse_module_import(sources->sources, sources->relative_path.generic_string(), &state);
+		_main_module->add_package(package);
+		sources->load_status = package_source_info::successful;
 		if (_config.verbose_level > 0)
 			std::cout << "parsed '" << app << "' - done!" << std::endl;
 	}
@@ -85,71 +91,97 @@ int build::execute()
 	}
 
 	// do import everything found in the main source code
-	for (auto i: state.get_imports())
+	auto imports = state.get_imports();
+	for (auto i: imports)
 	{
-		auto cs = new async_data(&_syntax_tree);
-		const auto m = get_module(i);
+		const auto m = find_module(_main_module, i);
 		if (m != nullptr)
 		{
-			auto sources = m->get_package_info(i);
-			try_import(cs, m, sources);
+			const auto sources = m->get_package_info(i->get_import_statement());
+			try_import(new async_data(&_syntax_tree), i, m, sources);
+		}
+		else
+		{
+			std::cerr << "could not import '" << i->get_import_statement() << "' because module could not be found"
+					  << std::endl;
+			success = false;
 		}
 	}
 
-	// handle each parse request and import statement
-	while (_parse_responses.is_open() && _import_statements_running > 0)
+	// no imports so we can already resolve all properties
+	if (imports.empty())
 	{
-		async_data* cs;
-		if (!_parse_responses.try_pop(&cs))
-			continue;
+		const recursion_detector rd;
+		_syntax_tree.get_root_package()->resolve(&rd);
+	}
 
-		// One import statement is done!
-		_import_statements_running--;
+	// handle each parse request and import statement
+	while (_parse_responses.is_open() && _pending_requests > 0)
+	{
+		async_data* data;
+		if (!_parse_responses.wait_pop(&data))
+			continue;
+		_pending_requests--;
 
 		// Did an error happen when we parsed the source code?
-		if (!cs->errors.empty())
+		if (!data->out.errors.empty())
 		{
-			// the load failed
-			cs->package_info->load_status = package_source_info::failed;
-			for (const auto& e: cs->errors)
+			// log the parse failure
+			data->in.package_info->load_status = package_source_info::failed;
+			for (const auto& e: data->out.errors)
 				std::cerr << e << std::endl;
 			success = false;
+			// delete the data
+			delete data;
+			// try process more responses
+			continue;
 		}
-		else if (_config.verbose_level > 0)
+
+		// Logging
+		assert(data->out.package);
+		if (_config.verbose_level > 0)
 		{
-			if (cs->package_info->relative_path.empty())
-				std::cout << "parsed '" << cs->module->get_name() << "' - done!" << std::endl;
+			if (data->in.package_info->relative_path.empty())
+				std::cout << "parsed '" << data->in.module->get_name() << "' - done!" << std::endl;
 			else
-				std::cout << "parsed '" << cs->module->get_name() << "/" << cs->package_info->relative_path
+				std::cout << "parsed '" << data->in.module->get_name() << "/" << data->in.package_info->relative_path
 						  << "' - done!" << std::endl;
 		}
 
-		if (cs->package)
-		{
-			// the load completed successfully
-			cs->package_info->load_status = package_source_info::successful;
+		// the load completed successfully
+		data->in.package_info->load_status = package_source_info::successful;
 
-			// add the package to the module
-			assert(cs->module);
-			cs->module->add_package(cs->package);
-		}
+		// add the loaded package to the module
+		assert(data->in.module);
+		const auto imported_module = data->in.module;
+		const auto imported_package = data->out.package;
+		imported_module->add_package(imported_package);
 
 		// collect all imports to be parsed
-		auto imports = cs->state.get_imports();
-		for (auto i: imports)
+		imports = data->out.state.get_imports();
+		if (imports.empty())
 		{
-			const auto m = get_module(i);
-			if (m)
+			// all imports are imported, so let's resolve this package's dependencies!
+			const recursion_detector rd;
+			data->out.package->resolve(&rd);
+			std::cout << "resolving " << data->out.package->get_parent_of_type<node_module>()->get_name() << "/"
+					  << data->out.package->get_name() << std::endl;
+		}
+		else
+		{
+			for (auto i: imports)
 			{
-				auto sources = m->get_package_info(i);
-				if (cs == nullptr)
-					cs = new async_data(&_syntax_tree);
-				if (try_import(cs, m, sources))
-					cs = nullptr;
+				const auto m = find_module(data->in.module, i);
+				if (m)
+				{
+					const auto sources = m->get_package_info(i->get_import_statement());
+					if (try_import(data, i, m, sources))
+						data = nullptr;
+				}
 			}
 		}
 		// delete any state that's pending
-		delete cs;
+		delete data;
 	}
 	_parse_responses.close();
 	_parse_requests.close();
@@ -162,10 +194,8 @@ int build::execute()
 
 	if (success)
 	{
-		// TODO: move resolve phase to the parser thread
 		try
 		{
-			resolve(&_syntax_tree, &state);
 			optimize(&_syntax_tree, 0);
 		}
 		catch (const o2::error& e)
@@ -184,61 +214,80 @@ int build::execute()
 	return success ? 0 : 1;
 }
 
-bool build::try_import(async_data* cs, module* m, package_source_info* sources)
+bool build::try_import(async_data* data, node_import* import_request, module* m, package_source_info* sources)
 {
 	// we only care about package sources that's not loaded
 	if (sources->load_status != package_source_info::not_loaded)
+	{
+		// the import is already loaded so let's notify the actual import and tell it that
+		// it's already loaded
+		if (sources->load_status == package_source_info::successful)
+		{
+			import_request->on_imported();
+		}
+		else
+		{
+			m->add_pending_imports(import_request);
+		}
 		return false;
-
-	// TODO: figure out a better way of doing this!
-	_import_statements_running++;
+	}
 
 	// initialize the async data
-	cs->errors.clear();
-	cs->module = m;
-	cs->package_info = sources;
-	cs->package_info->load_status = package_source_info::loading;
-	cs->package = nullptr;
+	if (data == nullptr)
+		data = new async_data(&_syntax_tree);
+	data->in.module = m;
+	data->in.package_info = sources;
+	data->in.package_info->load_status = package_source_info::loading;
+	data->out.errors.clear();
+	data->out.package = nullptr;
 
-	_parse_requests.put(cs);
+	// put the data to be processed by one of the worker threads
+	_parse_requests.put(data);
+	_pending_requests++;
+
+	// put the import as being imported in the future
+	m->add_pending_imports(import_request);
 	return true;
 }
 
-async_data* build::parse(async_data* cs)
+async_data* build::parse(async_data* data)
 {
 	try
 	{
 		// load the actual string source code
-		cs->module->load_package_sources(cs->package_info);
+		data->in.module->load_package_sources(data->in.package_info);
 		// parse the source code
-		cs->package = parse_module_import(cs->package_info->sources,
-				cs->package_info->relative_path.generic_string(),
-				&cs->state);
+		data->out.package = parse_module_import(data->in.package_info->sources,
+				data->in.package_info->relative_path.generic_string(),
+				&data->out.state);
 	}
 	catch (const error& e)
 	{
 		std::stringstream ss;
 		e.print(ss);
-		cs->errors.emplace_back(std::move(ss.str()));
+		data->out.errors.emplace_back(std::move(ss.str()));
 	}
 	catch (const std::exception& e)
 	{
-		cs->errors.emplace_back(e.what());
+		data->out.errors.emplace_back(e.what());
 	}
-	return cs;
+
+	return data;
 }
 
-o2::module* build::get_module(string_view import_statement)
+o2::module* build::find_module(module* m, node_import* i)
 {
+	const auto statement = i->get_import_statement();
+
 	// search among the required modules first
-	module* best_match = _main_module;
-	int match = _main_module->matches(import_statement);
-	for (auto m: _main_module->get_requirements())
+	module* best_match = m;
+	int match = m->matches(statement);
+	for (auto req: m->get_requirements())
 	{
-		const auto current_match = m->matches(import_statement);
+		const auto current_match = req->matches(statement);
 		if (current_match < match)
 		{
-			best_match = m;
+			best_match = req;
 			match = current_match;
 		}
 	}
@@ -247,15 +296,15 @@ o2::module* build::get_module(string_view import_statement)
 		return best_match;
 
 	// If not then check among the built-in modules
-	const auto it = _builtin_modules.find(import_statement);
+	const auto it = _builtin_modules.find(statement);
 	if (it == _builtin_modules.end())
 	{
 		// see if there's a directory in the language folder that might have modules in them
-		const auto path = _config.lang_path / std::filesystem::path(import_statement);
+		const auto path = _config.lang_path / std::filesystem::path(statement);
 		if (std::filesystem::is_directory(path))
 		{
-			best_match = o2_new module(string(import_statement), path.generic_string());
-			_builtin_modules[import_statement] = best_match;
+			best_match = o2_new module(string(statement), path.generic_string());
+			_builtin_modules[statement] = best_match;
 			best_match->insert_into(&_syntax_tree);
 		}
 	}
@@ -269,5 +318,5 @@ void build::abort()
 {
 	_aborted = true;
 	_parse_requests.close();
-	_parse_requests.close();
+	_parse_responses.close();
 }

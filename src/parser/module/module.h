@@ -17,6 +17,8 @@ namespace o2
 
 	class node_package;
 
+	class node_import;
+
 	/**
 	 * \brief a module defines how a set of source code files relates to each other
 	 */
@@ -126,10 +128,20 @@ namespace o2
 
 		/**
 		 * \brief add the supplied package to this module
-		 * \param p
-		 * \return
+		 * \param p the package
+		 * \return the added package
+		 *
+		 * when a package is added to this module then all imports that's waiting for that package
+		 * will be marked as imported. This will, potentially, start the resolve phase of the package
+		 * where the import is found
 		 */
 		node_package* add_package(node_package* p);
+
+		/**
+		 * \brief add an import that's being loaded by this module
+		 * \param i the import that's being loaded
+		 */
+		void add_pending_imports(node_import* i);
 
 	private:
 		module* const _parent;
@@ -139,5 +151,14 @@ namespace o2
 		vector<module*> _requirements;
 		node_module* const _node_module;
 		int _modifiers;
+
+		struct state
+		{
+			struct _parse
+			{
+				// imports that's waiting to be loaded
+				vector<node_import*> pending_imports;
+			} parse;
+		} _state;
 	};
 }

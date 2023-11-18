@@ -6,6 +6,7 @@
 #include "module.h"
 #include "module_package_lookup.h"
 #include "../syntax_tree.h"
+#include "../node_import.h"
 
 using namespace o2;
 
@@ -53,5 +54,19 @@ node_package* module::add_package(node_package* p)
 {
 	assert(bit_isset(_modifiers, modifier_added));
 	_node_module->add_child(p);
+
+	// potentially imports that's loaded
+	for (auto i: _state.parse.pending_imports)
+	{
+		// does the import match the added package?
+		const auto relative_package_name = get_relative_path(i->get_import_statement());
+		if (p->get_name() == relative_package_name)
+			i->on_imported();
+	}
 	return p;
+}
+
+void module::add_pending_imports(node_import* i)
+{
+	_state.parse.pending_imports.add(i);
 }

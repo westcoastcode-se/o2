@@ -26,15 +26,18 @@ namespace o2
 		}
 
 		/**
-		 * \brief try to pop a value from t
-		 * \param val
-		 * \return
+		 * \brief wait until there's a value and then to pop a value from this channel
+		 * \param val the destination where to put the value
+		 * \return true if a value is returned
 		 */
-		bool try_pop(T* val)
+		bool wait_pop(T* val)
 		{
 			// wait for the channel to be triggered
 			std::unique_lock l(_mutex);
-			_condition.wait(l);
+			_condition.wait(l, [this]
+			{
+				return !_queue.empty() || _closed;
+			});
 
 			// is the channel closed?
 			if (_closed)
@@ -49,12 +52,16 @@ namespace o2
 		/**
 		 * \brief put a value into this channel
 		 * \param t
+		 * \return true if the value was added to the channel
 		 */
-		void put(const T& t)
+		bool put(const T& t)
 		{
+			if (_closed)
+				return false;
 			std::lock_guard l(_mutex);
 			_queue.push(t);
 			_condition.notify_one();
+			return true;
 		}
 
 		/**
@@ -62,6 +69,8 @@ namespace o2
 		 */
 		void close()
 		{
+			if (_closed)
+				return;
 			std::lock_guard l(_mutex);
 			_closed = true;
 			_condition.notify_all();

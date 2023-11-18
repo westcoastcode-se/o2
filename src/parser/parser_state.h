@@ -25,14 +25,9 @@ namespace o2
 	class parser_state
 	{
 	public:
-		parser_state(syntax_tree* st)
+		explicit parser_state(syntax_tree* st)
 				: _syntax_tree(st), _source_code()
 		{
-		}
-
-		inline syntax_tree* get_syntax_tree() const
-		{
-			return _syntax_tree;
 		}
 
 		inline const source_code* get_source_code() const
@@ -56,7 +51,7 @@ namespace o2
 		/**
 		 * \return all imports collected during the parse phase
 		 */
-		inline vector<string_view> get_imports()
+		inline vector<node_import*> get_imports()
 		{
 			return std::move(_imports);
 		}
@@ -75,7 +70,7 @@ namespace o2
 		 * \brief add an import
 		 * \param i
 		 */
-		void add_import(const node_import* i);
+		void add_import(node_import* i);
 
 		/**
 		 * \brief
@@ -87,7 +82,7 @@ namespace o2
 	private:
 		syntax_tree* const _syntax_tree;
 		const source_code* _source_code;
-		vector<string_view> _imports;
+		vector<node_import*> _imports;
 		vector<node_type*> _resolve_size;
 	};
 }

@@ -9,9 +9,9 @@
 
 using namespace o2;
 
-void parser_state::add_import(const node_import* i)
+void parser_state::add_import(node_import* i)
 {
-	_imports.add_unique(i->get_import_statement());
+	_imports.add_unique(i);
 }
 
 node_type_primitive* parser_state::get_primitive_type(primitive_type type) const
