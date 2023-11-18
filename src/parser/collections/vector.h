@@ -152,6 +152,18 @@ namespace o2
 			return removed;
 		}
 
+ 		/**
+		 * \brief remove the supplied value
+		 * \param value the value
+		 */
+		void remove(T value)
+		{
+			const auto idx = find(value);
+			if (idx == -1)
+				return;
+			remove_at(idx);
+		}
+
 		/**
 		 * \brief search for the index that holds the supplied value
 		 * \param value the value we are searching for
