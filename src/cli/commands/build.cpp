@@ -166,24 +166,34 @@ int build::execute()
 
 			// all imports are imported, so let's resolve this package's dependencies!
 			const recursion_detector rd;
-			data->out.package->resolve(&rd);
+			imported_package->resolve(&rd);
 		}
 		else
 		{
+			auto imports_left = imports.size();
 			for (auto i: imports)
 			{
-				const auto m = find_module(data->in.module, i);
+				const auto m = find_module(imported_module, i);
 				if (m)
 				{
 					const auto sources = m->get_package_info(i->get_import_statement());
 					if (try_import(data, i, m, sources))
 						data = nullptr;
+					if (sources->load_status == package_source_info::successful)
+						imports_left--;
 				}
 			}
 
 			// package is now imported. This is done after, potentially, importing more packages to lessen the time
 			// we have to wait and sleep
 			imported_module->notify_package_imported(imported_package);
+
+			if (imports_left == 0)
+			{
+				// all imports are imported, so let's resolve this package's dependencies!
+				const recursion_detector rd;
+				imported_package->resolve(&rd);
+			}
 		}
 		// delete any state that's pending
 		delete data;

@@ -22,9 +22,9 @@ namespace o2
 		enum status
 		{
 			// this import is not loaded yet
-			not_loaded,
+			not_loaded = 0,
 			// this import is potentially loaded
-			loaded
+			status_loaded = 1 << 0
 		};
 
 		node_import(const source_code_view& view, string_view import_statement)

@@ -13,7 +13,10 @@ void node_import::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "import(statement=" << _import_statement << ",package=" << _package;
-	stream << ",alias=" << _alias << ")" << std::endl;
+	stream << ",alias=" << _alias;
+	if (bit_isset(_status, status_loaded))
+		stream << ",loaded";
+	stream << ")" << std::endl;
 	node::debug(stream, indent);
 }
 
@@ -128,7 +131,7 @@ void node_import::on_removed_parent_node(node* parent)
 bool node_import::notify_imported()
 {
 	assert(_status == not_loaded && "if this method is called twice then the same import is being loaded twice");
-	_status = loaded;
+	_status = status_loaded;
 	const auto package = get_parent_of_type<node_package>();
 	return package->on_import_removed(this);
 }

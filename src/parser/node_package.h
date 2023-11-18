@@ -21,8 +21,17 @@ namespace o2
 			: public node_symbol
 	{
 	public:
+		// the loading status of the import
+		enum status
+		{
+			// no status changes yet
+			none = 0,
+			// this import is potentially loaded
+			status_resolved = 1 << 0
+		};
+
 		node_package(const source_code_view& view, string_view name)
-				: node_symbol(view), _name(name)
+				: node_symbol(view), _name(name), _status(none)
 		{
 		}
 
@@ -76,6 +85,8 @@ namespace o2
 	private:
 		const string_view _name;
 		std::unordered_map<string_view, node_var*> _variables;
+		int _status;
+
 
 		// a mutable state that's used during this packages parse, resolve and link phase
 		struct state

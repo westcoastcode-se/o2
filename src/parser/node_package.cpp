@@ -32,7 +32,10 @@ void node_package::on_child_removed(node* n)
 void node_package::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
-	stream << "package(name=" << _name << ")" << std::endl;
+	stream << "package(name=" << _name;
+	if (bit_isset(_status, status_resolved))
+		stream << ",resolved";
+	stream << ")" << std::endl;
 	node::debug(stream, indent);
 }
 
@@ -83,10 +86,9 @@ bool node_package::resolve(const recursion_detector* rd)
 	std::cout << "resolving " << get_parent_of_type<node_module>()->get_name() << "/"
 			  << get_name() << std::endl;
 	if (!node::resolve(rd))
-	{
 		return false;
-	}
 
+	// resolve all dependencies that are waiting for this package to be resolved
 	const auto deps = std::move(_state.parse.depended_resolves);
 	const recursion_detector rd0(rd, this);
 	for (auto p: deps)
@@ -95,5 +97,6 @@ bool node_package::resolve(const recursion_detector* rd)
 		if (!p->resolve(&rd0))
 			return false;
 	}
+	_status = status_resolved;
 	return true;
 }
