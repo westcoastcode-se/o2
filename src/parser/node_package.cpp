@@ -5,6 +5,7 @@
 
 #include "node_package.h"
 #include "node_import.h"
+#include "module/node_module.h"
 #include <iostream>
 
 using namespace o2;
@@ -68,4 +69,31 @@ bool node_package::on_import_removed(node_import* i)
 {
 	_state.parse.pending_imports.remove(i);
 	return _state.parse.pending_imports.empty();
+}
+
+void node_package::on_resolved_before(node_package* p)
+{
+	assert(_state.parse.depended_resolves.find(p) == -1 &&
+		   "package should not be added twice");
+	_state.parse.depended_resolves.add(p);
+}
+
+bool node_package::resolve(const recursion_detector* rd)
+{
+	std::cout << "resolving " << get_parent_of_type<node_module>()->get_name() << "/"
+			  << get_name() << std::endl;
+	if (!node::resolve(rd))
+	{
+		return false;
+	}
+
+	const auto deps = std::move(_state.parse.depended_resolves);
+	const recursion_detector rd0(rd, this);
+	for (auto p: deps)
+	{
+		std::cout << "\t";
+		if (!p->resolve(&rd0))
+			return false;
+	}
+	return true;
 }

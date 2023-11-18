@@ -47,6 +47,12 @@ namespace o2
 		 */
 		bool on_import_removed(node_import* i);
 
+		/**
+		 * \brief add a package to be resolved after this one
+		 * \param p
+		 */
+		void on_resolved_before(node_package* p);
+
 #pragma region node_symbol
 
 		void resolve_symbol_id() final;
@@ -63,6 +69,8 @@ namespace o2
 
 		void query(query_node_visitor* visitor, int flags) final;
 
+		bool resolve(const recursion_detector* rd) final;
+
 #pragma endregion
 
 	private:
@@ -78,6 +86,8 @@ namespace o2
 				// a collection of all imports that this package is waiting for to be
 				// resolved
 				vector<node_import*> pending_imports;
+				// packages that's waiting for this package until it, itself, can be resolved
+				vector<node_package*> depended_resolves;
 			} parse;
 		} _state;
 	};

@@ -167,8 +167,6 @@ int build::execute()
 			// all imports are imported, so let's resolve this package's dependencies!
 			const recursion_detector rd;
 			data->out.package->resolve(&rd);
-			std::cout << "resolving " << data->out.package->get_parent_of_type<node_module>()->get_name() << "/"
-					  << data->out.package->get_name() << std::endl;
 		}
 		else
 		{

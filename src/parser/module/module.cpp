@@ -60,12 +60,21 @@ node_package* module::add_package(node_package* p)
 void module::notify_package_imported(node_package* p)
 {
 	// potentially imports that's loaded
-	for (auto i: _state.parse.import_requests)
+	for(int idx = _state.parse.import_requests.size() - 1; idx >= 0; --idx)
 	{
-		// does the import match the added package?
+		const auto i = _state.parse.import_requests[idx];
 		const auto relative_package_name = get_relative_path(i->get_import_statement());
 		if (p->get_name() == relative_package_name)
-			i->notify_imported();
+		{
+			// this is not imported, so we don't need to keep track of it anymore
+			_state.parse.import_requests.remove_at(idx);
+			if (i->notify_imported())
+			{
+				// the package where this import is part of can now be resolved. so add it to this module as a
+				// pending package to be resolved
+				p->on_resolved_before(i->get_parent_of_type<node_package>());
+			}
+		}
 	}
 }
 

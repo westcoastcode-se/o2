@@ -130,13 +130,5 @@ bool node_import::notify_imported()
 	assert(_status == not_loaded && "if this method is called twice then the same import is being loaded twice");
 	_status = loaded;
 	const auto package = get_parent_of_type<node_package>();
-	if (package->on_import_removed(this))
-	{
-		std::cout << "resolving " << package->get_parent_of_type<node_module>()->get_name() << "/"
-				  << package->get_name() << std::endl;
-		const recursion_detector rd;
-		package->resolve(&rd);
-		return true;
-	}
-	return false;
+	return package->on_import_removed(this);
 }
