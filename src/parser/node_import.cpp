@@ -108,3 +108,35 @@ void node_import::query(query_node_visitor* visitor, int flags)
 
 	node::query(visitor, flags);
 }
+
+void node_import::on_parent_node(node* parent)
+{
+	auto package = dynamic_cast<node_package*>(parent);
+	if (package == nullptr)
+		package = parent->get_parent_of_type<node_package>();
+	package->on_import_added(this);
+}
+
+void node_import::on_removed_parent_node(node* parent)
+{
+	auto package = dynamic_cast<node_package*>(parent);
+	if (package == nullptr)
+		package = parent->get_parent_of_type<node_package>();
+	package->on_import_removed(this);
+}
+
+bool node_import::on_imported()
+{
+	assert(_status == not_loaded && "if this method is called twice then the same import is being loaded twice");
+	_status = loaded;
+	const auto package = get_parent_of_type<node_package>();
+	if (package->on_import_removed(this))
+	{
+		std::cout << "resolving " << package->get_parent_of_type<node_module>()->get_name() << "/"
+				  << package->get_name() << std::endl;
+		const recursion_detector rd;
+		package->resolve(&rd);
+		return true;
+	}
+	return false;
+}

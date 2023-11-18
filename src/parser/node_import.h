@@ -18,13 +18,22 @@ namespace o2
 			: public node
 	{
 	public:
+		// the loading status of the import
+		enum status
+		{
+			// this import is not loaded yet
+			not_loaded,
+			// this import is potentially loaded
+			loaded
+		};
+
 		node_import(const source_code_view& view, string_view import_statement)
 				: node_import(view, import_statement, string_view())
 		{
 		}
 
 		node_import(const source_code_view& view, string_view import_statement, string_view alias)
-				: node(view), _import_statement(import_statement), _alias(alias), _package()
+				: node(view), _import_statement(import_statement), _alias(alias), _package(), _status(not_loaded)
 		{
 			set_query_access_flags(query_access_modifier_passthrough);
 		}
@@ -47,7 +56,17 @@ namespace o2
 			return _package;
 		}
 
+		/**
+		 * \brief method called when this import is imported
+		 * \return true if all imports are imported for this package
+		 */
+		bool on_imported();
+
 #pragma region node
+
+		void on_parent_node(node* parent) final;
+
+		void on_removed_parent_node(node* parent) final;
 
 		void debug(debug_ostream& stream, int indent) const final;
 
@@ -61,5 +80,6 @@ namespace o2
 		const string_view _import_statement;
 		node_package* _package;
 		const string_view _alias;
+		status _status;
 	};
 }

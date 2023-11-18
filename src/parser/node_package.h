@@ -12,6 +12,8 @@
 
 namespace o2
 {
+	class node_import;
+
 	/**
 	 * \brief package containing packages, functions, constants etc.
 	 */
@@ -31,6 +33,19 @@ namespace o2
 		{
 			return _name;
 		}
+
+		/**
+		 * \brief method called when the supplied import is added as a child node for this package
+		 * \param i
+		 */
+		void on_import_added(node_import* i);
+
+		/**
+		 * \brief method called when the supplied import is removed as a child
+		 * \param i
+		 * \return true if all imports are imported
+		 */
+		bool on_import_removed(node_import* i);
 
 #pragma region node_symbol
 
@@ -53,6 +68,17 @@ namespace o2
 	private:
 		const string_view _name;
 		std::unordered_map<string_view, node_var*> _variables;
+
+		// a mutable state that's used during this packages parse, resolve and link phase
+		struct state
+		{
+			// state used during the parse phase.
+			struct _parse
+			{
+				// imports that's being waited for to be imported
+				vector<node_import*> pending_imports;
+			} parse;
+		} _state;
 	};
 
 }

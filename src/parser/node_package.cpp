@@ -4,6 +4,7 @@
 //
 
 #include "node_package.h"
+#include "node_import.h"
 #include <iostream>
 
 using namespace o2;
@@ -56,4 +57,15 @@ void node_package::resolve_symbol_id()
 		ss << _name;
 		set_id(std::move(ss.str()));
 	}
+}
+
+void node_package::on_import_added(node_import* i)
+{
+	_state.parse.pending_imports.add(i);
+}
+
+bool node_package::on_import_removed(node_import* i)
+{
+	_state.parse.pending_imports.remove(i);
+	return _state.parse.pending_imports.empty();
 }
