@@ -8,6 +8,8 @@ if (O2_MEMORY_TRACKING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DO2_MEMORY_TRACKING")
 endif ()
 
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
+
 # Add source to this project's executable.
 add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/token.cpp"

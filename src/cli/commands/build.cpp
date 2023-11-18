@@ -223,8 +223,8 @@ int build::execute()
 	}
 
 	const auto diff = now() - start;
-	if (_config.verbose_level > 0)
-		std::cout << "build took " << diff << " milliseconds" << std::endl;
+	if (success)
+		std::cout << "build ok - " << diff << " milliseconds" << std::endl;
 	_syntax_tree.debug();
 	return success ? 0 : 1;
 }

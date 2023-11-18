@@ -44,7 +44,7 @@ namespace o2
 		{
 		}
 
-		~module() final;
+		~module();
 
 		/**
 		 * \return true if this module is the root module

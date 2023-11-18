@@ -83,8 +83,6 @@ void node_package::on_resolved_before(node_package* p)
 
 bool node_package::resolve(const recursion_detector* rd)
 {
-	std::cout << "resolving " << get_parent_of_type<node_module>()->get_name() << "/"
-			  << get_name() << std::endl;
 	if (!node::resolve(rd))
 		return false;
 
@@ -93,7 +91,6 @@ bool node_package::resolve(const recursion_detector* rd)
 	const recursion_detector rd0(rd, this);
 	for (auto p: deps)
 	{
-		std::cout << "\t";
 		if (!p->resolve(&rd0))
 			return false;
 	}
