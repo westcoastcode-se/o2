@@ -62,7 +62,7 @@ namespace o2
 				{
 					for (auto i: imports)
 					{
-						auto package = parse_module_import(st, m, i, &state);
+						auto package = parse_module_import(st, m, i->get_import_statement(), &state);
 						if (package)
 							m->add_package(package);
 					}
@@ -152,7 +152,7 @@ namespace o2
 				{
 					for (auto i: imports)
 					{
-						auto package = parse_module_import(st, m, i, &state);
+						auto package = parse_module_import(st, m, i->get_import_statement(), &state);
 						if (package)
 							m->add_package(package);
 					}
