@@ -117,6 +117,9 @@ dependencies.
 
 ## Package
 
+- [x] allow for operating system specific source codes using filename suffixes
+  - `_win.o2`, `_osx.o2`, `_linux.o2`
+
 A package is, implicitly, figured out by the folder it's located in. Lets' consider the following folder structure:
 
 - mydomain.io/mymodule
