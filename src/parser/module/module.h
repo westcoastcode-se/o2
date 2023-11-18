@@ -130,18 +130,26 @@ namespace o2
 		 * \brief add the supplied package to this module
 		 * \param p the package
 		 * \return the added package
-		 *
-		 * when a package is added to this module then all imports that's waiting for that package
-		 * will be marked as imported. This will, potentially, start the resolve phase of the package
-		 * where the import is found
 		 */
 		node_package* add_package(node_package* p);
 
 		/**
+		 * \brief package is now imported
+		 * \param p
+		 *
+		 * when a package is marked as imported then all imports that's waiting for that package
+		 * will be marked as imported. This will, potentially, start the resolve phase of the package
+		 * where the import is found
+		 */
+		void notify_package_imported(node_package* p);
+
+		/**
 		 * \brief add an import that's being loaded by this module
 		 * \param i the import that's being loaded
+		 *
+		 * this is a way for a module to know which import is dependent on it
 		 */
-		void add_pending_imports(node_import* i);
+		void add_import_request(node_import* i);
 
 	private:
 		module* const _parent;
@@ -157,7 +165,7 @@ namespace o2
 			struct _parse
 			{
 				// imports that's waiting to be loaded
-				vector<node_import*> pending_imports;
+				vector<node_import*> import_requests;
 			} parse;
 		} _state;
 	};

@@ -60,7 +60,7 @@ namespace o2
 		 * \brief method called when this import is imported
 		 * \return true if all imports are imported for this package
 		 */
-		bool on_imported();
+		bool notify_imported();
 
 #pragma region node
 

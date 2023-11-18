@@ -30,12 +30,15 @@ namespace o2
 		{
 		}
 
-		inline const source_code* get_source_code() const
+		/**
+		 * \return the source code that's being parsed
+		 */
+		[[nodiscard]] const source_code* get_source_code() const
 		{
 			return _source_code;
 		}
 
-		inline void set_source_code(const source_code* source)
+		void set_source_code(const source_code* source)
 		{
 			_source_code = source;
 		}
@@ -43,7 +46,7 @@ namespace o2
 		/**
 		 * \return all nodes collected during the resolve phase
 		 */
-		inline vector<node_type*> get_resolve_size_nodes()
+		[[nodiscard]] vector<node_type*> get_resolve_size_nodes()
 		{
 			return std::move(_resolve_size);
 		}
@@ -51,7 +54,7 @@ namespace o2
 		/**
 		 * \return all imports collected during the parse phase
 		 */
-		inline vector<node_import*> get_imports()
+		[[nodiscard]] vector<node_import*> get_imports()
 		{
 			return std::move(_imports);
 		}
@@ -61,7 +64,7 @@ namespace o2
 		 *
 		 * \param n
 		 */
-		inline void add_resolve_size(node_type* n)
+		void add_resolve_size(node_type* n)
 		{
 			_resolve_size.add(n);
 		}
@@ -77,7 +80,7 @@ namespace o2
 		 * \param type
 		 * \return the node that represents the supplied primitive type
 		 */
-		node_type_primitive* get_primitive_type(primitive_type type) const;
+		[[nodiscard]] node_type_primitive* get_primitive_type(primitive_type type) const;
 
 	private:
 		syntax_tree* const _syntax_tree;

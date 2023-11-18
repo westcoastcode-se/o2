@@ -1,0 +1,10 @@
+//
+// Part of the o2 Project, under the Apache License v2.0 with o2 Project Exceptions.
+// See the LICENSE file in the project root for license terms
+//
+
+// create a new socket
+// \brief domain
+// \brief type
+// \brief protocol
+internal extern func socket(domain int, socketType int, protocol int) int

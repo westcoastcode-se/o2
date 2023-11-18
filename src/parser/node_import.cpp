@@ -125,7 +125,7 @@ void node_import::on_removed_parent_node(node* parent)
 	package->on_import_removed(this);
 }
 
-bool node_import::on_imported()
+bool node_import::notify_imported()
 {
 	assert(_status == not_loaded && "if this method is called twice then the same import is being loaded twice");
 	_status = loaded;

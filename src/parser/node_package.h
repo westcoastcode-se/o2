@@ -42,7 +42,7 @@ namespace o2
 
 		/**
 		 * \brief method called when the supplied import is removed as a child
-		 * \param i
+		 * \param i the import
 		 * \return true if all imports are imported
 		 */
 		bool on_import_removed(node_import* i);
@@ -75,7 +75,8 @@ namespace o2
 			// state used during the parse phase.
 			struct _parse
 			{
-				// imports that's being waited for to be imported
+				// a collection of all imports that this package is waiting for to be
+				// resolved
 				vector<node_import*> pending_imports;
 			} parse;
 		} _state;

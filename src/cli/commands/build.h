@@ -92,13 +92,14 @@ namespace o2
 		 * \brief push more items to be built in worker threads
 		 * \param data asynchronous data that can be associated with this import
 		 * \param import_request the import where this request originates
-		 * \param m the module where the source code can be found in
-		 * \param sources information on the source code to be loaded
+		 * \param imported_module the module where the source code can be found in
+		 * \param package_info information on the source code to be loaded
 		 * \return true if an import request is being processed
 		 * \remark if the return value is true and the supplied data is not nullptr, then the ownership of
 		 *         that memory is moved to the processor.
 		 */
-		bool try_import(async_data* data, node_import* import_request, module* m, package_source_info* sources);
+		bool try_import(async_data* data, node_import* import_request, module* imported_module,
+				package_source_info* package_info);
 
 		/**
 		 * \brief search for a module that matches the supplied import

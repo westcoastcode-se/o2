@@ -161,6 +161,9 @@ int build::execute()
 		imports = data->out.state.get_imports();
 		if (imports.empty())
 		{
+			// package is now imported
+			imported_module->notify_package_imported(imported_package);
+
 			// all imports are imported, so let's resolve this package's dependencies!
 			const recursion_detector rd;
 			data->out.package->resolve(&rd);
@@ -179,6 +182,10 @@ int build::execute()
 						data = nullptr;
 				}
 			}
+
+			// package is now imported. This is done after, potentially, importing more packages to lessen the time
+			// we have to wait and sleep
+			imported_module->notify_package_imported(imported_package);
 		}
 		// delete any state that's pending
 		delete data;
@@ -204,39 +211,36 @@ int build::execute()
 			// because it's tedious to having to fix one problem at a time
 			e.print(std::cerr);
 			success = false;
-			_syntax_tree.debug();
 		}
 	}
 
 	const auto diff = now() - start;
 	if (_config.verbose_level > 0)
 		std::cout << "build took " << diff << " milliseconds" << std::endl;
+	_syntax_tree.debug();
 	return success ? 0 : 1;
 }
 
-bool build::try_import(async_data* data, node_import* import_request, module* m, package_source_info* sources)
+bool build::try_import(async_data* data, node_import* import_request, module* imported_module,
+		package_source_info* package_info)
 {
 	// we only care about package sources that's not loaded
-	if (sources->load_status != package_source_info::not_loaded)
+	if (package_info->load_status != package_source_info::not_loaded)
 	{
 		// the import is already loaded so let's notify the actual import and tell it that
 		// it's already loaded
-		if (sources->load_status == package_source_info::successful)
-		{
-			import_request->on_imported();
-		}
+		if (package_info->load_status == package_source_info::successful)
+			import_request->notify_imported();
 		else
-		{
-			m->add_pending_imports(import_request);
-		}
+			imported_module->add_import_request(import_request);
 		return false;
 	}
 
 	// initialize the async data
 	if (data == nullptr)
 		data = new async_data(&_syntax_tree);
-	data->in.module = m;
-	data->in.package_info = sources;
+	data->in.module = imported_module;
+	data->in.package_info = package_info;
 	data->in.package_info->load_status = package_source_info::loading;
 	data->out.errors.clear();
 	data->out.package = nullptr;
@@ -246,7 +250,7 @@ bool build::try_import(async_data* data, node_import* import_request, module* m,
 	_pending_requests++;
 
 	// put the import as being imported in the future
-	m->add_pending_imports(import_request);
+	imported_module->add_import_request(import_request);
 	return true;
 }
 
