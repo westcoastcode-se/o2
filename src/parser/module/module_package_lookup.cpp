@@ -30,7 +30,38 @@ filesystem_module_package_lookup::~filesystem_module_package_lookup()
 
 namespace
 {
-	static const filesystem::path O2_SUFFIX(".o2");
+	// TODO figure out a better way to make filesystem::path more platform independent.
+	//      windows uses wstring and linux-type systems use u8string
+	static const filesystem::path::string_type O2_SUFFIX(L".o2");
+	static const filesystem::path::string_type WIN_SUFFIX(L"_win32");
+	static const filesystem::path::string_type OSX_SUFFIX(L"_osx");
+	static const filesystem::path::string_type LINUX_SUFFIX(L"_linux");
+
+	bool accept(const filesystem::path& p)
+	{
+		std::wstring_view view(p.native());
+		int idx = view.find_last_of(L'.');
+		if (idx == wstring::npos)
+			return false;
+
+		std::wstring_view suffix = view.substr(idx);
+		if (suffix != O2_SUFFIX)
+			return false;
+
+		// check if files are should be included on this operating system
+		view = view.substr(0, idx);
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+		if (view.ends_with(OSX_SUFFIX) || view.ends_with(LINUX_SUFFIX))
+			return false;
+#elif __APPLE__
+		if (view.ends_with(WIN_SUFFIX) || view.ends_with(LINUX_SUFFIX))
+			return false;
+#elif __linux__
+		if (view.ends_with(WIN_SUFFIX) || view.ends_with(OSX_SUFFIX))
+			return false;
+#endif
+		return true;
+	}
 }
 
 package_source_info* filesystem_module_package_lookup::get_info(string_view relative_import_path)
@@ -57,7 +88,7 @@ void filesystem_module_package_lookup::load_sources(package_source_info* package
 
 		// is this a source code file?
 		const auto& path = fe.path();
-		if (path.extension() != O2_SUFFIX)
+		if (!accept(path))
 			continue;
 
 		// read the actual file content into a string
