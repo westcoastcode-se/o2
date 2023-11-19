@@ -10,6 +10,10 @@
 #include <string>
 #include <sstream>
 
+// a define that's used as a way to tell developers that a value is modified by the function and might contain
+// data that's usable for the caller
+#define OUT
+
 namespace o2
 {
 #if defined(O2_UTF16_SUPPORT)

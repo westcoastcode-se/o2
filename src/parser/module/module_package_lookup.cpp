@@ -72,6 +72,7 @@ package_source_info* filesystem_module_package_lookup::get_info(string_view rela
 
 	const auto package_sources = new package_source_info{
 			relative_import_path,
+			relative_import_path,
 			package_source_info::not_loaded
 	};
 	_sources[relative_import_path] = package_sources;
@@ -112,6 +113,7 @@ memory_module_package_lookup::~memory_module_package_lookup()
 void memory_module_package_lookup::add(string_view import_path, vector<source_code*> sources)
 {
 	_sources[import_path] = new package_source_info{
+			import_path,
 			import_path,
 			package_source_info::not_loaded,
 			std::move(sources)

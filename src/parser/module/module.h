@@ -121,8 +121,8 @@ namespace o2
 
 		/**
 		 * \brief add this module to the syntax tree
-		 * \param st
-		 * \return
+		 * \param st a syntax tree
+		 * \return the node we added to the syntax tree
 		 */
 		node_module* insert_into(syntax_tree* st);
 

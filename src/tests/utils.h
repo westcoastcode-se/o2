@@ -22,6 +22,22 @@ namespace o2
 		std::cout << std::endl;
 	}
 
+	static void parse_package_sources_this(module* m, string_view package_name, OUT parser_state* ps)
+	{
+		// get information on the package source code
+		auto sources = m->get_package_info(package_name);
+		if (sources->load_status != package_source_info::not_loaded)
+			return;
+		m->load_package_sources(sources);
+		sources->load_status = package_source_info::loading;
+
+		// parse and add the package to he module
+		const auto package = parse_package_sources(sources->sources, sources->name, ps);
+		if (package)
+			m->add_package(package);
+		sources->load_status = package_source_info::successful;
+	}
+
 	static void test(string_view name, string_view root_path, string_view app_path, std::function<void(syntax_tree&)> t)
 	{
 		// run the test
@@ -50,11 +66,12 @@ namespace o2
 				st = new syntax_tree;
 				// TODO parse module project file and pre_load all modules and put them into
 				//      the syntax tree
-				m = o2_new module(module_name, path);
+				m = o2_new
+						module(module_name, path);
 				m->insert_into(st);
 
 				o2::parser_state state(st);
-				parse_module_path(st, m, string_view(app), &state);
+				parse_package_sources_this(m, app, &state);
 
 				// TODO add support for required modules.
 				auto imports = state.get_imports();
@@ -62,9 +79,7 @@ namespace o2
 				{
 					for (auto i: imports)
 					{
-						auto package = parse_module_import(st, m, i->get_import_statement(), &state);
-						if (package)
-							m->add_package(package);
+						parse_package_sources_this(m, i->get_import_statement(), &state);
 					}
 					imports = std::move(state.get_imports());
 				}
@@ -144,7 +159,7 @@ namespace o2
 				m->insert_into(st);
 
 				o2::parser_state state(st);
-				parse_module_path(st, m, string_view(app), &state);
+				parse_package_sources_this(m, app, &state);
 
 				// TODO add support for required modules.
 				auto imports = state.get_imports();
@@ -152,9 +167,7 @@ namespace o2
 				{
 					for (auto i: imports)
 					{
-						auto package = parse_module_import(st, m, i->get_import_statement(), &state);
-						if (package)
-							m->add_package(package);
+						parse_package_sources_this(m, i->get_import_statement(), &state);
 					}
 					imports = std::move(state.get_imports());
 				}

@@ -18,12 +18,13 @@ void funcs()
 				[](syntax_tree& st)
 				{
 					const auto root = st.get_root_package();
-					assert_equals(root->get_children().size(), 15);
+					assert_equals(root->get_children().size(), 14);
 
 					const auto project_module = assert_type<node_module>(root->get_child(13));
 					assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
-					const auto func = assert_type<node_func>(root->get_child(14));
+					const auto package_main = assert_type<node_package>(project_module->get_child(0));
+					const auto func = assert_type<node_func>(package_main->get_child(0));
 					assert_equals(func->get_name(), "f");
 					assert_not_null(func->get_body());
 					assert_equals(func, func->get_body()->get_def());
@@ -35,12 +36,13 @@ void funcs()
 		test("args_0_return_float", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
 
-			const auto func = assert_type<node_func>(root->get_children()[14]);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+			const auto func = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func->get_name(), "f");
 			assert_not_null(func->get_body());
 			assert_equals(func, func->get_body()->get_def());
@@ -60,12 +62,13 @@ void funcs()
 		test("args_0_return_ptr_int", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto func = assert_type<node_func>(root->get_child(14));
+			const auto func = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func->get_name(), "f");
 			assert_not_null(func->get_body());
 			assert_equals(func, func->get_body()->get_def());
@@ -85,12 +88,13 @@ void funcs()
 		test("args_1_return_void", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto func = assert_type<node_func>(root->get_children()[14]);
+			const auto func = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func->get_children().size(), 3);
 			const auto args = assert_type<node_func_arguments>(func->get_child(0));
 			const auto arg1 = assert_type<node_var>(args->get_child(0));
@@ -105,12 +109,13 @@ void funcs()
 		test("args_1_array_return_void", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto func = assert_type<node_func>(root->get_children()[14]);
+			const auto func = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func->get_children().size(), 3);
 			const auto args = assert_type<node_func_arguments>(func->get_child(0));
 			const auto arg1 = assert_type<node_var>(args->get_child(0));
@@ -127,12 +132,13 @@ void funcs()
 		test("args_1_anonymous_return_void", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto func = assert_type<node_func>(root->get_child(14));
+			const auto func = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func->get_children().size(), 3);
 			const auto args = assert_type<node_func_arguments>(func->get_child(0));
 			const auto arg1 = assert_type<node_var>(args->get_child(0));
@@ -148,9 +154,13 @@ void funcs()
 		test({ "inner_func", "inner_func_explicit_void" }, ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto func_f = assert_type<node_func>(root->get_child(14));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_children().size(), 3);
 			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
 			assert_equals(args_f->get_children().size(), 0);
@@ -169,9 +179,13 @@ void funcs()
 		test("func_with_same_name_scopes", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto func_f = assert_type<node_func>(root->get_child(14));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_name(), "f1");
 			assert_equals(func_f->get_children().size(), 3);
 			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
@@ -203,9 +217,13 @@ void funcs()
 		test("two_funcs_in_scope", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto func_f = assert_type<node_func>(root->get_child(14));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_name(), "f1");
 			assert_equals(func_f->get_children().size(), 3);
 			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
@@ -228,9 +246,13 @@ void funcs()
 		test("return_const", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto func_f = assert_type<node_func>(root->get_child(14));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_name(), "f");
 			assert_equals(func_f->get_children().size(), 3);
 			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
@@ -246,9 +268,13 @@ void funcs()
 		test("return_expression", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto func_f = assert_type<node_func>(root->get_child(14));
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_name(), "f");
 			assert_equals(func_f->get_children().size(), 3);
 			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
@@ -264,27 +290,28 @@ void funcs()
 		test("extern_args_0_return_void", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 18);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto func_F1 = assert_type<node_func>(root->get_child(14));
+			const auto func_F1 = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_F1->get_name(), "F1");
 			assert_null(func_F1->get_body());
 			assert_true(func_F1->is_extern());
 
-			const auto func_F2 = assert_type<node_func>(root->get_child(15));
+			const auto func_F2 = assert_type<node_func>(package_main->get_child(1));
 			assert_equals(func_F2->get_name(), "F2");
 			assert_null(func_F2->get_body());
 			assert_true(func_F2->is_extern());
 
-			const auto func_F3 = assert_type<node_func>(root->get_child(16));
+			const auto func_F3 = assert_type<node_func>(package_main->get_child(2));
 			assert_equals(func_F3->get_name(), "F3");
 			assert_null(func_F3->get_body());
 			assert_true(func_F3->is_extern());
 
-			const auto func_F4 = assert_type<node_func>(root->get_child(17));
+			const auto func_F4 = assert_type<node_func>(package_main->get_child(3));
 			assert_equals(func_F4->get_name(), "F4");
 			assert_null(func_F4->get_body());
 			assert_true(func_F4->is_extern());
@@ -292,15 +319,16 @@ void funcs()
 		test("calling_func_args_0_return_void", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 16);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
 			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto func_F1 = assert_type<node_func>(root->get_child(14));
+			const auto func_F1 = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_F1->get_name(), "F1");
 
-			const auto func_F2 = assert_type<node_func>(root->get_child(15));
+			const auto func_F2 = assert_type<node_func>(package_main->get_child(1));
 			assert_equals(func_F2->get_name(), "F2");
 			const auto F2_body = assert_not_null(func_F2->get_body());
 			const auto F2_scope = assert_type<node_scope>(F2_body->get_child(0));

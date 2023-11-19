@@ -76,7 +76,7 @@ int build::execute()
 		auto sources = _main_module->get_package_info(app);
 		_main_module->load_package_sources(sources);
 		sources->load_status = package_source_info::loading;
-		const auto package = parse_module_import(sources->sources, sources->relative_path.generic_string(), &state);
+		const auto package = parse_package_sources(sources->sources, sources->relative_path.generic_string(), &state);
 		_main_module->add_package(package);
 		sources->load_status = package_source_info::successful;
 		if (_config.verbose_level > 0)
@@ -188,9 +188,9 @@ int build::execute()
 			// we have to wait and sleep
 			imported_module->notify_package_imported(imported_package);
 
+			// all imports are imported, so let's resolve this package
 			if (imports_left == 0)
 			{
-				// all imports are imported, so let's resolve this package's dependencies!
 				const recursion_detector rd;
 				imported_package->resolve(&rd);
 			}
@@ -269,8 +269,8 @@ async_data* build::parse(async_data* data)
 		// load the actual string source code
 		data->in.module->load_package_sources(data->in.package_info);
 		// parse the source code
-		data->out.package = parse_module_import(data->in.package_info->sources,
-				data->in.package_info->relative_path.generic_string(),
+		data->out.package = parse_package_sources(data->in.package_info->sources,
+				data->in.package_info->name,
 				&data->out.state);
 	}
 	catch (const error& e)

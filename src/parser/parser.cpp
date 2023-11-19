@@ -1093,71 +1093,14 @@ namespace
 	}
 }
 
-node_package* o2::parse_module_file(syntax_tree* st, const module* m, source_code src,
-		parser_state* state)
+node_package* o2::parse_package_sources(array_view<source_code*> sources, string_view package_name, parser_state* state)
 {
-	assert(m);
-	assert(st);
-	assert(state);
-
-	// application entry point functionality is always put in the root package
-	const auto app_package = st->get_root_package();
-
-	// parse source code found
-	lexer l(src.get_text());
-	token t(&l);
-	state->set_source_code(&src);
-
-	collision_detector detector;
-	const parser_scope ps0(state, &t);
-	const parser_scope ps1(&ps0, app_package);
-	t.next();
-	parse_package_pre_scope(&ps1);
-	return app_package;
-}
-
-node_package* o2::parse_module_path(syntax_tree* st, const module* m, string_view path,
-		parser_state* state)
-{
-	assert(m);
-	assert(st);
-	assert(state);
-
-	// get all files found in the supplied path
-	const auto package_sources = m->get_package_info(path);
-	assert(package_sources->sources.empty());
-	assert(package_sources->load_status == package_source_info::not_loaded);
-	package_sources->load_status = package_source_info::loading;
-	m->load_package_sources(package_sources);
-	assert(!package_sources->sources.empty());
-
-	// application entry point functionality is always put in the root package
-	const auto app_package = st->get_root_package();
-
-	// parse each source code found
-	for (auto src: package_sources->sources)
-	{
-		lexer l(src->get_text());
-		token t(&l);
-		state->set_source_code(src);
-
-		const collision_detector detector;
-		const parser_scope ps0(state, &t);
-		const parser_scope ps1(&ps0, app_package);
-		t.next();
-		parse_package_pre_scope(&ps1);
-	}
-	package_sources->load_status = package_source_info::successful;
-	return app_package;
-}
-
-node_package* o2::parse_module_import(array_view<source_code*> sources, string_view package_name, parser_state* state)
-{
-	assert(state);
+	assert(state != nullptr && "a state is expected");
 
 	// create a new package based on the import
 	auto package = o2_new node_package(source_code_view(), package_name);
 	auto guard = memory_guard(package);
+
 	// parse each source code found
 	for (auto src: sources)
 	{
@@ -1165,48 +1108,12 @@ node_package* o2::parse_module_import(array_view<source_code*> sources, string_v
 		token t(&l);
 		state->set_source_code(src);
 
-		collision_detector detector;
 		const parser_scope ps0(state, &t);
 		const parser_scope ps1(&ps0, package);
 		t.next();
 		parse_package_pre_scope(&ps1);
 	}
 
-	return guard.done();
-}
-
-node_package* o2::parse_module_import(syntax_tree* st, const module* m, string_view path,
-		parser_state* state)
-{
-	assert(m);
-	assert(st);
-	assert(state);
-
-	// get all files found in the supplied path. If the module is already loaded then ignore
-	const auto package_sources = m->get_package_info(path);
-	if (package_sources->load_status != package_source_info::not_loaded)
-		return nullptr;
-	package_sources->load_status = package_source_info::loading;
-	m->load_package_sources(package_sources);
-
-	// create a new package based on the import
-	auto package = o2_new node_package(source_code_view(), m->get_relative_path(path));
-	auto guard = memory_guard(package);
-	// parse each source code found
-	for (auto src: package_sources->sources)
-	{
-		lexer l(src->get_text());
-		token t(&l);
-		state->set_source_code(src);
-
-		collision_detector detector;
-		const parser_scope ps0(state, &t);
-		const parser_scope ps1(&ps0, st->get_root_package());
-		const parser_scope ps2(&ps1, package);
-		t.next();
-		parse_package_pre_scope(&ps2);
-	}
-	package_sources->load_status = package_source_info::successful;
 	return guard.done();
 }
 

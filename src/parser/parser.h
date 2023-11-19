@@ -30,47 +30,17 @@
 namespace o2
 {
 	/**
-	 * \brief parse the supplied module and put the result into the syntax tree
-	 * \param st the syntax tree
-	 * \param m the module
-	 * \param path path to where the main binary files are located
-	 * \param imports a list of all imports that the source codes in the module want to load
-	 * \return the package to be added to the syntax tree
-	 */
-	extern node_package* parse_module_file(syntax_tree* st, const module* m, source_code src,
-			parser_state* state);
-
-	/**
-	 * \brief parse the supplied module and put the result into the syntax tree
-	 * \param st the syntax tree
-	 * \param m the module
-	 * \param path path to where the main binary files are located
-	 * \param imports a list of all imports that the source codes in the module want to load
-	 * \return the package to be added to the syntax tree
-	 */
-	extern node_package* parse_module_path(syntax_tree* st, const module* m, string_view path,
-			parser_state* state);
-
-	/**
-	 * \brief parse the supplied list of sources
-	 * \param sources
-	 * \param package_name
-	 * \param state
+	 * \brief parse the supplied list of sources and return a package that represents
+	 *        that source code
+	 * \param sources source code that's part of the new package that we are about to create
+	 * \param package_name the name of the package
+	 * \param state a state in which
 	 * \return the package node
+	 * \remark it's the responsibility of the caller to add the package to the module node and to, potentially,
+	 *         parse includes collected during the parsing of the source code
 	 */
-	extern node_package* parse_module_import(array_view<source_code*> sources, string_view package_name,
-			parser_state* state);
-
-	/**
-	 * \brief parse the supplied module and put the result into the syntax tree
-	 * \param st the syntax tree
-	 * \param m the module
-	 * \param path path to where the main binary files are located
-	 * \param imports a list of all imports that the source codes in the module want to load
-	 * \return the package to be added to the syntax tree
-	 */
-	extern node_package* parse_module_import(syntax_tree* st, const module* m, string_view path,
-			parser_state* state);
+	extern node_package* parse_package_sources(array_view<source_code*> sources, string_view package_name,
+			OUT parser_state* state);
 
 	/**
 	 * \brief optimize the syntax tree 

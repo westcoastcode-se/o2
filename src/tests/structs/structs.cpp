@@ -17,24 +17,24 @@ void structs()
 		test({ "empty", "empty_with_no_body", "explicit_struct" }, ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto project_module = assert_type<node_module>(root->get_children()[13]);
-			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto type_struct = assert_type<node_type_struct>(root->get_children()[14]);
+			const auto type_struct = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_struct->get_name(), "empty");
 			assert_equals(type_struct->get_child_count(), 0);
 		});
 		test("empty_in_module", ROOT_PATH, "apps", [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto project_module = assert_type<node_module>(root->get_children()[13]);
-			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto package_models = assert_type<node_package>(project_module->get_child(0));
+			const auto package_models = assert_type<node_package>(project_module->get_child(1));
 			assert_equals(package_models->get_name(), "/models");
 
 			const auto type_struct = assert_type<node_type_struct>(package_models->get_children()[0]);
@@ -44,20 +44,27 @@ void structs()
 		test("two_empty", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 16);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto type_struct1 = assert_type<node_type_struct>(root->get_children()[14]);
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto type_struct1 = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_struct1->get_name(), "empty1");
 			assert_equals(type_struct1->get_child_count(), 0);
-			const auto type_struct2 = assert_type<node_type_struct>(root->get_children()[15]);
+			const auto type_struct2 = assert_type<node_type_struct>(package_main->get_child(1));
 			assert_equals(type_struct2->get_name(), "empty2");
 			assert_equals(type_struct2->get_child_count(), 0);
 		});
 		test("int_field", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
-			const auto type_struct1 = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto type_struct1 = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_struct1->get_name(), "empty");
 			assert_equals(type_struct1->get_children().size(), 1);
 			const auto fields = assert_type<node_type_struct_fields>(type_struct1->get_child(0));
@@ -72,8 +79,12 @@ void structs()
 		test("int_float_fields", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
-			const auto type_struct1 = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto type_struct1 = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_struct1->get_name(), "empty");
 			assert_equals(type_struct1->get_children().size(), 1);
 			const auto fields = assert_type<node_type_struct_fields>(type_struct1->get_child(0));
@@ -96,9 +107,12 @@ void structs()
 		test("type_inside_type", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
-			const auto type_struct_List = assert_type<node_type_struct>(root->get_children()[14]);
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto type_struct_List = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_struct_List->get_name(), "List");
 			assert_equals(type_struct_List->get_child_count(), 1);
 
@@ -109,8 +123,12 @@ void structs()
 		test("ptr_type_field", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
-			const auto type_struct1 = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto type_struct1 = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_struct1->get_name(), "Node");
 			assert_equals(type_struct1->get_children().size(), 1);
 			const auto fields = assert_type<node_type_struct_fields>(type_struct1->get_child(0));
@@ -126,13 +144,13 @@ void structs()
 		test("same_name_different_package", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
-			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
-			assert_equals(project_module->get_children().size(), 2);
+			assert_equals(project_module->get_child_count(), 3);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto package_services = assert_type<node_package>(project_module->get_child(0));
+			const auto package_services = assert_type<node_package>(project_module->get_child(1));
 			assert_equals(package_services->get_children().size(), 1);
 			const auto import_models = assert_type<node_import>(package_services->get_child(0));
 			assert_equals(import_models->get_children().size(), 1);
@@ -140,7 +158,7 @@ void structs()
 			assert_equals(services_empty->get_name(), "empty");
 			assert_equals(services_empty->get_child_count(), 0);
 
-			const auto package_models = assert_type<node_package>(project_module->get_child(1));
+			const auto package_models = assert_type<node_package>(project_module->get_child(2));
 			assert_equals(package_models->get_children().size(), 1);
 			const auto models_empty = assert_type<node_type_struct>(package_models->get_child(0));
 			assert_equals(models_empty->get_name(), "empty");
@@ -149,13 +167,13 @@ void structs()
 		test("field_same_name_different_package", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
-			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
-			assert_equals(project_module->get_children().size(), 2);
+			assert_equals(project_module->get_child_count(), 3);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto package_services = assert_type<node_package>(project_module->get_child(0));
+			const auto package_services = assert_type<node_package>(project_module->get_child(1));
 			assert_equals(package_services->get_children().size(), 1);
 			const auto import_models = assert_type<node_import>(package_services->get_child(0));
 			assert_equals(import_models->get_children().size(), 1);
@@ -163,7 +181,7 @@ void structs()
 			assert_equals(services_empty->get_name(), "empty");
 			assert_equals(services_empty->get_child_count(), 1);
 
-			const auto package_models = assert_type<node_package>(project_module->get_child(1));
+			const auto package_models = assert_type<node_package>(project_module->get_child(2));
 			assert_equals(package_models->get_children().size(), 1);
 			const auto models_empty = assert_type<node_type_struct>(package_models->get_child(0));
 			assert_equals(models_empty->get_name(), "empty");
@@ -176,13 +194,13 @@ void structs()
 		test("circular_package_fields", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
+			assert_equals(root->get_children().size(), 14);
 
 			const auto project_module = assert_type<node_module>(root->get_child(13));
-			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
-			assert_equals(project_module->get_children().size(), 2);
+			assert_equals(project_module->get_child_count(), 3);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
 
-			const auto package_services = assert_type<node_package>(project_module->get_child(0));
+			const auto package_services = assert_type<node_package>(project_module->get_child(1));
 			assert_equals(package_services->get_children().size(), 1);
 			const auto import_models = assert_type<node_import>(package_services->get_child(0));
 			assert_equals(import_models->get_children().size(), 2);
@@ -193,7 +211,7 @@ void structs()
 			assert_equals(services_s2->get_name(), "s2");
 			assert_equals(services_s2->get_child_count(), 0);
 
-			const auto package_models = assert_type<node_package>(project_module->get_child(1));
+			const auto package_models = assert_type<node_package>(project_module->get_child(2));
 			assert_equals(package_models->get_children().size(), 1);
 			const auto import_services = assert_type<node_import>(package_models->get_child(0));
 			assert_equals(import_services->get_children().size(), 1);
@@ -210,8 +228,13 @@ void structs()
 				ROOT_PATH, [](syntax_tree& st)
 				{
 					const auto root = st.get_root_package();
-					assert_equals(root->get_children().size(), 15);
-					const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+					assert_equals(root->get_children().size(), 14);
+
+					const auto project_module = assert_type<node_module>(root->get_child(13));
+					assert_equals(project_module->get_child_count(), 1);
+					const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+					const auto type_S = assert_type<node_type_struct>(package_main->get_child(0));
 					assert_equals(type_S->get_name(), "S");
 					assert_equals(type_S->get_child_count(), 1);
 					assert_not_null(type_S->get_methods());
@@ -235,8 +258,12 @@ void structs()
 		test("zero_static", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
-			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_child_count(), 1);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+			const auto type_S = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_S->get_name(), "S");
 			assert_equals(type_S->get_child_count(), 1);
 			assert_null(type_S->get_fields());
@@ -249,8 +276,12 @@ void structs()
 		test({ "static_int", "static_static_int" }, ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
-			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_child_count(), 1);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+			const auto type_S = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_S->get_name(), "S");
 			assert_equals(type_S->get_child_count(), 1);
 			assert_null(type_S->get_fields());
@@ -272,8 +303,12 @@ void structs()
 		test({ "static_int_float", "static_int_static_float" }, ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
-			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_child_count(), 1);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+			const auto type_S = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_S->get_name(), "S");
 			assert_equals(type_S->get_child_count(), 1);
 			assert_null(type_S->get_fields());
@@ -301,8 +336,12 @@ void structs()
 		test({ "static_func_void", "static_func_explicit_void" }, ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
-			assert_equals(root->get_children().size(), 15);
-			const auto type_S = assert_type<node_type_struct>(root->get_children()[14]);
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_child_count(), 1);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+			const auto type_S = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_S->get_name(), "S");
 			assert_equals(type_S->get_child_count(), 1);
 			assert_null(type_S->get_fields());

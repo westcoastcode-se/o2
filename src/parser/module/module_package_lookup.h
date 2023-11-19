@@ -29,6 +29,8 @@ namespace o2
 			failed,
 		};
 
+		// relative name of the package where this data is located
+		string_view name;
 		// the relative path to the source codes
 		std::filesystem::path relative_path;
 		// the loading status
