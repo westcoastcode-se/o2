@@ -33,6 +33,7 @@ felt that something is missing from that language:
       runtime-type information, inheritance and other such features
 * Built-in support for dependency management between different projects/modules
 * No built-in support for suspensions using `async` and `await`
+* 
     * Threads are not really a good way of using your computers resources
 
 So my goal is to make a programming language that's modern, compiles quickly enough and
@@ -40,10 +41,29 @@ creates machine-code. Then who knows what happens from there
 
 ## Getting started
 
-1. clone repository
-2. download clang https://github.com/llvm/llvm-project/releases and install the appropriate version
-3. configure editor to use
-   clang https://www.jetbrains.com/help/clion/quick-tutorial-on-configuring-clion-on-windows.html#clang-cl
+Tools needed are:
+
+* Compiler (Visual Studio, clang or gcc)
+  * For example, download clang https://github.com/llvm/llvm-project/releases and configure it 
+    for clion: https://www.jetbrains.com/help/clion/quick-tutorial-on-configuring-clion-on-windows.html#clang-cl
+* CMake >= 3.12
+* Git
+
+Start by cloning `llvm-project` and checking out the appropriate version:
+
+```bash
+git clone --depth 1 https://github.com/llvm/llvm-project.git -b llvmorg-17.0.5
+cd llvm-project
+```
+
+then compile and install it for your computer. For example, on widows do the following:
+
+```bash
+cd llvm-project
+cmake -S llvm -B build -G "Visual Studio 17 2022"
+cmake --build build -j 4
+cmake --build . --target install
+```
 
 ## Primitives
 

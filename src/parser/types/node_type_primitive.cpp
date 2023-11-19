@@ -7,8 +7,9 @@
 
 using namespace o2;
 
-node_type_primitive::node_type_primitive(const vector<string_view>& names, int size)
-		: node_type(source_code_view(), size), _names(names)
+node_type_primitive::node_type_primitive(const vector<string_view>& names, int size,
+		llvm::Type* type)
+		: node_type(source_code_view(), size), _names(names), _llvm_type(type)
 {
 }
 
@@ -25,4 +26,9 @@ void node_type_primitive::debug(debug_ostream& stream, int indent) const
 	}
 	stream << "],size=" << get_size() << ")" << std::endl;
 	node::debug(stream, indent);
+}
+
+bool node_type_primitive::resolve(const recursion_detector* rd)
+{
+	return true;
 }

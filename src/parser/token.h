@@ -208,7 +208,7 @@ namespace o2
 		 */
 		int value_length() const
 		{
-			return _string_end - _string_start;
+			return (int)(_string_end - _string_start);
 		}
 
 		/// <returns>Get which line we are parsing at the moment</returns>

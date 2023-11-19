@@ -65,7 +65,7 @@ namespace o2
 		}
 
 		vector(std::initializer_list<T> ii)
-				: _capacity(ii.size()), _memory((T*)malloc(sizeof(T) * _capacity)), _size(_capacity)
+				: _capacity((int)ii.size()), _memory((T*)malloc(sizeof(T) * _capacity)), _size(_capacity)
 		{
 			T* ptr = _memory;
 			for (auto i: ii)

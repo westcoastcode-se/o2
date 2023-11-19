@@ -12,22 +12,74 @@
 using namespace o2;
 
 syntax_tree::syntax_tree()
-		: _root(source_code_view(), STR(""))
+		: _root(source_code_view(), STR("")), _context(), _builder(_context)
 {
 	// added predefined primitive types
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("void")), 0));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("byte")), 1));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("bool")), 4));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("int8")), sizeof(int8_t)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("uint8")), sizeof(uint8_t)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("int16")), sizeof(int16_t)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("uint16")), sizeof(uint16_t)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("int"), STR("int32")), sizeof(int32_t)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("uint"), STR("uint32")), sizeof(uint32_t)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("int64")), sizeof(int64_t)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("uint64")), sizeof(uint64_t)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("float"), STR("float32")), sizeof(float)));
-	_root.add_child(o2_new node_type_primitive(vector<string_view>(STR("float64")), sizeof(double)));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("void")),
+					0,
+					_builder.getVoidTy()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("byte")),
+					1,
+					_builder.getInt1Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("bool")),
+					4,
+					_builder.getInt32Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("int8")),
+					sizeof(int8_t),
+					_builder.getInt8Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("uint8")),
+					sizeof(uint8_t),
+					_builder.getInt8Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("int16")),
+					sizeof(int16_t),
+					_builder.getInt16Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("uint16")),
+					sizeof(uint16_t),
+					_builder.getInt16Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("int"), STR("int32")),
+					sizeof(int32_t),
+					_builder.getInt32Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("uint"), STR("uint32")),
+					sizeof(uint32_t),
+					_builder.getInt32Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("int64")),
+					sizeof(int64_t),
+					_builder.getInt64Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("uint64")),
+					sizeof(uint64_t),
+					_builder.getInt64Ty()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("float"), STR("float32")),
+					sizeof(float),
+					_builder.getFloatTy()));
+	_root.add_child(
+			o2_new node_type_primitive(
+					vector<string_view>(STR("float64")),
+					sizeof(double),
+					_builder.getDoubleTy()));
 }
 
 void syntax_tree::debug() const

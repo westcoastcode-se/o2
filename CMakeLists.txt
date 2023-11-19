@@ -2,12 +2,20 @@
 project("o2")
 set(CMAKE_CXX_STANDARD 20)
 
+# LLVM
+find_package(LLVM REQUIRED CONFIG)
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
+include_directories(${LLVM_INCLUDE_DIRS})
+separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS_LIST})
+llvm_map_components_to_libnames(llvm_libs support core irreader)
+
 option(O2_MEMORY_TRACKING "should memory tracking be enabled or not" OFF)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /std:c++20 /EHsc /D_CRT_SECURE_NO_WARNINGS")
 if (O2_MEMORY_TRACKING)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /DO2_MEMORY_TRACKING")
 endif ()
-
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O2")
 
 # Add source to this project's executable.
@@ -79,11 +87,11 @@ add_executable(o2_tests "src/tests/main.cpp"
         "src/tests/errors_resolve/errors_resolve.cpp"
         "src/tests/errors_parse/errors_parse.cpp"
 )
-target_link_libraries(o2_tests o2_parser)
+target_link_libraries(o2_tests o2_parser ${llvm_libs})
 
 # CLI
 add_executable(o2
         "src/cli/main.cpp"
         "src/cli/commands/build.cpp"
 )
-target_link_libraries(o2 o2_parser)
+target_link_libraries(o2 o2_parser ${llvm_libs})

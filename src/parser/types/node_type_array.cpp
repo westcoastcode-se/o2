@@ -56,7 +56,7 @@ bool node_type_array::resolve(const recursion_detector* rd)
 		{
 			if (opc->get_value().type >= primitive_type::uint64)
 				throw std::runtime_error("constant value must be an non-decimal number");
-			_count = opc->get_value().to_uint64();
+			_count = (int)opc->get_value().to_uint64();
 			break;
 		}
 	}

@@ -6,6 +6,7 @@
 #pragma once
 
 #include "node_type.h"
+#include <llvm/IR/Type.h>
 
 namespace o2
 {
@@ -13,7 +14,8 @@ namespace o2
 			: public node_type
 	{
 	public:
-		node_type_primitive(const vector<string_view>& names, int size);
+		node_type_primitive(const vector<string_view>& names, int size,
+				llvm::Type* type);
 
 		/**
 		 * \return the name of the primitive
@@ -47,10 +49,7 @@ namespace o2
 
 #pragma region node
 
-		bool resolve(const recursion_detector* rd) final
-		{
-			return true;
-		}
+		bool resolve(const recursion_detector* rd) final;
 
 		void debug(debug_ostream& stream, int indent) const final;
 
@@ -58,6 +57,7 @@ namespace o2
 
 	private:
 		vector<string_view> _names;
+		llvm::Type* const _llvm_type;
 	};
 
 }

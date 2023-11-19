@@ -6,6 +6,7 @@
 #pragma once
 
 #include "node_package.h"
+#include <llvm/IR/IRBuilder.h>
 
 namespace o2
 {
@@ -53,5 +54,8 @@ namespace o2
 
 	private:
 		node_package _root;
+
+		llvm::LLVMContext _context;
+		llvm::IRBuilder<> _builder;
 	};
 }
