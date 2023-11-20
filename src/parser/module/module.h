@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include <utility>
-
 #include "module_package_lookup.h"
 #include "../source_code.h"
 #include "node_module.h"
@@ -34,7 +32,7 @@ namespace o2
 
 		/**
 		 * \param name the name of the module
-		 * \param root_path path to where the the source code is found for this moduke
+		 * \param root_path path to where the the source code is found for this module
 		 */
 		module(string_view name, const std::filesystem::path& root_path)
 				: _parent(), _name(name), _root_path(root_path),
@@ -49,7 +47,7 @@ namespace o2
 		/**
 		 * \return true if this module is the root module
 		 */
-		bool is_root_module() const
+		[[nodiscard]] bool is_root_module() const
 		{
 			return _parent == nullptr;
 		}
@@ -57,7 +55,7 @@ namespace o2
 		/**
 		 * \return the parent module
 		 */
-		module* get_parent() const
+		[[nodiscard]] module* get_parent() const
 		{
 			return _parent;
 		}
@@ -65,7 +63,7 @@ namespace o2
 		/**
 		 * \return the name of the module
 		 */
-		string_view get_name() const
+		[[nodiscard]] string_view get_name() const
 		{
 			return _name;
 		}
@@ -73,7 +71,7 @@ namespace o2
 		/**
 		 * \return the full path to where the module root is found
 		 */
-		const std::filesystem::path& get_root_path() const
+		[[nodiscard]] const std::filesystem::path& get_root_path() const
 		{
 			return _root_path;
 		}
@@ -81,7 +79,7 @@ namespace o2
 		/**
 		 * \return all requirements
 		 */
-		array_view<module*> get_requirements() const
+		[[nodiscard]] array_view<module*> get_requirements() const
 		{
 			return _requirements;
 		}
@@ -92,7 +90,7 @@ namespace o2
 		 * \param import_path the full import path
 		 * \return a relative path from this module's point of view
 		 */
-		string_view get_relative_path(string_view import_path) const;
+		[[nodiscard]] string_view get_relative_path(string_view import_path) const;
 
 		// represents no match
 		static const int MATCHES_NO_MATCH = INT32_MAX;
