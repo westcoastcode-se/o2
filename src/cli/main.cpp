@@ -72,12 +72,18 @@ int main(int argc, char** argv)
 			return 1;
 		}
 
+		// TODO: add support for compiler flags, such as:
+		// -o destination
+		// -t json|binary|debug|library
+
 		const string_view root_path(argv[2]);
 		o2::build b(build::config{
 				std::filesystem::path(root_path),
 				std::filesystem::path("../lang"),
 				1,
-				5
+				5,
+				build_config_output::json,
+				""
 		});
 		bcommand = &b;
 		return b.execute();

@@ -53,6 +53,13 @@ namespace o2
 		}
 	};
 
+	enum class build_config_output
+	{
+		json,
+		binary,
+		debug
+	};
+
 	/**
 	 * \brief the build command
 	 */
@@ -70,6 +77,10 @@ namespace o2
 			int verbose_level;
 			// number of threads that's allowed to work with the source code
 			int threads_count;
+			// what are we outputting
+			build_config_output output_type;
+			// the destination where to put the result into
+			string_view output_destination;
 		};
 
 		explicit build(config cfg);
@@ -117,6 +128,11 @@ namespace o2
 		 * \return
 		 */
 		static async_data* parse(async_data* data);
+
+		/**
+		 * \brief print out json output
+		 */
+		int output_json();
 
 	private:
 		const config _config;

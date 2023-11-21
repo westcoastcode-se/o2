@@ -9,6 +9,7 @@
 #include <sstream>
 #include <filesystem>
 #include <utility>
+#include <fstream>
 
 using namespace o2;
 
@@ -223,10 +224,23 @@ int build::execute()
 	}
 
 	const auto diff = now() - start;
-	if (success)
+	if (!success)
+		return 1;
+
+	switch (_config.output_type)
+	{
+	case build_config_output::json:
+		return output_json();
+		break;
+	case build_config_output::binary:
+		std::cerr << "binary output not added yet!" << std::endl;
+		break;
+	case build_config_output::debug:
 		std::cout << "build ok - " << diff << " milliseconds" << std::endl;
-	_syntax_tree.debug();
-	return success ? 0 : 1;
+		_syntax_tree.debug();
+		break;
+	}
+	return 0;
 }
 
 bool build::try_import(async_data* data, node_import* import_request, module* imported_module,
@@ -331,4 +345,36 @@ void build::abort()
 	_aborted = true;
 	_parse_requests.close();
 	_parse_responses.close();
+}
+
+int build::output_json()
+{
+	if (_config.output_destination.empty())
+	{
+		stringstream s;
+		{
+			json j(&s);
+			_syntax_tree.get_root_package()->write_json(j);
+		}
+		std::cout << s.str();
+		return 0;
+	}
+	else
+	{
+		std::ofstream output_stream(std::filesystem::path(_config.output_destination), std::ios::trunc);
+		if (output_stream.is_open())
+		{
+			{
+				json j(&output_stream);
+				_syntax_tree.get_root_package()->write_json(j);
+			}
+			output_stream.close();
+			return 0;
+		}
+		else
+		{
+			std::cerr << "could not write to '" << _config.output_destination << "'" << std::endl;
+			return 1;
+		}
+	}
 }

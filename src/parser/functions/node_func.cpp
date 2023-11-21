@@ -91,9 +91,12 @@ string node_func::get_id() const
 	ss << '(';
 	if (_arguments)
 	{
-		for (auto a : _arguments->get_arguments())
+		const auto children = _arguments->get_arguments();
+		for (int i = 0; i < children.size(); ++i)
 		{
-			const auto type = a->get_type();
+			const auto type = children[i]->get_type();
+			if (i > 0)
+				ss << ',';
 			ss << type->get_id();
 		}
 	}
@@ -101,9 +104,12 @@ string node_func::get_id() const
 	ss << '(';
 	if (_returns)
 	{
-		for (auto a : _returns->get_children())
+		const auto children = _returns->get_children();
+		for (int i = 0; i < children.size(); ++i)
 		{
-			const auto type = dynamic_cast<node_type*>(a);
+			const auto type = dynamic_cast<node_type*>(children[i]);
+			if (i > 0)
+				ss << ',';
 			ss << type->get_id();
 		}
 	}
