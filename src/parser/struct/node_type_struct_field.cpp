@@ -21,7 +21,7 @@ void node_type_struct_fields::debug(debug_ostream& stream, int indent) const
 }
 
 node_type_struct_field::node_type_struct_field(const source_code_view& view, string_view name)
-		: node(view), _name(name), _padding(), _field_type()
+		: node_symbol(view), _name(name), _padding(), _size(-1), _field_type()
 {
 }
 
@@ -52,4 +52,36 @@ void node_type_struct_field::on_child_removed(node* n)
 {
 	if (_field_type == n)
 		_field_type = nullptr;
+}
+
+string node_type_struct_field::get_id() const
+{
+	stringstream ss;
+	const auto symbol = get_parent_of_type<node_symbol>();
+	if (symbol)
+		ss << symbol->get_id();
+	ss << '/';
+	ss << get_name();
+	return std::move(ss.str());
+}
+
+bool node_type_struct_field::compare_with_symbol(const node_type_struct_field* rhs) const
+{
+	return get_name() == rhs->get_name();
+}
+
+void node_type_struct_field::on_parent_node(node* p)
+{
+	test_collision(this);
+}
+
+int node_type_struct_field::resolve_size(const recursion_detector* rd)
+{
+	if (_size != -1)
+		return _size;
+
+	rd->raise_error(this);
+	const recursion_detector rd0(rd, this);
+	_size = _field_type->resolve_size(&rd0);
+	return _size;
 }

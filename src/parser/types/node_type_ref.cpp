@@ -73,3 +73,10 @@ bool node_type_ref::resolve(const recursion_detector* rd)
 
 	return true;
 }
+
+string node_type_ref::get_id() const
+{
+	if (_type && _type != this)
+		return _type->get_id();
+	return {};
+}

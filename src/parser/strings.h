@@ -33,6 +33,9 @@ namespace o2
 #define STR(s) s
 #endif
 
+	typedef std::basic_ostream<string_literal> ostream;
+	typedef ostream debug_ostream;
+
 	/**
 	* \brief compare two non-null terminated strings with known sizes
 	* \param s1 the first string

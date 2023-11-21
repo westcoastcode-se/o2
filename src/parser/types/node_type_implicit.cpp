@@ -68,3 +68,17 @@ bool node_type_implicit::resolve(const recursion_detector* rd)
 		return false;
 	return true;
 }
+
+string node_type_implicit::get_id() const
+{
+	if (_type == this)
+		return {};
+
+	stringstream ss;
+	const auto symbol = get_parent_of_type<node_symbol>();
+	if (symbol)
+		ss << symbol->get_id();
+	ss << _type->get_id();
+	ss << '.';
+	return std::move(ss.str());
+}

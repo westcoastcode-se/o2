@@ -22,7 +22,7 @@ namespace
 }
 
 build::build(config cfg)
-		: _config(std::move(cfg)), _pending_requests(), _aborted()
+		: _config(std::move(cfg)), _context(), _syntax_tree(_context), _pending_requests(), _aborted()
 {
 }
 

@@ -13,3 +13,14 @@ void node_scope::debug(debug_ostream& stream, int indent) const
 	stream << "scope()" << std::endl;
 	node_symbol::debug(stream, indent);
 }
+
+string node_scope::get_id() const
+{
+	stringstream ss;
+	const auto symbol = get_parent_of_type<node_symbol>();
+	if (symbol)
+		ss << symbol->get_id();
+	ss << get_parent()->get_children().index_of(this);
+	ss << '.';
+	return std::move(ss.str());
+}

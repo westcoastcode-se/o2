@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "node_package.h"
+#include "package/node_root.h"
 #include <llvm/IR/IRBuilder.h>
 
 namespace o2
@@ -18,14 +18,20 @@ namespace o2
 	class syntax_tree
 	{
 	public:
-		syntax_tree();
+		explicit syntax_tree(llvm::LLVMContext& lc);
 
-		node_package* get_root_package()
+		/**
+		 * \return the root package
+		 */
+		[[nodiscard]] node_root* get_root_package()
 		{
 			return &_root;
 		}
 
-		const node_package* get_root_package() const
+		/**
+		 * \return the root package
+		 */
+		[[nodiscard]] const node_root* get_root_package() const
 		{
 			return &_root;
 		}
@@ -53,9 +59,9 @@ namespace o2
 		void optimize(node_optimizer* optimizer);
 
 	private:
-		node_package _root;
+		node_root _root;
 
-		llvm::LLVMContext _context;
+		llvm::LLVMContext& _context;
 		llvm::IRBuilder<> _builder;
 	};
 }

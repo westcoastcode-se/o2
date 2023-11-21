@@ -60,7 +60,9 @@ namespace o2
 
 #pragma region node_symbol
 
-		void resolve_symbol_id() final;
+		[[nodiscard]] string get_id() const final;
+
+		bool compare_with_symbol(const node_type_struct* rhs) const;
 
 #pragma endregion
 
@@ -84,6 +86,8 @@ namespace o2
 		void on_child_removed(node* n) final;
 
 		void on_parent_node(node* p) final;
+
+		void write_json_properties(json& j) final;
 
 #pragma endregion
 

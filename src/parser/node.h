@@ -12,12 +12,11 @@
 #include "memory.h"
 #include "bit.h"
 #include "recursion_detector.h"
+#include "json/json.h"
 #include <sstream>
 
 namespace o2
 {
-	typedef std::basic_ostream<string_literal> debug_ostream;
-
 	class recursion_detector;
 
 	/**
@@ -142,7 +141,7 @@ namespace o2
 			: public memory_tracked
 	{
 	public:
-		node(const source_code_view& view)
+		explicit node(const source_code_view& view)
 				: node(view, 0)
 		{
 		}
@@ -157,7 +156,7 @@ namespace o2
 		/**
 		 * \return get the root node
 		 */
-		inline node* get_root_node()
+		[[nodiscard]] node* get_root_node()
 		{
 			if (_parent)
 				return _parent->get_root_node();
@@ -167,7 +166,7 @@ namespace o2
 		/**
 		 * \return the parent node
 		 */
-		node* get_parent() const
+		[[nodiscard]] node* get_parent() const
 		{
 			return _parent;
 		}
@@ -175,7 +174,7 @@ namespace o2
 		/**
 		 * \return all children under this node
 		 */
-		array_view<node*> get_children() const
+		[[nodiscard]] array_view<node*> get_children() const
 		{
 			return _children;
 		}
@@ -185,7 +184,7 @@ namespace o2
 		 * \param idx the child
 		 * \return the child at the supplied index. nullptr if child node doesn't exist
 		 */
-		node* get_child(int idx) const
+		[[nodiscard]] node* get_child(int idx) const
 		{
 			if (_children.size() > idx)
 				return _children[idx];
@@ -195,7 +194,7 @@ namespace o2
 		/**
 		 * \return number of children under this node
 		 */
-		int get_child_count() const
+		[[nodiscard]] int get_child_count() const
 		{
 			return _children.size();
 		}
@@ -203,12 +202,12 @@ namespace o2
 		/**
 		 * \return all siblings that are younger
 		 */
-		vector<node*> get_younger_siblings() const;
+		[[nodiscard]] vector<node*> get_younger_siblings() const;
 
 		/**
 		 * \return the source code this node is generated from
 		 */
-		const source_code_view& get_source_code() const
+		[[nodiscard]] const source_code_view& get_source_code() const
 		{
 			return _source_code;
 		}
@@ -429,7 +428,7 @@ namespace o2
 		/**
 		 * \return the flags used when preventing access during querying
 		 */
-		int get_query_access_modifiers() const
+		[[nodiscard]] int get_query_access_modifiers() const
 		{
 			return _query_access_modifiers;
 		}
@@ -446,7 +445,7 @@ namespace o2
 		 * \param query_flags
 		 * \return converted query flags based on what is allowed using the locked flags
 		 */
-		int limit_query_flags(int query_flags) const
+		[[nodiscard]] int limit_query_flags(int query_flags) const
 		{
 			// you are no longer allowed to search for siblings from this point on
 			if (bit_isset(_query_access_modifiers, query_access_modifier_no_siblings))
@@ -469,6 +468,51 @@ namespace o2
 			if (p != nullptr || _parent == nullptr)
 				return p;
 			return _parent->get_parent_of_type<T>();
+		}
+
+		/**
+		 * \tparam T the type
+		 * \return the closest parent of a specific type
+		 */
+		template<class T>
+		T* get_parent_of_type() const
+		{
+			const auto p = dynamic_cast<T*>(_parent);
+			if (p != nullptr || _parent == nullptr)
+				return p;
+			return _parent->get_parent_of_type<T>();
+		}
+
+		/**
+		 * \brief get all children of a specific type
+		 * \tparam T
+		 * \return
+		 */
+		template<class T>
+		vector<T*> get_children_of_type()
+		{
+			vector<T*> result;
+			for (const auto c: _children)
+			{
+				const auto cc = dynamic_cast<T*>(c);
+				if (cc)
+					result.add(cc);
+			}
+			return std::move(result);
+		}
+
+		/**
+		 * \brief write this object down as a json object
+		 * \param j where to put the json content into
+		 */
+		void write_json(json& j);
+
+		/**
+		 * \brief write this object's properties, but ignore children
+		 * \param j
+		 */
+		virtual void write_json_properties(json& j)
+		{
 		}
 
 	protected:

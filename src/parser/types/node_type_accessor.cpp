@@ -31,3 +31,15 @@ bool node_type_accessor::resolve(const recursion_detector* rd)
 		return false;
 	return true;
 }
+
+string node_type_accessor::get_id() const
+{
+	stringstream ss;
+	if (_accessor == accessor_pointer)
+		ss << '*';
+	else
+		ss << '&';
+	const auto sub_type = dynamic_cast<node_type*>(get_child(0));
+	ss << sub_type->get_id();
+	return std::move(ss.str());
+}

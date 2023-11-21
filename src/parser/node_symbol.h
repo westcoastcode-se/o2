@@ -10,6 +10,36 @@
 namespace o2
 {
 	/**
+	 * \brief helper type used when searching for collisions
+	 * \tparam T
+	 */
+	template<class T>
+	class node_symbol_collision_visitor final
+			: public query_node_visitor
+	{
+	public:
+		const T* const _this;
+
+		explicit node_symbol_collision_visitor(const T* t)
+				: _this(t)
+		{
+		}
+
+		void visit(node* n) final
+		{
+			if (n == _this)
+				return;
+
+			const auto tt = dynamic_cast<const T*>(n);
+			if (tt == nullptr)
+				return;
+
+			if (_this->compare_with_symbol(tt))
+				throw error_named_symbol_already_declared(tt->get_source_code(), tt->get_name());
+		}
+	};
+
+	/**
 	 * \brief base class for symbols that are not allowed to exist multiple times in the same scope
 	 *
 	 * all symbols have a unique id. For example a type might have a symbol id ".mycompany.MyType" or
@@ -21,16 +51,17 @@ namespace o2
 	public:
 		enum accessor
 		{
-			// allow access to this symbol from only the current module
-			accessor_module = 1,
-			// allow anyone from accessing this symbol
-			accessor_public,
+			// allow everyone to access this symbol
+			accessor_public = 1,
+			// only access to this symbol from the current module
+			accessor_module,
 			// only allow access from the same package
 			accessor_private
 		};
 
 		/**
 		 * \param view
+		 * \param name the name of this symbol
 		 */
 		explicit node_symbol(const source_code_view& view)
 				: node_symbol(view, accessor_public)
@@ -39,27 +70,24 @@ namespace o2
 
 		/**
 		 * \param view
+		 * \param name the name of this symbol
 		 * \param accessor whom are allowed to access this symbol
-		 *
-		 * TODO make sure to use the appropriate accessor for each symbol
 		 */
 		node_symbol(const source_code_view& view, accessor accessor)
 				: node(view), _accessor(accessor)
 		{
 		}
 
+
 		/**
-		 * \return a unique id that represents this symbol
+		 * \return a unique id for this symbol
 		 */
-		string_view get_id() const
-		{
-			return _id;
-		}
+		[[nodiscard]] virtual string get_id() const = 0;
 
 		/**
 		 * \return whom are allowed to access this symbol
 		 */
-		accessor get_accessor() const
+		[[nodiscard]] accessor get_accessor() const
 		{
 			return _accessor;
 		}
@@ -69,65 +97,28 @@ namespace o2
 		 */
 		bool is_allowed(node* n) const;
 
-		bool is_module_access() const
-		{
-			return _accessor == accessor_module;
-		}
-
-		bool is_public() const
-		{
-			return _accessor == accessor_public;
-		}
-
-		bool is_private() const
-		{
-			return _accessor == accessor_private;
-		}
-
 		/**
-		 * \brief test for collisions of this symbol
+		 * \brief helper function for testing for collisions
+		 * \param t send in this from the inherited class
+		 *
+		 * note that you have to implement the method "bool compare_with_symbol(const T*) const" if you want to use
+		 * this method
 		 */
-		void test_collision();
-
-	protected:
-		/**
-		 * \param id the new id
-		 */
-		void set_id(string id)
+		template<class T>
+		void test_collision(const T* t) const
 		{
-			_id = std::move(id);
+			node_symbol_collision_visitor v(t);
+			const auto parent = get_parent_of_type<node_symbol>();
+			parent->query(&v, query_flag_children | query_flag_downwards);
 		}
 
-		/**
-		 * \brief resolve the symbol's id
-		 */
-		virtual void resolve_symbol_id()
-		{
-		}
+#pragma region node
+
+		void write_json_properties(json& j) override;
+
+#pragma endregion
 
 	private:
-		string _id;
 		accessor _accessor;
-	};
-
-	/**
-	 * \brief detector used for checking collisions when adding nodes to the main syntax tree root
-	 */
-	class collision_detector
-	{
-	public:
-		/**
-		 * \brief add a symbol to be tested when we add it to the root syntax tree
-		 * \param symbol
-		 */
-		void add(node_symbol* symbol);
-
-		/**
-		 * \brief test all symbols
-		 */
-		void test();
-
-	private:
-		vector<node_symbol*> _colliders;
 	};
 }

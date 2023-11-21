@@ -63,7 +63,8 @@ namespace o2
 			module* m;
 			try
 			{
-				st = new syntax_tree;
+				llvm::LLVMContext lcontext;
+				st = new syntax_tree(lcontext);
 				// TODO parse module project file and pre_load all modules and put them into
 				//      the syntax tree
 				m = o2_new
@@ -154,7 +155,8 @@ namespace o2
 			module* m;
 			try
 			{
-				st = new syntax_tree;
+				llvm::LLVMContext lcontext;
+				st = new syntax_tree(lcontext);
 				m = o2_new module(module_name, path);
 				m->insert_into(st);
 

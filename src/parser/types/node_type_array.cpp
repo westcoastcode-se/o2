@@ -30,7 +30,7 @@ int node_type_array::resolve_size(const recursion_detector* rd)
 	assert(get_child_count() > 0);
 
 	const recursion_detector rd0(rd, this);
-	auto sub_type = dynamic_cast<node_type*>(get_child(0));
+	auto sub_type = dynamic_cast<node_type*>(get_child(1));
 	return _count * sub_type->resolve_size(&rd0);
 }
 
@@ -64,4 +64,15 @@ bool node_type_array::resolve(const recursion_detector* rd)
 	if (_count == 0)
 		throw std::runtime_error("arrays must be a positive non-decimal non-zero number");
 	return true;
+}
+
+string node_type_array::get_id() const
+{
+	assert(_count != -1);
+
+	stringstream ss;
+	ss << '[' << _count << ']';
+	const auto sub_type = dynamic_cast<node_type*>(get_child(1));
+	ss << sub_type->get_id();
+	return std::move(ss.str());
 }

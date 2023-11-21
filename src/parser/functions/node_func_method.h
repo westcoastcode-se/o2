@@ -28,9 +28,10 @@ namespace o2
 			return _this;
 		}
 
+
 #pragma region node_symbol
 
-		void resolve_symbol_id() final;
+		[[nodiscard]] string get_id() const override;
 
 #pragma endregion
 

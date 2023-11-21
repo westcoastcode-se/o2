@@ -106,7 +106,7 @@ namespace o2
 		/**
 		 * \return the body that this function executes
 		 */
-		node_func_body* get_body() const
+		[[nodiscard]] node_func_body* get_body() const
 		{
 			return _body;
 		}
@@ -114,7 +114,7 @@ namespace o2
 		/**
 		 * \return arguments necessary for this function
 		 */
-		node_func_arguments* get_arguments() const
+		[[nodiscard]] node_func_arguments* get_arguments() const
 		{
 			return _arguments;
 		}
@@ -122,7 +122,7 @@ namespace o2
 		/**
 		 * \return return value for this node
 		 */
-		node_func_returns* get_returns() const
+		[[nodiscard]] node_func_returns* get_returns() const
 		{
 			return _returns;
 		}
@@ -130,7 +130,7 @@ namespace o2
 		/**
 		 * \return true if this function is a constant function
 		 */
-		bool is_const() const
+		[[nodiscard]] bool is_const() const
 		{
 			return bit_isset(_modifiers, modifier_const);
 		}
@@ -138,20 +138,24 @@ namespace o2
 		/**
 		 * \return true if this function is an external function
 		 */
-		bool is_extern() const
+		[[nodiscard]] bool is_extern() const
 		{
 			return bit_isset(_modifiers, modifier_extern);
 		}
 
 #pragma region node_symbol
 
-		void resolve_symbol_id() override;
+		[[nodiscard]] string get_id() const override;
+
+		bool compare_with_symbol(const node_func* rhs) const;
 
 #pragma endregion
 
 #pragma region node
 
 		void debug(debug_ostream& stream, int indent) const override;
+
+		void write_json_properties(json& j) override;
 
 		node* on_child_added(node* n) final;
 

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "node_package.h"
+#include "package/node_package.h"
 #include "functions/node_func.h"
 #include "functions/node_func_method.h"
 #include "functions/node_func_body.h"

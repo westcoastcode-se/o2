@@ -11,8 +11,8 @@
 
 using namespace o2;
 
-syntax_tree::syntax_tree()
-		: _root(source_code_view(), STR("")), _context(), _builder(_context)
+syntax_tree::syntax_tree(llvm::LLVMContext& lc)
+		: _root(), _context(lc), _builder(_context)
 {
 	// added predefined primitive types
 	_root.add_child(
@@ -85,11 +85,16 @@ syntax_tree::syntax_tree()
 void syntax_tree::debug() const
 {
 	stringstream ss;
-	_root.debug(ss, 1);
+	debug(ss);
 	string output = std::move(ss.str());
 	for (const auto c: output)
 		std::wcout << wchar_t(c);
 	std::wcout << std::endl;
+}
+
+void syntax_tree::debug(debug_ostream& stream) const
+{
+	_root.debug(stream, 1);
 }
 
 void syntax_tree::resolve()

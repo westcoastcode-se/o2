@@ -4,7 +4,7 @@
 //
 
 #include "node_ref.h"
-#include "node_package.h"
+#include "package/node_package.h"
 #include "types/node_type.h"
 #include "types/node_type_primitive.h"
 #include "struct/node_type_struct.h"

@@ -29,6 +29,12 @@ namespace o2
 			return _accessor;
 		}
 
+#pragma region node_symbol
+
+		[[nodiscard]] string get_id() const final;
+
+#pragma endregion
+
 #pragma region node_type
 
 		node_type* get_type()

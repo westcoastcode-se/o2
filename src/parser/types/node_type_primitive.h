@@ -20,7 +20,7 @@ namespace o2
 		/**
 		 * \return the name of the primitive
 		 */
-		string_view get_name() const
+		[[nodiscard]] string_view get_name() const
 		{
 			return _names[0];
 		}
@@ -28,7 +28,7 @@ namespace o2
 		/**
 		 * \return all names that matches this primitive
 		 */
-		array_view<string_view> get_names() const
+		[[nodiscard]] array_view<string_view> get_names() const
 		{
 			return _names;
 		}
@@ -47,11 +47,19 @@ namespace o2
 
 #pragma endregion
 
+#pragma region node_symbol
+
+		[[nodiscard]] string get_id() const final;
+
+#pragma endregion
+
 #pragma region node
 
 		bool resolve(const recursion_detector* rd) final;
 
 		void debug(debug_ostream& stream, int indent) const final;
+
+		void write_json_properties(json& j) final;
 
 #pragma endregion
 

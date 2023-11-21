@@ -36,7 +36,7 @@ namespace o2
 		/**
 		 * \return modifiers applied to this variable
 		 */
-		int get_modifiers() const
+		[[nodiscard]] int get_modifiers() const
 		{
 			return _modifiers;
 		}
@@ -44,7 +44,7 @@ namespace o2
 		/**
 		 * \return true if this variable a const variable
 		 */
-		bool is_const() const
+		[[nodiscard]] bool is_const() const
 		{
 			return bit_isset(_modifiers, modifier_const);
 		}
@@ -52,14 +52,22 @@ namespace o2
 		/**
 		 * \return the type
 		 */
-		node_type* get_type() const
+		[[nodiscard]] node_type* get_type() const
 		{
 			return _type;
 		}
 
+#pragma region node_symbol
+
+		[[nodiscard]] string get_id() const final;
+
+#pragma endregion
+
 #pragma region node
 
 		void debug(debug_ostream& stream, int indent) const override;
+
+		void write_json_properties(json& j) override;
 
 		node* on_child_added(node* n) override;
 

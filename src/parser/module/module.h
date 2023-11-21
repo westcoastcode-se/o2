@@ -35,7 +35,16 @@ namespace o2
 		 * \param root_path path to where the the source code is found for this module
 		 */
 		module(string_view name, const std::filesystem::path& root_path)
-				: _parent(), _name(name), _root_path(root_path),
+				: module(name, "", root_path)
+		{
+		}
+
+		/**
+		 * \param name the name of the module
+		 * \param root_path path to where the the source code is found for this module
+		 */
+		module(string_view name, string_view version, const std::filesystem::path& root_path)
+				: _parent(), _name(name), _version(version), _root_path(root_path),
 				  _sources(new filesystem_module_package_lookup(root_path)),
 				  _node_module(o2_new node_module(this)),
 				  _modifiers()
@@ -66,6 +75,14 @@ namespace o2
 		[[nodiscard]] string_view get_name() const
 		{
 			return _name;
+		}
+
+		/**
+		 * \return the version of the module
+		 */
+		[[nodiscard]] string_view get_version() const
+		{
+			return _version;
 		}
 
 		/**
@@ -152,6 +169,7 @@ namespace o2
 	private:
 		module* const _parent;
 		const string _name;
+		const string _version;
 		const std::filesystem::path _root_path;
 		module_package_lookup* const _sources;
 		vector<module*> _requirements;

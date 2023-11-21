@@ -6,7 +6,7 @@
 #pragma once
 
 #include "token.h"
-#include "node_package.h"
+#include "package/node_package.h"
 #include "types/node_type.h"
 #include "source_code.h"
 #include "source_code_view.h"

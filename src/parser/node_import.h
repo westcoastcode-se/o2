@@ -7,7 +7,7 @@
 
 #include "node.h"
 #include "node_ref.h"
-#include "node_package.h"
+#include "package/node_package.h"
 
 namespace o2
 {

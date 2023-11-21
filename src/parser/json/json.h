@@ -51,7 +51,7 @@ namespace o2
 
 	public:
 		explicit json(ostream* stream)
-				: json(stream, type_object)
+				: json(stream, type_none)
 		{
 		}
 

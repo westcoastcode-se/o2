@@ -216,3 +216,9 @@ void node::visit(query_node_visitor* visitor)
 	for (auto c: _children)
 		c->visit(visitor);
 }
+
+void node::write_json(json& j)
+{
+	auto child_json = j.write(json::object{});
+	write_json_properties(child_json);
+}

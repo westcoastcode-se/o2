@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../node.h"
+#include "../node_symbol.h"
 
 namespace o2
 {
@@ -14,41 +14,59 @@ namespace o2
 	/**
 	 * \brief class used to connect a module to the syntax tree
 	 */
-	class node_module
-			: public node
+	class node_module final
+			: public node_symbol
 	{
 	public:
-		explicit node_module(module* m)
-				: node(source_code_view()), _module(m)
-		{
-		}
+		explicit node_module(module* m);
 
 		/**
 		 * \return the name of this module
 		 */
-		string_view get_name() const;
+		[[nodiscard]] string_view get_name() const
+		{
+			return _name;
+		}
+
+		/**
+		 * \return the version of this module
+		 */
+		[[nodiscard]] string_view get_version() const;
 
 		/**
 		 * \param import_path
 		 * \return the relative path
 		 */
-		string_view get_relative_path(string_view import_path) const;
+		[[nodiscard]] string_view get_relative_path(string_view import_path) const;
 
 		/**
 		 * \return the module
 		 */
-		module* get_module() const
+		[[nodiscard]] module* get_module() const
 		{
 			return _module;
 		}
 
+#pragma region node_symbol
+
+		[[nodiscard]] string get_id() const final;
+
+		bool compare_with_symbol(const node_module* rhs) const;
+
+#pragma endregion
+
 #pragma region node
 
+		void on_parent_node(node* p) final;
+
 		void debug(debug_ostream& stream, int indent) const final;
+
+		void write_json_properties(json& j) override;
 
 #pragma endregion
 
 	private:
+		const string_view _name;
 		module* const _module;
 	};
 }

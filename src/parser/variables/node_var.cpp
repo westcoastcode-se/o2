@@ -45,3 +45,24 @@ void node_var::on_parent_node(node* p)
 	if (_type == nullptr)
 		throw expected_child_node(get_source_code(), "node_type");
 }
+
+void node_var::write_json_properties(json& j)
+{
+	j.write(json::pair<string_view>{ "type", "var" });
+	j.write(json::pair<string_view>{ "name", _name });
+	node_symbol::write_json_properties(j);
+}
+
+string node_var::get_id() const
+{
+	stringstream ss;
+	const auto symbol = get_parent_of_type<node_symbol>();
+	string id;
+	if (symbol)
+		id = symbol->get_id();
+	ss << id;
+	if (!id.ends_with('/'))
+		ss << '/';
+	ss << get_name();
+	return std::move(ss.str());
+}

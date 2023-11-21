@@ -28,7 +28,7 @@ namespace o2
 	 * \brief a field inside a struct
 	 */
 	class node_type_struct_field
-			: public node
+			: public node_symbol
 	{
 	public:
 		node_type_struct_field(const source_code_view& view, string_view name);
@@ -57,6 +57,21 @@ namespace o2
 			return _field_type;
 		}
 
+		/**
+		 * \brief resolve this field's size
+		 * \param rd
+		 * \return
+		 */
+		int resolve_size(const recursion_detector* rd);
+
+#pragma region node_symbol
+
+		[[nodiscard]] string get_id() const final;
+
+		bool compare_with_symbol(const node_type_struct_field* rhs) const;
+
+#pragma endregion
+
 #pragma region node
 
 		void debug(debug_ostream& stream, int indent) const final;
@@ -67,11 +82,14 @@ namespace o2
 
 		void on_child_removed(node* n) final;
 
+		void on_parent_node(node* p) final;
+
 #pragma endregion
 
 	private:
 		const string_view _name;
 		int _padding;
+		int _size;
 		node_type* _field_type;
 	};
 }

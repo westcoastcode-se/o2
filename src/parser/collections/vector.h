@@ -504,7 +504,7 @@ namespace o2
 		/**
 		 * \return the number of items available in the array
 		 */
-		int size() const
+		[[nodiscard]] int size() const
 		{
 			return _size;
 		}
@@ -512,7 +512,7 @@ namespace o2
 		/**
 		 * \return a boolean indicating if this array is empty or not
 		 */
-		bool empty() const
+		[[nodiscard]] bool empty() const
 		{
 			return _size == 0;
 		}
@@ -531,6 +531,15 @@ namespace o2
 		const T* ptr() const
 		{
 			return _memory;
+		}
+
+		template<typename U>
+		int index_of(U value) const
+		{
+			for (int i = 0; i < _size; ++i)
+				if (value == _memory[i])
+					return i;
+			return -1;
 		}
 
 	private:

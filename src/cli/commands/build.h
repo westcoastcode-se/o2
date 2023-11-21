@@ -120,6 +120,7 @@ namespace o2
 
 	private:
 		const config _config;
+		llvm::LLVMContext _context;
 		syntax_tree _syntax_tree;
 
 		int _pending_requests;

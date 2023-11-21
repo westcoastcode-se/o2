@@ -4,7 +4,7 @@
 //
 
 #include "node_type_struct.h"
-#include "../node_package.h"
+#include "../package/node_package.h"
 
 using namespace o2;
 
@@ -16,7 +16,7 @@ node_type_struct::node_type_struct(const source_code_view& view, string_view nam
 void node_type_struct::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
-	stream << "type_struct(name=" << _name << ",size=" << _size << ")" << std::endl;
+	stream << "type_struct(name=" << get_name() << ",size=" << _size << ")" << std::endl;
 	node_type::debug(stream, indent);
 }
 
@@ -40,7 +40,7 @@ int node_type_struct::resolve_size(const recursion_detector* rd)
 		const auto field = dynamic_cast<node_type_struct_field*>(n);
 		if (field == nullptr)
 			continue;
-		size += field->get_field_type()->resolve_size(&rd0);
+		size += field->resolve_size(&rd0);
 	}
 	_size = size;
 	return _size;
@@ -94,21 +94,33 @@ vector<node_type_struct_field*> node_type_struct::get_all_fields() const
 	return result;
 }
 
-void node_type_struct::resolve_symbol_id()
+string node_type_struct::get_id() const
 {
+	stringstream ss;
 	const auto symbol = get_parent_of_type<node_symbol>();
+	string id;
 	if (symbol)
-	{
-		stringstream ss;
-		ss << symbol->get_id();
-		ss << '.';
-		ss << _name;
-		set_id(std::move(ss.str()));
-	}
+		id = symbol->get_id();
+	ss << id;
+	if (!id.ends_with('/'))
+		ss << '/';
+	ss << get_name();
+	return std::move(ss.str());
 }
 
 void node_type_struct::on_parent_node(node* p)
 {
-	resolve_symbol_id();
-	test_collision();
+	test_collision(this);
+}
+
+void node_type_struct::write_json_properties(json& j)
+{
+	j.write(json::pair<string_view>{ "type", "struct" });
+	j.write(json::pair<int>{ "size", _size });
+	node_symbol::write_json_properties(j);
+}
+
+bool node_type_struct::compare_with_symbol(const node_type_struct* rhs) const
+{
+	return get_name() == rhs->get_name();
 }

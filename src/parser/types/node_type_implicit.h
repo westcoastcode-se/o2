@@ -32,6 +32,12 @@ namespace o2
 	public:
 		explicit node_type_implicit(const source_code_view& view);
 
+#pragma region node_symbol
+
+		[[nodiscard]] string get_id() const final;
+
+#pragma endregion
+
 #pragma region node_type
 
 		node_type* get_type() final

@@ -13,10 +13,16 @@ namespace o2
 			: public node_symbol
 	{
 	public:
-		node_scope(const source_code_view& view)
+		explicit node_scope(const source_code_view& view)
 				: node_symbol(view)
 		{
 		}
+
+#pragma region node_symbol
+
+		[[nodiscard]] string get_id() const final;
+
+#pragma endregion
 
 #pragma region node
 

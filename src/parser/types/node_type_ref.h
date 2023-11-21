@@ -32,6 +32,12 @@ namespace o2
 
 #pragma endregion
 
+#pragma region node_symbol
+
+		[[nodiscard]] string get_id() const final;
+
+#pragma endregion
+
 #pragma region node
 
 		void debug(debug_ostream& stream, int indent) const final;

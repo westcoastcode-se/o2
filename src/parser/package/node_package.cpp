@@ -4,8 +4,9 @@
 //
 
 #include "node_package.h"
-#include "node_import.h"
-#include "module/node_module.h"
+#include "../node_import.h"
+#include "../module/node_module.h"
+#include "../functions/node_func.h"
 #include <iostream>
 
 using namespace o2;
@@ -32,7 +33,7 @@ void node_package::on_child_removed(node* n)
 void node_package::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
-	stream << "package(name=" << _name;
+	stream << "package(name=" << get_name();
 	if (bit_isset(_status, status_resolved))
 		stream << ",resolved";
 	stream << ")" << std::endl;
@@ -48,19 +49,6 @@ void node_package::query(query_node_visitor* visitor, int flags)
 	if (bit_isset(flags, query_flag_downwards))
 		flags = bit_set(flags, query_flag_children);
 	query_children(visitor, flags);
-}
-
-void node_package::resolve_symbol_id()
-{
-	const auto symbol = get_parent_of_type<node_symbol>();
-	if (symbol)
-	{
-		stringstream ss;
-		ss << symbol->get_id();
-		ss << '.';
-		ss << _name;
-		set_id(std::move(ss.str()));
-	}
 }
 
 void node_package::on_import_added(node_import* i)
@@ -96,4 +84,58 @@ bool node_package::resolve(const recursion_detector* rd)
 	}
 	_status = status_resolved;
 	return true;
+}
+
+void node_package::write_json_properties(json& j)
+{
+	j.write(json::pair<string_view>{ "type", "package" });
+	node_symbol::write_json_properties(j);
+
+	// add modules
+	{
+		auto module_json = j.write(json::array{ "modules" });
+		for (auto module: get_children_of_type<node_module>())
+		{
+			module->write_json(module_json);
+		}
+	}
+
+	// add types
+	{
+		auto types_json = j.write(json::array{ "types" });
+		for (auto type: get_children_of_type<node_type>())
+		{
+			type->write_json(types_json);
+		}
+	}
+
+	// add funcs
+	{
+		auto functions_json = j.write(json::array{ "functions" });
+		for (auto func: get_children_of_type<node_func>())
+		{
+			func->write_json(functions_json);
+		}
+	}
+}
+
+void node_package::on_parent_node(node* p)
+{
+	test_collision(this);
+}
+
+string node_package::get_id() const
+{
+	stringstream ss;
+	const auto symbol = get_parent_of_type<node_symbol>();
+	if (symbol)
+		ss << symbol->get_id();
+	ss << '/';
+	ss << _name;
+	return std::move(ss.str());
+}
+
+bool node_package::compare_with_symbol(const node_package* rhs) const
+{
+	return get_name() == rhs->get_name();
 }

@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "node_symbol.h"
-#include "variables/node_var.h"
+#include "../node_symbol.h"
+#include "../variables/node_var.h"
 #include <vector>
 #include <unordered_map>
 
@@ -38,7 +38,7 @@ namespace o2
 		/**
 		 * \return the name of the package
 		 */
-		inline string_view get_name() const
+		[[nodiscard]] string_view get_name() const
 		{
 			return _name;
 		}
@@ -64,11 +64,15 @@ namespace o2
 
 #pragma region node_symbol
 
-		void resolve_symbol_id() final;
+		[[nodiscard]] string get_id() const final;
+
+		bool compare_with_symbol(const node_package* rhs) const;
 
 #pragma endregion
 
 #pragma region node
+
+		void on_parent_node(node* p) final;
 
 		node* on_child_added(node* n) final;
 
@@ -80,13 +84,14 @@ namespace o2
 
 		bool resolve(const recursion_detector* rd) final;
 
+		void write_json_properties(json& j) override;
+
 #pragma endregion
 
 	private:
 		const string_view _name;
 		std::unordered_map<string_view, node_var*> _variables;
 		int _status;
-
 
 		// a mutable state that's used during this packages parse, resolve and link phase
 		struct state
