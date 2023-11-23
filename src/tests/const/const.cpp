@@ -62,8 +62,8 @@ void const_()
 			assert_equals(func->get_name(), "Get5");
 			assert_not_null(func->get_body());
 			assert_equals(func, func->get_body()->get_def());
-			assert_not_null(func->get_arguments());
-			assert_equals(func->get_arguments()->num_arguments(), 0);
+			assert_not_null(func->get_parameters());
+			assert_equals(func->get_parameters()->num_arguments(), 0);
 			const auto ret = assert_not_null(func->get_returns());
 			assert_equals(ret->get_children().size(), 1);
 			const auto ret_ref_int = assert_type<node_type_ref>(ret->get_child(0));

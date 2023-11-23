@@ -11,9 +11,9 @@ using namespace o2;
 
 node* node_func::on_child_added(node* n)
 {
-	const auto arguments = dynamic_cast<node_func_arguments*>(n);
+	const auto arguments = dynamic_cast<node_func_parameters*>(n);
 	if (arguments)
-		_arguments = arguments;
+		_parameters = arguments;
 	else
 	{
 		const auto returns = dynamic_cast<node_func_returns*>(n);
@@ -31,8 +31,8 @@ node* node_func::on_child_added(node* n)
 
 void node_func::on_child_removed(node* n)
 {
-	if (_arguments == n)
-		_arguments = nullptr;
+	if (_parameters == n)
+		_parameters = nullptr;
 	else if (_returns == n)
 		_returns = nullptr;
 	else if (_body == n)
@@ -56,20 +56,21 @@ void node_func::debug(debug_ostream& stream, int indent) const
 
 void node_func::write_json_properties(json& j)
 {
-	j.write(json::pair<string_view>{ "type", "func" });
 	node_symbol::write_json_properties(j);
 	j.write(json::pair<string_view>{ "name", get_name() });
-	if (_arguments)
+
+	if (_parameters)
 	{
-		auto args = j.write(json::array{ "args" });
-		for (auto a: _arguments->get_arguments())
+		auto args = j.write(json::array{ "params" });
+		for (auto a: _parameters->get_parameters())
 		{
 			a->write_json(args);
 		}
 	}
+
 	if (_returns)
 	{
-		auto rets = j.write(json::array{ "rets" });
+		auto rets = j.write(json::array{ "returns" });
 		for (auto r: _returns->get_children())
 		{
 			r->write_json(rets);
@@ -89,9 +90,9 @@ string node_func::get_id() const
 		ss << '/';
 	ss << get_name();
 	ss << '(';
-	if (_arguments)
+	if (_parameters)
 	{
-		const auto children = _arguments->get_arguments();
+		const auto children = _parameters->get_parameters();
 		for (int i = 0; i < children.size(); ++i)
 		{
 			const auto type = children[i]->get_type();

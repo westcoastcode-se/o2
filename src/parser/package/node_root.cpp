@@ -11,8 +11,7 @@ using namespace o2;
 
 void node_root::write_json_properties(json& j)
 {
-	j.write(json::pair<string_view>{ "type", "root" });
-	j.write(json::pair<string_view>{ "id", "/" });
+	node_symbol::write_json_properties(j);
 
 	// add modules
 	{
@@ -25,7 +24,7 @@ void node_root::write_json_properties(json& j)
 
 	// add types
 	{
-		auto types_json = j.write(json::array{ "types" });
+		auto types_json = j.write(json::array{ "primitives" });
 		for (auto type: get_children_of_type<node_type>())
 		{
 			type->write_json(types_json);

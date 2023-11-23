@@ -88,17 +88,7 @@ bool node_package::resolve(const recursion_detector* rd)
 
 void node_package::write_json_properties(json& j)
 {
-	j.write(json::pair<string_view>{ "type", "package" });
 	node_symbol::write_json_properties(j);
-
-	// add modules
-	{
-		auto module_json = j.write(json::array{ "modules" });
-		for (auto module: get_children_of_type<node_module>())
-		{
-			module->write_json(module_json);
-		}
-	}
 
 	// add types
 	{

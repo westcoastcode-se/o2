@@ -38,7 +38,6 @@ void node_module::on_parent_node(node* p)
 
 void node_module::write_json_properties(json& j)
 {
-	j.write(json::pair<string_view>{ "type", "module" });
 	node_symbol::write_json_properties(j);
 	j.write(json::pair<string_view>{ "version", _module->get_version() });
 

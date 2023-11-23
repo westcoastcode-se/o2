@@ -245,12 +245,12 @@ void structs()
 					assert_equals(func_M->get_name(), "M");
 					assert_not_null(func_M->get_body());
 					assert_equals(func_M, func_M->get_body()->get_def());
-					assert_not_null(func_M->get_arguments());
-					assert_equals(func_M->get_arguments()->num_arguments(), 1);
+					assert_not_null(func_M->get_parameters());
+					assert_equals(func_M->get_parameters()->num_arguments(), 1);
 					assert_not_null(func_M->get_returns());
 					assert_equals(func_M->get_returns()->get_children().size(), 0);
 
-					const auto func_M_args = assert_type<node_func_arguments>(func_M->get_child(0));
+					const auto func_M_args = assert_type<node_func_parameters>(func_M->get_child(0));
 					const auto func_M_arg1 = assert_type<node_var>(func_M_args->get_child(0));
 					assert_equals("this", func_M_arg1->get_name());
 					assert_equals(func_M_arg1->get_type(), type_S);
@@ -356,8 +356,8 @@ void structs()
 			assert_equals(func_M->get_name(), "F");
 			assert_not_null(func_M->get_body());
 			assert_equals(func_M, func_M->get_body()->get_def());
-			assert_not_null(func_M->get_arguments());
-			assert_equals(func_M->get_arguments()->num_arguments(), 0);
+			assert_not_null(func_M->get_parameters());
+			assert_equals(func_M->get_parameters()->num_arguments(), 0);
 			assert_not_null(func_M->get_returns());
 			assert_equals(func_M->get_returns()->get_children().size(), 0);
 		});

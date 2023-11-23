@@ -48,9 +48,8 @@ void node_var::on_parent_node(node* p)
 
 void node_var::write_json_properties(json& j)
 {
-	j.write(json::pair<string_view>{ "type", "var" });
-	j.write(json::pair<string_view>{ "name", _name });
 	node_symbol::write_json_properties(j);
+	j.write(json::pair<string_view>{ "name", _name });
 }
 
 string node_var::get_id() const

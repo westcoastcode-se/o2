@@ -88,6 +88,15 @@ namespace o2
 
 #pragma endregion
 
+#pragma region json_serializable
+
+		[[nodiscard]] string_view get_json_type() const override
+		{
+			return { "package" };
+		}
+
+#pragma endregion
+
 	private:
 		const string_view _name;
 		std::unordered_map<string_view, node_var*> _variables;

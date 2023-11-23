@@ -12,7 +12,7 @@
 #include "memory.h"
 #include "bit.h"
 #include "recursion_detector.h"
-#include "json/json.h"
+#include "json/json_serializable.h"
 #include <sstream>
 
 namespace o2
@@ -138,7 +138,7 @@ namespace o2
 		 * \brief base class for all nodes in the syntax tree
 	 */
 	class node
-			: public memory_tracked
+			: public memory_tracked, public json_serializable
 	{
 	public:
 		explicit node(const source_code_view& view)
@@ -151,7 +151,7 @@ namespace o2
 		{
 		}
 
-		virtual ~node();
+		~node() override;
 
 		/**
 		 * \return get the root node
@@ -499,20 +499,6 @@ namespace o2
 					result.add(cc);
 			}
 			return std::move(result);
-		}
-
-		/**
-		 * \brief write this object down as a json object
-		 * \param j where to put the json content into
-		 */
-		void write_json(json& j);
-
-		/**
-		 * \brief write this object's properties, but ignore children
-		 * \param j
-		 */
-		virtual void write_json_properties(json& j)
-		{
 		}
 
 	protected:

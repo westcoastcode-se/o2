@@ -68,7 +68,7 @@ namespace o2
 
 #pragma region node_type
 
-		node_type* get_type()
+		node_type* get_type() override
 		{
 			return this;
 		}
@@ -88,6 +88,15 @@ namespace o2
 		void on_parent_node(node* p) final;
 
 		void write_json_properties(json& j) final;
+
+#pragma endregion
+
+#pragma region json_serializable
+
+		[[nodiscard]] string_view get_json_type() const override
+		{
+			return { "type_struct" };
+		}
 
 #pragma endregion
 

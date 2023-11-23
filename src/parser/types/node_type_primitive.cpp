@@ -35,9 +35,8 @@ bool node_type_primitive::resolve(const recursion_detector* rd)
 
 void node_type_primitive::write_json_properties(json& j)
 {
-	j.write(json::pair<string_view>{ "type", "primitive" });
-	j.write(json::pair<int>{ "size", _size });
 	node_symbol::write_json_properties(j);
+	j.write(json::pair<int>{ "size", _size });
 }
 
 string node_type_primitive::get_id() const

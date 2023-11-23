@@ -115,9 +115,8 @@ void node_type_struct::on_parent_node(node* p)
 
 void node_type_struct::write_json_properties(json& j)
 {
-	j.write(json::pair<string_view>{ "type", "struct" });
-	j.write(json::pair<int>{ "size", _size });
 	node_symbol::write_json_properties(j);
+	j.write(json::pair<int>{ "size", _size });
 }
 
 bool node_type_struct::compare_with_symbol(const node_type_struct* rhs) const

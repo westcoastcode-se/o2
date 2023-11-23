@@ -28,8 +28,8 @@ void funcs()
 					assert_equals(func->get_name(), "f");
 					assert_not_null(func->get_body());
 					assert_equals(func, func->get_body()->get_def());
-					assert_not_null(func->get_arguments());
-					assert_equals(func->get_arguments()->num_arguments(), 0);
+					assert_not_null(func->get_parameters());
+					assert_equals(func->get_parameters()->num_arguments(), 0);
 					assert_not_null(func->get_returns());
 					assert_equals(func->get_returns()->get_children().size(), 0);
 				});
@@ -46,8 +46,8 @@ void funcs()
 			assert_equals(func->get_name(), "f");
 			assert_not_null(func->get_body());
 			assert_equals(func, func->get_body()->get_def());
-			assert_not_null(func->get_arguments());
-			assert_equals(func->get_arguments()->num_arguments(), 0);
+			assert_not_null(func->get_parameters());
+			assert_equals(func->get_parameters()->num_arguments(), 0);
 			const auto ret = assert_not_null(func->get_returns());
 			assert_equals(ret->get_children().size(), 1);
 			const auto ret_ref_float = assert_type<node_type_ref>(ret->get_child(0));
@@ -72,8 +72,8 @@ void funcs()
 			assert_equals(func->get_name(), "f");
 			assert_not_null(func->get_body());
 			assert_equals(func, func->get_body()->get_def());
-			assert_not_null(func->get_arguments());
-			assert_equals(func->get_arguments()->num_arguments(), 0);
+			assert_not_null(func->get_parameters());
+			assert_equals(func->get_parameters()->num_arguments(), 0);
 			const auto ret = assert_not_null(func->get_returns());
 			assert_equals(ret->get_children().size(), 1);
 			const auto ret_ptr_int = assert_type<node_type_accessor>(ret->get_child(0));
@@ -96,7 +96,7 @@ void funcs()
 
 			const auto func = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func->get_children().size(), 3);
-			const auto args = assert_type<node_func_arguments>(func->get_child(0));
+			const auto args = assert_type<node_func_parameters>(func->get_child(0));
 			const auto arg1 = assert_type<node_var>(args->get_child(0));
 			assert_equals("a1", arg1->get_name());
 			const auto arr_type_ref_int = assert_type<node_type_ref>(arg1->get_child(0));
@@ -117,7 +117,7 @@ void funcs()
 
 			const auto func = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func->get_children().size(), 3);
-			const auto args = assert_type<node_func_arguments>(func->get_child(0));
+			const auto args = assert_type<node_func_parameters>(func->get_child(0));
 			const auto arg1 = assert_type<node_var>(args->get_child(0));
 			const auto arr = assert_type<node_type_array>(arg1->get_child(0));
 			assert_equals(arr->get_children().size(), 2);
@@ -140,7 +140,7 @@ void funcs()
 
 			const auto func = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func->get_children().size(), 3);
-			const auto args = assert_type<node_func_arguments>(func->get_child(0));
+			const auto args = assert_type<node_func_parameters>(func->get_child(0));
 			const auto arg1 = assert_type<node_var>(args->get_child(0));
 			assert_equals("_", arg1->get_name());
 			const auto arr_type_ref_int = assert_type<node_type_ref>(arg1->get_child(0));
@@ -162,7 +162,7 @@ void funcs()
 
 			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_children().size(), 3);
-			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
+			const auto args_f = assert_type<node_func_parameters>(func_f->get_child(0));
 			assert_equals(args_f->get_children().size(), 0);
 			const auto body_f = assert_type<node_func_body>(func_f->get_child(2));
 			assert_equals(body_f->get_children().size(), 1);
@@ -170,7 +170,7 @@ void funcs()
 
 			const auto func_f2 = assert_type<node_func>(scope_f->get_child(0));
 			assert_equals(func_f2->get_children().size(), 3);
-			const auto args_f2 = assert_type<node_func_arguments>(func_f2->get_child(0));
+			const auto args_f2 = assert_type<node_func_parameters>(func_f2->get_child(0));
 			assert_equals(args_f2->get_children().size(), 0);
 			const auto body_f2 = assert_type<node_func_body>(func_f2->get_child(2));
 			assert_equals(body_f2->get_children().size(), 1);
@@ -188,7 +188,7 @@ void funcs()
 			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_name(), "f1");
 			assert_equals(func_f->get_children().size(), 3);
-			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
+			const auto args_f = assert_type<node_func_parameters>(func_f->get_child(0));
 			assert_equals(args_f->get_children().size(), 0);
 			const auto body_f = assert_type<node_func_body>(func_f->get_child(2));
 			assert_equals(body_f->get_children().size(), 1);
@@ -198,7 +198,7 @@ void funcs()
 			const auto func_f2_1 = assert_type<node_func>(scope_f_scope->get_child(0));
 			assert_equals(func_f2_1->get_name(), "f2");
 			assert_equals(func_f2_1->get_children().size(), 3);
-			const auto args_f2_1 = assert_type<node_func_arguments>(func_f2_1->get_child(0));
+			const auto args_f2_1 = assert_type<node_func_parameters>(func_f2_1->get_child(0));
 			assert_equals(args_f2_1->get_children().size(), 0);
 			const auto body_f2_1 = assert_type<node_func_body>(func_f2_1->get_child(2));
 			assert_equals(body_f2_1->get_children().size(), 1);
@@ -207,7 +207,7 @@ void funcs()
 			const auto func_f2_2 = assert_type<node_func>(scope_f->get_child(1));
 			assert_equals(func_f2_2->get_name(), "f2");
 			assert_equals(func_f2_2->get_children().size(), 3);
-			const auto args_f2_2 = assert_type<node_func_arguments>(func_f2_2->get_child(0));
+			const auto args_f2_2 = assert_type<node_func_parameters>(func_f2_2->get_child(0));
 			assert_equals(args_f2_2->get_children().size(), 0);
 			const auto body_f2_2 = assert_type<node_func_body>(func_f2_2->get_child(2));
 			assert_equals(body_f2_2->get_children().size(), 1);
@@ -226,7 +226,7 @@ void funcs()
 			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_name(), "f1");
 			assert_equals(func_f->get_children().size(), 3);
-			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
+			const auto args_f = assert_type<node_func_parameters>(func_f->get_child(0));
 			assert_equals(args_f->get_children().size(), 0);
 			const auto body_f = assert_type<node_func_body>(func_f->get_child(2));
 			assert_equals(body_f->get_children().size(), 1);
@@ -255,7 +255,7 @@ void funcs()
 			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_name(), "f");
 			assert_equals(func_f->get_children().size(), 3);
-			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
+			const auto args_f = assert_type<node_func_parameters>(func_f->get_child(0));
 			assert_equals(args_f->get_children().size(), 0);
 			const auto body_f = assert_type<node_func_body>(func_f->get_child(2));
 			assert_equals(body_f->get_children().size(), 1);
@@ -277,7 +277,7 @@ void funcs()
 			const auto func_f = assert_type<node_func>(package_main->get_child(0));
 			assert_equals(func_f->get_name(), "f");
 			assert_equals(func_f->get_children().size(), 3);
-			const auto args_f = assert_type<node_func_arguments>(func_f->get_child(0));
+			const auto args_f = assert_type<node_func_parameters>(func_f->get_child(0));
 			assert_equals(args_f->get_children().size(), 0);
 			const auto body_f = assert_type<node_func_body>(func_f->get_child(2));
 			assert_equals(body_f->get_children().size(), 1);

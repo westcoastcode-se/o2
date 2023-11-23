@@ -63,6 +63,15 @@ namespace o2
 
 #pragma endregion
 
+#pragma region json_serializable
+
+		[[nodiscard]] string_view get_json_type() const override
+		{
+			return { "primitive" };
+		}
+
+#pragma endregion
+
 	private:
 		vector<string_view> _names;
 		llvm::Type* const _llvm_type;

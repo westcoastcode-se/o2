@@ -7,7 +7,7 @@
 
 #include "../node_symbol.h"
 #include "../variables/node_var.h"
-#include "node_func_arguments.h"
+#include "node_func_parameters.h"
 #include "node_func_returns.h"
 
 namespace o2
@@ -32,7 +32,7 @@ namespace o2
 		 * \param name the name of the function
 		 */
 		node_func(const source_code_view& view, string_view name)
-				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers()
+				: node_symbol(view), _name(name), _body(), _parameters(), _returns(), _modifiers()
 		{
 		}
 
@@ -46,7 +46,7 @@ namespace o2
 		 * \param name the name of the function
 		 */
 		node_func(const source_code_view& view, string_view name, inner_function)
-				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers()
+				: node_symbol(view), _name(name), _body(), _parameters(), _returns(), _modifiers()
 		{
 			set_query_access_flags(query_access_modifier_no_siblings);
 		}
@@ -61,7 +61,7 @@ namespace o2
 		 * \param name the name of the function
 		 */
 		node_func(const source_code_view& view, string_view name, static_function)
-				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers()
+				: node_symbol(view), _name(name), _body(), _parameters(), _returns(), _modifiers()
 		{
 			set_query_access_flags(query_access_modifier_no_siblings);
 		}
@@ -76,7 +76,7 @@ namespace o2
 		 * \param name the name of the function
 		 */
 		node_func(const source_code_view& view, string_view name, const_function)
-				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers(modifier_const)
+				: node_symbol(view), _name(name), _body(), _parameters(), _returns(), _modifiers(modifier_const)
 		{
 			set_query_access_flags(query_access_modifier_no_siblings);
 		}
@@ -91,14 +91,14 @@ namespace o2
 		 * \param name the name of the function
 		 */
 		node_func(const source_code_view& view, string_view name, extern_function)
-				: node_symbol(view), _name(name), _body(), _arguments(), _returns(), _modifiers(modifier_extern)
+				: node_symbol(view), _name(name), _body(), _parameters(), _returns(), _modifiers(modifier_extern)
 		{
 		}
 
 		/**
 		 * \return the name of the function
 		 */
-		string_view get_name() const
+		[[nodiscard]] string_view get_name() const
 		{
 			return _name;
 		}
@@ -114,9 +114,9 @@ namespace o2
 		/**
 		 * \return arguments necessary for this function
 		 */
-		[[nodiscard]] node_func_arguments* get_arguments() const
+		[[nodiscard]] node_func_parameters* get_parameters() const
 		{
-			return _arguments;
+			return _parameters;
 		}
 
 		/**
@@ -165,10 +165,19 @@ namespace o2
 
 #pragma endregion
 
+#pragma region json_serializable
+
+		[[nodiscard]] string_view get_json_type() const override
+		{
+			return { "func" };
+		}
+
+#pragma endregion
+
 	private:
 		string_view _name;
 		node_func_body* _body;
-		node_func_arguments* _arguments;
+		node_func_parameters* _parameters;
 		node_func_returns* _returns;
 		int _modifiers;
 	};

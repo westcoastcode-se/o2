@@ -21,16 +21,28 @@ namespace o2
 		{
 		}
 
-#pragma region node
+#pragma region node_symbol
 
 		[[nodiscard]] string get_id() const final
 		{
 			return { "/" };
 		}
 
+#pragma endregion
+
+#pragma region node
+
 		void write_json_properties(json& j) final;
 
 #pragma endregion
 
+#pragma region json_serializable
+
+		[[nodiscard]] string_view get_json_type() const override
+		{
+			return { "root" };
+		}
+
+#pragma endregion
 	};
 }

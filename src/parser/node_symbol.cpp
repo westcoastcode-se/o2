@@ -15,5 +15,6 @@ bool node_symbol::is_allowed(node* n) const
 
 void node_symbol::write_json_properties(json& j)
 {
+	node::write_json_properties(j);
 	j.write(json::pair<string_view>{ "id", get_id() });
 }

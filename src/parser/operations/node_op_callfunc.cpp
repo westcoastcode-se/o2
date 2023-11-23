@@ -51,7 +51,7 @@ bool node_op_callfunc::resolve(const recursion_detector* rd)
 		if (!func)
 			continue;
 
-		if (func->get_arguments() == nullptr || func->get_arguments()->get_child_count() == 0)
+		if (func->get_parameters() == nullptr || func->get_parameters()->get_child_count() == 0)
 		{
 			if (num_args == 0)
 			{
@@ -63,7 +63,7 @@ bool node_op_callfunc::resolve(const recursion_detector* rd)
 		}
 
 		// TODO: add support for varargs? or dynamic number of template arguments
-		const auto args = func->get_arguments()->get_children();
+		const auto args = func->get_parameters()->get_children();
 		if (args.size() != num_args)
 			continue;
 

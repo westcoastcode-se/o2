@@ -3,29 +3,29 @@
 // See the LICENSE file in the project root for license terms
 //
 
-#include "node_func_arguments.h"
+#include "node_func_parameters.h"
 
 using namespace o2;
 
-node_func_arguments::node_func_arguments(const source_code_view& view)
+node_func_parameters::node_func_parameters(const source_code_view& view)
 		: node(view)
 {
 	set_query_access_flags(query_access_modifier_passthrough);
 }
 
-void node_func_arguments::debug(debug_ostream& stream, int indent) const
+void node_func_parameters::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "arguments(count=" << num_arguments() << ")" << std::endl;
 	node::debug(stream, indent);
 }
 
-int node_func_arguments::num_arguments() const
+int node_func_parameters::num_arguments() const
 {
 	return get_children().size();
 }
 
-node* node_func_arguments::on_child_added(node* n)
+node* node_func_parameters::on_child_added(node* n)
 {
 	const auto named = dynamic_cast<node_var*>(n);
 	if (named)
@@ -33,7 +33,7 @@ node* node_func_arguments::on_child_added(node* n)
 	return n;
 }
 
-void node_func_arguments::on_child_removed(node* n)
+void node_func_parameters::on_child_removed(node* n)
 {
 	const auto named = dynamic_cast<node_var*>(n);
 	if (named)

@@ -77,6 +77,15 @@ namespace o2
 
 #pragma endregion
 
+#pragma region json_serializable
+
+		[[nodiscard]] string_view get_json_type() const override
+		{
+			return { "var" };
+		}
+
+#pragma endregion
+
 	protected:
 		const string_view _name;
 		const int _modifiers;

@@ -48,7 +48,7 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/optimizations/primitive_value_add.cpp"
         "src/parser/optimizations/primitive_value_compare.cpp"
         "src/parser/types/node_type_primitive.cpp"
-        "src/parser/functions/node_func_arguments.cpp"
+        "src/parser/functions/node_func_parameters.cpp"
         "src/parser/functions/node_func_returns.cpp"
         "src/parser/struct/node_type_struct.cpp"
         "src/parser/node_scope.cpp"
@@ -75,6 +75,7 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/operations/node_op_callfunc.cpp"
         "src/parser/module/node_module.cpp"
         src/parser/package/node_root.cpp
+        src/parser/json/json_serializable.cpp
 )
 
 # Test

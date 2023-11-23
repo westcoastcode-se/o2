@@ -8,7 +8,7 @@
 #include "token.h"
 #include "types/node_type_array.h"
 #include "types/node_type_ref.h"
-#include "functions/node_func_arguments.h"
+#include "functions/node_func_parameters.h"
 #include "functions/node_func_returns.h"
 #include "operations/node_op_return.h"
 #include "module/module.h"
@@ -564,7 +564,7 @@ namespace
 
 		// parse arguments:
 		// syntax: name type[, name type, ...]
-		const auto arguments = o2_new node_func_arguments(ps->get_view());
+		const auto arguments = o2_new node_func_parameters(ps->get_view());
 		func->add_child(arguments);
 		tt = t->next_until_not(token_type::comment);
 		if (tt != token_type::parant_right)
@@ -656,7 +656,7 @@ namespace
 
 		// parse arguments:
 		// syntax: name type[, name type, ...]
-		const auto arguments = o2_new node_func_arguments(ps->get_view());
+		const auto arguments = o2_new node_func_parameters(ps->get_view());
 		func->add_child(arguments);
 		tt = t->next();
 

@@ -13,21 +13,21 @@ namespace o2
 	/**
 	 * \brief node that represents where all the arguments can be found
 	 */
-	class node_func_arguments
+	class node_func_parameters
 			: public node
 	{
 	public:
-		explicit node_func_arguments(const source_code_view& view);
+		explicit node_func_parameters(const source_code_view& view);
 
 		/**
 		 * \return the number of arguments
 		 */
-		int num_arguments() const;
+		[[nodiscard]] int num_arguments() const;
 
 		/**
 		 * \return all arguments used by this function
 		 */
-		array_view<node_var*> get_arguments() const
+		[[nodiscard]] array_view<node_var*> get_parameters() const
 		{
 			return _arguments;
 		}
