@@ -76,7 +76,7 @@ void funcs()
 			assert_equals(func->get_parameters()->num_arguments(), 0);
 			const auto ret = assert_not_null(func->get_returns());
 			assert_equals(ret->get_children().size(), 1);
-			const auto ret_ptr_int = assert_type<node_type_accessor>(ret->get_child(0));
+			const auto ret_ptr_int = assert_type<node_type_pointer_of>(ret->get_child(0));
 			const auto ret_ref_int = assert_type<node_type_ref>(ret_ptr_int->get_child(0));
 			assert_equals(ret_ref_int->get_type(), root->get_child(7));
 			const auto ref_int = assert_type<node_ref>(ret_ref_int->get_child(0));

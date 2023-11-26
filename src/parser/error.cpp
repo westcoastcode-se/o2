@@ -180,7 +180,7 @@ resolve_error_recursion::resolve_error_recursion(source_code_view view, const no
 	set(s.str());
 }
 
-resolve_error_multiple_refs::resolve_error_multiple_refs(source_code_view view)
+resolve_error_multiple_refs::resolve_error_multiple_refs(const source_code_view& view)
 		: resolve_error(error_types::multiple_refs, view)
 {
 	stringstream s;
@@ -188,10 +188,18 @@ resolve_error_multiple_refs::resolve_error_multiple_refs(source_code_view view)
 	set(s.str());
 }
 
-resolve_error_unresolved_reference::resolve_error_unresolved_reference(source_code_view view)
+resolve_error_unresolved_reference::resolve_error_unresolved_reference(const source_code_view& view)
 		: resolve_error(error_types::unresolved_reference, view)
 {
 	stringstream s;
 	s << "unresolved reference";
+	set(s.str());
+}
+
+resolve_error_positive_int_constant_expected::resolve_error_positive_int_constant_expected(const source_code_view& view)
+		: resolve_error(error_types::positive_int_constant_expected, view)
+{
+	stringstream s;
+	s << "a positive constant was expected";
 	set(s.str());
 }

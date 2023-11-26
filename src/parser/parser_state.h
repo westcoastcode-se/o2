@@ -82,6 +82,11 @@ namespace o2
 		 */
 		[[nodiscard]] node_type_primitive* get_primitive_type(primitive_type type) const;
 
+		/**
+		 * \return the primitive that represents a byte
+		 */
+		[[nodiscard]] node_type_primitive* get_primitive_byte() const;
+
 	private:
 		syntax_tree* const _syntax_tree;
 		const source_code* _source_code;

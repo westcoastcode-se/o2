@@ -6,6 +6,7 @@
 #pragma once
 
 #include "node_type.h"
+#include "../operations/node_op.h"
 
 namespace o2
 {
@@ -19,6 +20,7 @@ namespace o2
 	{
 	public:
 		node_type_array(const source_code_view& view);
+
 		node_type_array(const source_code_view& view, int count);
 
 		/**
@@ -29,9 +31,17 @@ namespace o2
 			return _count;
 		}
 
+		/**
+		 * \return the type this array is of
+		 */
+		[[nodiscard]] node_type* get_array_type() const
+		{
+			return _array_type;
+		}
+
 #pragma region node_type
 
-		node_type* get_type()
+		node_type* get_type() final
 		{
 			return this;
 		}
@@ -52,9 +62,15 @@ namespace o2
 
 		bool resolve(const recursion_detector* rd) final;
 
+		node* on_child_added(node* n) final;
+
+		void on_child_removed(node* n) final;
+
 #pragma endregion
 
 	private:
 		int _count;
+		node_type* _array_type;
+		node_op* _operation;
 	};
 }

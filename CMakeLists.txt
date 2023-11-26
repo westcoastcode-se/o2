@@ -32,7 +32,6 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/types/node_type_ref.cpp"
         "src/parser/types/node_type.cpp"
         "src/parser/types/node_type_array.cpp"
-        "src/parser/types/node_type_accessor.cpp"
         "src/parser/operations/node_op_constant.cpp"
         "src/parser/operations/node_op_unaryop.cpp"
         "src/parser/operations/node_op_binop.cpp"
@@ -74,8 +73,11 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/struct/static/node_type_struct_static_vars.cpp"
         "src/parser/operations/node_op_callfunc.cpp"
         "src/parser/module/node_module.cpp"
-        src/parser/package/node_root.cpp
-        src/parser/json/json_serializable.cpp
+        "src/parser/package/node_root.cpp"
+        "src/parser/json/json_serializable.cpp"
+        "src/parser/types/node_type_known_ref.cpp"
+        "src/parser/types/node_type_pointer_of.cpp"
+        "src/parser/types/node_type_reference_of.cpp"
 )
 
 # Test

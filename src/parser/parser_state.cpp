@@ -46,3 +46,8 @@ node_type_primitive* parser_state::get_primitive_type(primitive_type type) const
 		throw std::runtime_error("unknown primitive_type");
 	}
 }
+
+node_type_primitive* parser_state::get_primitive_byte() const
+{
+	return dynamic_cast<node_type_primitive*>(_syntax_tree->get_root_package()->get_child(1));
+}

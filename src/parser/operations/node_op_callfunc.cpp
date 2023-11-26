@@ -79,7 +79,12 @@ bool node_op_callfunc::resolve(const recursion_detector* rd)
 			const auto arg_op = static_cast<node_op*>(get_child(i + 1));
 			const auto arg_type = arg_op->get_type();
 
-			if (named_arg_type != arg_type)
+			const recursion_detector rd0(rd, this);
+			named_arg_type->resolve(&rd0);
+			arg_type->resolve(&rd0);
+
+			// is the compatibility not identical or upcast?
+			if ((int)named_arg_type->is_compatible_with(arg_type) > (int)compatibility::upcast)
 				break;
 		}
 

@@ -7,6 +7,7 @@
 
 #include "node_type.h"
 #include "../node_ref.h"
+#include "node_type_primitive.h"
 
 namespace o2
 {
@@ -29,6 +30,8 @@ namespace o2
 		}
 
 		int resolve_size(const recursion_detector* rd) final;
+
+		compatibility is_compatible_with(node_type* rhs) const final;
 
 #pragma endregion
 

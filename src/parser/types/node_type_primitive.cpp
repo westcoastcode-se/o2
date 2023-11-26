@@ -43,3 +43,10 @@ string node_type_primitive::get_id() const
 {
 	return string(get_name());
 }
+
+compatibility node_type_primitive::is_compatible_with(node_type* rhs) const
+{
+	if (rhs == this)
+		return compatibility::identical;
+	return compatibility::incompatible;
+}

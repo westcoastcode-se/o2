@@ -23,7 +23,29 @@ string node_func_method::get_id() const
 	ss << '/';
 	ss << get_name();
 	ss << "(this";
-	// TODO: Add arguments
+	if (get_parameters() != nullptr)
+	{
+		const auto children = get_parameters()->get_parameters();
+		for (auto i : children)
+		{
+			const auto type = i->get_type();
+			ss << ',';
+			ss << type->get_id();
+		}
+	}
+	ss << ')';
+	ss << '(';
+	if (get_returns() != nullptr)
+	{
+		const auto children = get_returns()->get_children();
+		for (int i = 0; i < children.size(); ++i)
+		{
+			const auto type = dynamic_cast<node_type*>(children[i]);
+			if (i > 0)
+				ss << ',';
+			ss << type->get_id();
+		}
+	}
 	ss << ')';
 	return std::move(ss.str());
 }

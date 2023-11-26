@@ -120,5 +120,20 @@ string node_func::get_id() const
 
 bool node_func::compare_with_symbol(const node_func* rhs) const
 {
-	return get_name() == rhs->get_name();
+	if (get_name() != rhs->get_name())
+		return false;
+
+	const auto has_parameters1 = _parameters != nullptr;
+	const auto has_parameters2= rhs->_parameters != nullptr;
+	if (has_parameters1 != has_parameters2)
+		return false;
+
+	const auto num_children1 = _parameters != nullptr ? _parameters->get_child_count() : 0;
+	const auto num_children2 = rhs->_parameters != nullptr ? rhs->_parameters->get_child_count() : 0;
+	if (num_children1 != num_children2)
+		return false;
+
+	// TODO: verify each parameter
+	// TODO: varargs parameters?
+	return true;
 }

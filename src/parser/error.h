@@ -33,6 +33,7 @@ namespace o2
 		resolve_error_starts,
 		recursion,
 		multiple_refs,
+		positive_int_constant_expected,
 		unresolved_reference,
 	};
 
@@ -233,7 +234,7 @@ namespace o2
 			: public resolve_error
 	{
 	public:
-		resolve_error_multiple_refs(source_code_view view);
+		explicit resolve_error_multiple_refs(const source_code_view& view);
 	};
 
 	/**
@@ -243,7 +244,17 @@ namespace o2
 			: public resolve_error
 	{
 	public:
-		resolve_error_unresolved_reference(source_code_view view);
+		explicit resolve_error_unresolved_reference(const source_code_view& view);
+	};
+
+	/**
+	 * \brief error raised when a positive constant should be resolved but wasn't
+	 */
+	class resolve_error_positive_int_constant_expected
+			: public resolve_error
+	{
+	public:
+		explicit resolve_error_positive_int_constant_expected(const source_code_view& view);
 	};
 }
 
@@ -275,6 +286,12 @@ namespace std
 			return os << "unexpected_extern_func_body";
 		case o2::error_types::multiple_refs:
 			return os << "multiple_refs";
+		case o2::error_types::expected_child_node:
+			return os << "expected_child_node";
+		case o2::error_types::unexpected_child_node:
+			return os << "unexpected_child_node";
+		case o2::error_types::positive_int_constant_expected:
+			return os << "positive_int_constant_expected";
 		default:
 			return os << "???";
 		}

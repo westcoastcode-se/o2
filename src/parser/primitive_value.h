@@ -51,7 +51,7 @@ namespace o2
 		/**
 		 * \return the number of bytes the value takes on the stack
 		 */
-		int get_stack_size() const noexcept
+		[[nodiscard]] int get_stack_size() const noexcept
 		{
 			switch (type)
 			{
@@ -87,7 +87,7 @@ namespace o2
 		/**
 		 * \brief convert this value to an int
 		 */
-		int32_t to_int32() const
+		[[nodiscard]] int32_t to_int32() const
 		{
 			switch (type)
 			{
@@ -116,7 +116,7 @@ namespace o2
 			}
 		}
 
-		int64_t to_int64() const
+		[[nodiscard]] int64_t to_int64() const
 		{
 			switch (type)
 			{
@@ -145,7 +145,7 @@ namespace o2
 			}
 		}
 
-		uint64_t to_uint64() const
+		[[nodiscard]] uint64_t to_uint64() const
 		{
 			switch (type)
 			{
@@ -174,7 +174,7 @@ namespace o2
 			}
 		}
 
-		double to_float64() const
+		[[nodiscard]] double to_float64() const
 		{
 			switch (type)
 			{
@@ -205,7 +205,7 @@ namespace o2
 			}
 		}
 
-		char* to_ptr() const
+		[[nodiscard]] char* to_ptr() const
 		{
 			switch (type)
 			{

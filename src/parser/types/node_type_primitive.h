@@ -10,7 +10,7 @@
 
 namespace o2
 {
-	class node_type_primitive
+	class node_type_primitive final
 			: public node_type
 	{
 	public:
@@ -44,6 +44,8 @@ namespace o2
 		{
 			return get_size();
 		}
+
+		compatibility is_compatible_with(node_type* rhs) const final;
 
 #pragma endregion
 

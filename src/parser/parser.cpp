@@ -17,6 +17,7 @@
 #include "node_link.h"
 #include "variables/node_var_const.h"
 #include "operations/node_op_callfunc.h"
+#include "types/node_type_known_ref.h"
 
 using namespace o2;
 
@@ -101,6 +102,24 @@ namespace
 			}
 			break;
 		case token_type::string:
+			// strings in byte array format
+			if (t->is_modifier(token_modifier::hint_bytes))
+			{
+				// this constant is a "const" fixed-array of the *byte type
+				pmv.type = primitive_type::ptr;
+				pmv.ptr = (char*)t->value().data();
+
+				// create a constant
+				auto result = o2_new node_op_constant(ps->get_view(), pmv);
+				auto guard = memory_guard(result);
+
+				// and set the type as an array of bytes
+				auto array = o2_new node_type_array(ps->get_view(), (int)t->value().length());
+				result->add_child(array);
+				array->add_child(o2_new node_type_known_ref(ps->get_view(), ps->state->get_primitive_byte()));
+				t->next();
+				return guard.done();
+			}
 			throw error_not_implemented(ps->get_view(), t);
 		default:
 			throw error_expected_constant(ps->get_view(), t);
@@ -427,22 +446,22 @@ namespace
 		return arr.done();
 	}
 
-	node_type_accessor* parse_arg_type_pointer(const parser_scope* ps)
+	node_type_pointer_of* parse_arg_type_pointer(const parser_scope* ps)
 	{
 		const auto t = ps->t;
 		if (t->type() != token_type::pointer)
 			throw error_syntax_error(ps->get_view(), ps->t, "expected '*'");
-		auto acc = memory_guard(o2_new node_type_accessor(ps->get_view(), node_type_accessor::accessor_pointer));
+		auto acc = memory_guard(o2_new node_type_pointer_of(ps->get_view()));
 		t->next();
 		return acc.done();
 	}
 
-	node_type_accessor* parse_arg_type_reference(const parser_scope* ps)
+	node_type_reference_of* parse_arg_type_reference(const parser_scope* ps)
 	{
 		const auto t = ps->t;
 		if (t->type() != token_type::ref)
 			throw error_syntax_error(ps->get_view(), ps->t, "expected '&'");
-		auto acc = memory_guard(o2_new node_type_accessor(ps->get_view(), node_type_accessor::accessor_reference));
+		auto acc = memory_guard(o2_new node_type_reference_of(ps->get_view()));
 		t->next();
 		return acc.done();
 	}

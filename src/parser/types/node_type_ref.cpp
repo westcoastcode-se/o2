@@ -80,3 +80,10 @@ string node_type_ref::get_id() const
 		return _type->get_id();
 	return {};
 }
+
+compatibility node_type_ref::is_compatible_with(node_type* rhs) const
+{
+	if (_type == nullptr || _type != this)
+		throw resolve_error_unresolved_reference(get_source_code());
+	return _type->is_compatible_with(rhs);
+}

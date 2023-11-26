@@ -135,7 +135,7 @@ void structs()
 			assert_equals(fields->get_children().size(), 1);
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "Head");
-			const auto field1_ptr = assert_type<node_type_accessor>(field1->get_child(0));
+			const auto field1_ptr = assert_type<node_type_pointer_of>(field1->get_child(0));
 			const auto field1_type_ref = assert_type<node_type_ref>(field1_ptr->get_child(0));
 			const auto field1_ref = assert_type<node_ref>(field1_type_ref->get_child(0));
 			assert_equals(field1_ref->get_query_text(), "Node");

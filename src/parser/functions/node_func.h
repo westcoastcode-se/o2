@@ -143,11 +143,17 @@ namespace o2
 			return bit_isset(_modifiers, modifier_extern);
 		}
 
+		/**
+		 * \brief perform an early collision detection of this function
+		 * \param rhs
+		 * \return true if the supplied function is identical
+		 */
+		bool compare_with_symbol(const node_func* rhs) const;
+
 #pragma region node_symbol
 
 		[[nodiscard]] string get_id() const override;
 
-		bool compare_with_symbol(const node_func* rhs) const;
 
 #pragma endregion
 
