@@ -31,11 +31,6 @@ namespace o2
 
 #pragma region node_type
 
-		node_type* get_type() final
-		{
-			return this;
-		}
-
 		int resolve_size(const recursion_detector* rd) final
 		{
 			return get_size();
