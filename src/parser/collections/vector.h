@@ -105,7 +105,7 @@ namespace o2
 		{
 			if constexpr (std::is_pointer<T>())
 				assert(value != nullptr);
-			// Resize if neccessary
+			// Resize if necessary
 			if (_size == _capacity)
 				_Resize();
 			_memory[_size++] = value;
@@ -152,10 +152,10 @@ namespace o2
 			return removed;
 		}
 
- 		/**
-		 * \brief remove the supplied value
-		 * \param value the value
-		 */
+		/**
+		* \brief remove the supplied value
+		* \param value the value
+		*/
 		void remove(T value)
 		{
 			const auto idx = find(value);
@@ -200,7 +200,7 @@ namespace o2
 
 				// Move forward items from the back towards the front
 				const T* src = &_memory[_size - arr.size() - 1];
-				T* dest = &_memory[_size - 1];
+				T * dest = &_memory[_size - 1];
 				const T* end = &_memory[index + arr.size() - 1];
 				for (; dest != end; --src, --dest)
 					*dest = *src;
@@ -232,6 +232,23 @@ namespace o2
 			assert(resize == false &&
 				   "resize feature is not implemented yet");
 			_size = 0;
+		}
+
+		/**
+		 * \brief resize this vector
+		 * \param new_size the new size
+		 */
+		void resize(int new_size)
+		{
+			if (_size < new_size)
+			{
+				_Resize(new_size);
+				_size = new_size;
+			}
+			else
+			{
+				_size = new_size;
+			}
 		}
 
 		T* ptr()
