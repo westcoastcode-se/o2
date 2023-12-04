@@ -501,6 +501,23 @@ namespace o2
 			return std::move(result);
 		}
 
+		/**
+		 * \brief get the first child of a specific type
+		 * \tparam T the type
+		 * \return an instance of the child of one if found; nullptr otherwise
+		 */
+		template<class T>
+		T* get_first_child_of_type() const
+		{
+			for (const auto c: _children)
+			{
+				const auto cc = dynamic_cast<T*>(c);
+				if (cc)
+					return cc;
+			}
+			return nullptr;
+		}
+
 	protected:
 		static string in(int indent)
 		{
