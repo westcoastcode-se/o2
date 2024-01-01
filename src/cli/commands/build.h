@@ -15,7 +15,6 @@
 
 #include "../channel.h"
 #include "../../parser/parser.h"
-#include "../../parser/resolver.h"
 #include "../../parser/module/module_package_lookup.h"
 #include "base_command.h"
 
@@ -109,18 +108,8 @@ namespace o2
 		 * \remark if the return value is true and the supplied data is not nullptr, then the ownership of
 		 *         that memory is moved to the processor.
 		 */
-		bool try_import(async_data* data, node_import* import_request, module* imported_module,
+		package_source_info::status try_import(async_data* data, node_import* import_request, module* imported_module,
 				package_source_info* package_info);
-
-		/**
-		 * \brief search for a module that matches the supplied import
-		 * \param m the module we are using when searching for a compatible module to load
-		 * \param i the import that we want to load
-		 * \return the module for the supplied import statement
-		 * TODO return a list of modules that matches the import statement instead of one, then load the source code from
-		 *      the module that matches the path the best in the loader thread
-		 */
-		module* find_module(module* m, node_import* i);
 
 		/**
 		 * \brief parse the source code associated with the compile state
@@ -146,8 +135,7 @@ namespace o2
 		// threads that are doing stuff
 		std::vector<std::jthread> _threads;
 
-		// TODO add support for a smarted standard lang module imports
-		std::unordered_map<string_view, module*> _builtin_modules;
+		system_modules _system_module;
 		module* _main_module;
 
 		// Is the build aborted?

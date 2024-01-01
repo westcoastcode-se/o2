@@ -23,7 +23,9 @@ namespace
 }
 
 build::build(config cfg)
-		: _config(std::move(cfg)), _context(), _syntax_tree(_context), _pending_requests(), _aborted()
+		: _config(std::move(cfg)), _context(), _syntax_tree(_context), _pending_requests(),
+		  _system_module(_config.lang_path, &_syntax_tree),
+		  _main_module(), _aborted()
 {
 }
 
@@ -56,7 +58,7 @@ int build::execute()
 	// TODO: Parse module file in the config root path and figure out the module name form that
 	const string_view module_name(STR("westcoastcode.se/hello_world"));
 	// Initialize the module we are compiling and add it to the syntax tree
-	_main_module = o2_new module(module_name, _config.path);
+	_main_module = o2_new module(&_system_module, module_name, _config.path);
 	_main_module->insert_into(&_syntax_tree);
 
 	// Prepare a parser state used for the main application
@@ -74,12 +76,7 @@ int build::execute()
 			app += _config.path.generic_string();
 		}
 
-		auto sources = _main_module->get_package_info(app);
-		_main_module->load_package_sources(sources);
-		sources->load_status = package_source_info::loading;
-		const auto package = parse_package_sources(sources->sources, sources->relative_path.generic_string(), &state);
-		_main_module->add_package(package);
-		sources->load_status = package_source_info::successful;
+		parse_main_module_package(_main_module, app, &state);
 		if (_config.verbose_level > 0)
 			std::cout << "parsed '" << app << "' - done!" << std::endl;
 	}
@@ -95,7 +92,7 @@ int build::execute()
 	auto imports = state.get_imports();
 	for (auto i: imports)
 	{
-		const auto m = find_module(_main_module, i);
+		const auto m = _main_module->find_module(i->get_import_statement());
 		if (m != nullptr)
 		{
 			const auto sources = m->get_package_info(i->get_import_statement());
@@ -113,7 +110,8 @@ int build::execute()
 	if (imports.empty())
 	{
 		const recursion_detector rd;
-		_syntax_tree.get_root_package()->resolve(&rd);
+		for (auto p: _main_module->get_packages())
+			p->process_phases();
 	}
 
 	// handle each parse request and import statement
@@ -150,6 +148,7 @@ int build::execute()
 		}
 
 		// the load completed successfully
+		assert(data->in.package_info);
 		data->in.package_info->load_status = package_source_info::successful;
 
 		// add the loaded package to the module
@@ -164,24 +163,29 @@ int build::execute()
 		{
 			// package is now imported
 			imported_module->notify_package_imported(imported_package);
-
 			// all imports are imported, so let's resolve this package's dependencies!
-			const recursion_detector rd;
-			imported_package->resolve(&rd);
+			imported_package->process_phases();
 		}
 		else
 		{
 			auto imports_left = imports.size();
 			for (auto i: imports)
 			{
-				const auto m = find_module(imported_module, i);
+				const auto m = imported_module->find_module(i->get_import_statement());
 				if (m)
 				{
 					const auto sources = m->get_package_info(i->get_import_statement());
-					if (try_import(data, i, m, sources))
+					switch (try_import(data, i, m, sources))
+					{
+					case package_source_info::loading:
 						data = nullptr;
-					if (sources->load_status == package_source_info::successful)
+						break;
+					case package_source_info::successful:
 						imports_left--;
+						break;
+					default:
+						break;
+					}
 				}
 			}
 
@@ -192,8 +196,7 @@ int build::execute()
 			// all imports are imported, so let's resolve this package
 			if (imports_left == 0)
 			{
-				const recursion_detector rd;
-				imported_package->resolve(&rd);
+				imported_package->process_phases();
 			}
 		}
 		// delete any state that's pending
@@ -243,7 +246,7 @@ int build::execute()
 	return 0;
 }
 
-bool build::try_import(async_data* data, node_import* import_request, module* imported_module,
+package_source_info::status build::try_import(async_data* data, node_import* import_request, module* imported_module,
 		package_source_info* package_info)
 {
 	// we only care about package sources that's not loaded
@@ -255,15 +258,15 @@ bool build::try_import(async_data* data, node_import* import_request, module* im
 			import_request->notify_imported();
 		else
 			imported_module->add_import_request(import_request);
-		return false;
+		return package_info->load_status;
 	}
 
 	// initialize the async data
 	if (data == nullptr)
 		data = new async_data(&_syntax_tree);
 	data->in.module = imported_module;
+	package_info->load_status = package_source_info::loading;
 	data->in.package_info = package_info;
-	data->in.package_info->load_status = package_source_info::loading;
 	data->out.errors.clear();
 	data->out.package = nullptr;
 
@@ -273,7 +276,7 @@ bool build::try_import(async_data* data, node_import* import_request, module* im
 
 	// put the import as being imported in the future
 	imported_module->add_import_request(import_request);
-	return true;
+	return package_info->load_status;
 }
 
 async_data* build::parse(async_data* data)
@@ -299,45 +302,6 @@ async_data* build::parse(async_data* data)
 	}
 
 	return data;
-}
-
-o2::module* build::find_module(module* m, node_import* i)
-{
-	const auto statement = i->get_import_statement();
-
-	// search among the required modules first
-	module* best_match = m;
-	int match = m->matches(statement);
-	for (auto req: m->get_requirements())
-	{
-		const auto current_match = req->matches(statement);
-		if (current_match < match)
-		{
-			best_match = req;
-			match = current_match;
-		}
-	}
-
-	if (best_match && match != module::MATCHES_NO_MATCH)
-		return best_match;
-
-	// If not then check among the built-in modules
-	const auto it = _builtin_modules.find(statement);
-	if (it == _builtin_modules.end())
-	{
-		// see if there's a directory in the language folder that might have modules in them
-		const auto path = _config.lang_path / std::filesystem::path(statement);
-		if (std::filesystem::is_directory(path))
-		{
-			best_match = o2_new module(string(statement), path.generic_string());
-			_builtin_modules[statement] = best_match;
-			best_match->insert_into(&_syntax_tree);
-		}
-	}
-	else
-		best_match = it->second;
-
-	return best_match;
 }
 
 void build::abort()

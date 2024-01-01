@@ -35,11 +35,6 @@ namespace o2
 
 #pragma region node_type
 
-		int resolve_size(const recursion_detector*) final
-		{
-			return get_size();
-		}
-
 		compatibility is_compatible_with(node_type* rhs) const final;
 
 #pragma endregion
@@ -51,8 +46,6 @@ namespace o2
 #pragma endregion
 
 #pragma region node
-
-		bool resolve(const recursion_detector* rd) final;
 
 		void debug(debug_ostream& stream, int indent) const final;
 

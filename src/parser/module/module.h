@@ -8,6 +8,7 @@
 #include "module_package_lookup.h"
 #include "../source_code.h"
 #include "node_module.h"
+#include "system_modules.h"
 
 namespace o2
 {
@@ -34,8 +35,8 @@ namespace o2
 		 * \param name the name of the module
 		 * \param root_path path to where the the source code is found for this module
 		 */
-		module(string_view name, const std::filesystem::path& root_path)
-				: module(name, "", root_path)
+		module(system_modules* system, string_view name, const std::filesystem::path& root_path)
+				: module(system, name, "", root_path)
 		{
 		}
 
@@ -43,8 +44,8 @@ namespace o2
 		 * \param name the name of the module
 		 * \param root_path path to where the the source code is found for this module
 		 */
-		module(string_view name, string_view version, const std::filesystem::path& root_path)
-				: _parent(), _name(name), _version(version), _root_path(root_path),
+		module(system_modules* system, string_view name, string_view version, const std::filesystem::path& root_path)
+				: _system_module(system), _parent(), _name(name), _version(version), _root_path(root_path),
 				  _sources(new filesystem_module_package_lookup(root_path)),
 				  _node_module(o2_new node_module(this)),
 				  _modifiers()
@@ -129,6 +130,16 @@ namespace o2
 		[[nodiscard]] package_source_info* get_package_info(string_view import_path) const;
 
 		/**
+		 * \brief get the package information for the supplied import path
+		 * \param import_path the path supplied in the imports statement
+		 * \param load true if you also want to load the content if not loaded
+		 * \return information on the package's source code
+		 *
+		 * it is assumed that you've checked compatibility with the matches method before calling this
+		 */
+		[[nodiscard]] package_source_info* get_package_info(string_view import_path, bool load) const;
+
+		/**
 		 * \brief load the supplied source code content
 		 * \param info where to put the loaded source code into
 		 */
@@ -166,7 +177,26 @@ namespace o2
 		 */
 		void add_import_request(node_import* i);
 
+		/**
+		 * \return all packages in this module so far
+		 */
+		[[nodiscard]] vector<node_package*> get_packages() const;
+
+		/**
+		 * \brief search for a required module in this module
+		 * \param statement the import statement
+		 * \return
+		 */
+		[[nodiscard]] module* find_module(string_view statement);
+
+		/**
+		 * \brief add a new requirement
+		 * \param requirement
+		 */
+		void add_requirement(module* requirement);
+
 	private:
+		system_modules* const _system_module;
 		module* const _parent;
 		const string _name;
 		const string _version;

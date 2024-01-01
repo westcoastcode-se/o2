@@ -64,7 +64,7 @@ error_syntax_error::error_syntax_error(source_code_view view, const token* t, co
 		s << "<EOF>";
 	else
 		s << "'" << t->value() << "'";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 error_not_implemented::error_not_implemented(source_code_view view, const token* t)
@@ -72,7 +72,7 @@ error_not_implemented::error_not_implemented(source_code_view view, const token*
 {
 	stringstream s;
 	s << "'" << t->value() << "' is not implemented yet";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 error_not_implemented::error_not_implemented(source_code_view view, const char* message)
@@ -80,7 +80,7 @@ error_not_implemented::error_not_implemented(source_code_view view, const char* 
 {
 	stringstream s;
 	s << message << " are not implemented yet";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 error_expected_identity::error_expected_identity(source_code_view view, const token* t)
@@ -92,7 +92,7 @@ error_expected_identity::error_expected_identity(source_code_view view, const to
 		s << "<EOF>";
 	else
 		s << "'" << t->value() << "'";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 error_expected_constant::error_expected_constant(source_code_view view, const token* t)
@@ -104,7 +104,7 @@ error_expected_constant::error_expected_constant(source_code_view view, const to
 		s << "<EOF>";
 	else
 		s << "'" << t->value() << "'";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 error_unexpected_extern_func_body::error_unexpected_extern_func_body(const source_code_view& view)
@@ -112,7 +112,7 @@ error_unexpected_extern_func_body::error_unexpected_extern_func_body(const sourc
 {
 	stringstream s;
 	s << "unexpected extern function body";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 error_named_symbol_already_declared::error_named_symbol_already_declared(const source_code_view& view, string_view name)
@@ -120,7 +120,7 @@ error_named_symbol_already_declared::error_named_symbol_already_declared(const s
 {
 	stringstream s;
 	s << "symbol '" << name << "' is already declared";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 expected_child_node::expected_child_node(const source_code_view& view, const char* expected_nodes)
@@ -128,7 +128,7 @@ expected_child_node::expected_child_node(const source_code_view& view, const cha
 {
 	stringstream s;
 	s << "node doesn't have the necessary child nodes: " << expected_nodes;
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 unexpected_child_node::unexpected_child_node(const source_code_view& view, const char* expected_nodes)
@@ -136,7 +136,7 @@ unexpected_child_node::unexpected_child_node(const source_code_view& view, const
 {
 	stringstream s;
 	s << "node expected child node of type " << expected_nodes << " but wasn't";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 resolve_error_recursion::resolve_error_recursion(source_code_view view, const node* n, const recursion_detector* rd)
@@ -169,6 +169,8 @@ resolve_error_recursion::resolve_error_recursion(source_code_view view, const no
 			id = static_cast<const node_symbol*>(rd->n)->get_id();
 			for (auto c = id.rbegin(); c != id.rend(); ++c)
 				recursion << *c;
+			if (rd->n == n)
+				break;
 			rd = rd->next_of_type<node_symbol>();
 		}
 
@@ -177,7 +179,7 @@ resolve_error_recursion::resolve_error_recursion(source_code_view view, const no
 		s << str;
 		s << "'";
 	}
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 resolve_error_multiple_refs::resolve_error_multiple_refs(const source_code_view& view)
@@ -185,7 +187,7 @@ resolve_error_multiple_refs::resolve_error_multiple_refs(const source_code_view&
 {
 	stringstream s;
 	s << "multiple references found";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 resolve_error_unresolved_reference::resolve_error_unresolved_reference(const source_code_view& view)
@@ -193,7 +195,7 @@ resolve_error_unresolved_reference::resolve_error_unresolved_reference(const sou
 {
 	stringstream s;
 	s << "unresolved reference";
-	set(s.str());
+	set(std::move(s.str()));
 }
 
 resolve_error_positive_int_constant_expected::resolve_error_positive_int_constant_expected(const source_code_view& view)
@@ -201,5 +203,5 @@ resolve_error_positive_int_constant_expected::resolve_error_positive_int_constan
 {
 	stringstream s;
 	s << "a positive constant was expected";
-	set(s.str());
+	set(std::move(s.str()));
 }

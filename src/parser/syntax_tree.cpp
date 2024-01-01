@@ -97,12 +97,6 @@ void syntax_tree::debug(debug_ostream& stream) const
 	_root.debug(stream, 1);
 }
 
-void syntax_tree::resolve()
-{
-	const recursion_detector rd;
-	_root.resolve(&rd);
-}
-
 void syntax_tree::optimize(node_optimizer* optimizer)
 {
 	_root.optimize(optimizer);

@@ -24,7 +24,7 @@ void errors_resolve()
 		{
 			const auto e2 = assert_type<resolve_error_recursion>(&e);
 			assert_equals(string_view(
-							STR("recursion detected: '/westcoastcode.se/tests/List->/westcoastcode.se/tests/List/head->/westcoastcode.se/tests/Node->/westcoastcode.se/tests/Node/list->/westcoastcode.se/tests/List'")),
+							STR("recursion detected: '/westcoastcode.se/tests/Node->/westcoastcode.se/tests/Node/list->/westcoastcode.se/tests/List->/westcoastcode.se/tests/List/head->/westcoastcode.se/tests/Node'")),
 					e2->get_error());
 		});
 		test_error("duplicated_type", ROOT_PATH, [](const std::exception& e)

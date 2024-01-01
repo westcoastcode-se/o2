@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 				std::filesystem::path("../lang"),
 				1,
 				5,
-				build_config_output::json,
+				build_config_output::debug,
 				""
 		});
 		bcommand = &b;

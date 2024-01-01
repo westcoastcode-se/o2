@@ -24,7 +24,7 @@ void node_root::write_json_properties(json& j)
 
 	// add types
 	{
-		auto types_json = j.write(json::array{ "primitives" });
+		auto types_json = j.write(json::array{ "types" });
 		for (auto type: get_children_of_type<node_type>())
 		{
 			type->write_json(types_json);

@@ -28,11 +28,6 @@ void node_type_primitive::debug(debug_ostream& stream, int indent) const
 	node::debug(stream, indent);
 }
 
-bool node_type_primitive::resolve(const recursion_detector* rd)
-{
-	return true;
-}
-
 void node_type_primitive::write_json_properties(json& j)
 {
 	node_symbol::write_json_properties(j);

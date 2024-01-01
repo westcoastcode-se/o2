@@ -4,4 +4,7 @@
 //
 
 // todo: add string primitive type
-type string {}
+type string {
+    var hash int
+    var value *byte
+}

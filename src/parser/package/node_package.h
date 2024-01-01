@@ -21,17 +21,8 @@ namespace o2
 			: public node_symbol
 	{
 	public:
-		// the loading status of the import
-		enum status
-		{
-			// no status changes yet
-			none = 0,
-			// this import is potentially loaded
-			status_resolved = 1 << 0
-		};
-
 		node_package(const source_code_view& view, string_view name)
-				: node_symbol(view), _name(name), _status(none)
+				: node_symbol(view), _name(name)
 		{
 		}
 
@@ -62,9 +53,14 @@ namespace o2
 		 */
 		void on_resolved_before(node_package* p);
 
+		/**
+		 * \brief start processing all post-parse phases
+		 */
+		void process_phases();
+
 #pragma region node_symbol
 
-		[[nodiscard]] string get_id() const final;
+		[[nodiscard]] string get_id() const override;
 
 		bool compare_with_symbol(const node_package* rhs) const;
 
@@ -82,8 +78,6 @@ namespace o2
 
 		void query(query_node_visitor* visitor, int flags) final;
 
-		bool resolve(const recursion_detector* rd) final;
-
 		void write_json_properties(json& j) override;
 
 #pragma endregion
@@ -98,9 +92,14 @@ namespace o2
 #pragma endregion
 
 	private:
+
+		void process_phase_resolve(const recursion_detector* rd, resolve_state* state);
+
+		void process_phase_resolve_size(const recursion_detector* rd, resolve_state* state);
+
+	private:
 		const string_view _name;
 		std::unordered_map<string_view, node_var*> _variables;
-		int _status;
 
 		// a mutable state that's used during this packages parse, resolve and link phase
 		struct state

@@ -36,7 +36,7 @@ namespace
 	node_type* resolve_type_from_pmv(const parser_scope* ps, const primitive_value& pmv)
 	{
 		const auto type = ps->state->get_primitive_type(pmv.type);
-		return o2_new node_type_ref(ps->get_view(), type);
+		return o2_new node_type_known_ref(ps->get_view(), type);
 	}
 
 	node_op_constant* parse_op_constant(const parser_scope* ps)
@@ -512,7 +512,6 @@ namespace
 				node::query_flag_parents |
 				node::query_flag_follow_refs |
 				node::query_flag_children_from_root));
-		ps->state->add_resolve_size(type_ref);
 		return guard.done();
 	}
 
@@ -804,7 +803,6 @@ namespace
 			const auto op = parse_op_compare(&ps1);
 			op->add_child(link->new_link());
 			var->add_child(op);
-			ps->state->add_resolve_size(implicit);
 		}
 
 		return guard.done();
@@ -927,7 +925,6 @@ namespace
 
 		const auto identity = t->value();
 		const auto type = o2_new node_type_struct(ps->get_view(), identity);
-		ps->state->add_resolve_size(type);
 		auto guard = memory_guard(type);
 		const parser_scope ps0(ps, type);
 
@@ -1134,6 +1131,18 @@ node_package* o2::parse_package_sources(array_view<source_code*> sources, string
 	}
 
 	return guard.done();
+}
+
+node_package* o2::parse_main_module_package(module* m, string_view package_name, OUT parser_state* state)
+{
+	// search for the information of the package
+	auto sources = m->get_package_info(package_name, true);
+	// parse the package
+	const auto package = parse_package_sources(sources->sources, sources->relative_path.generic_string(), state);
+	if (package != nullptr)
+		m->add_package(package);
+	sources->load_status = package_source_info::successful;
+	return package;
 }
 
 void o2::optimize(syntax_tree* st, int level)

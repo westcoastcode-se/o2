@@ -10,22 +10,9 @@
 using namespace o2;
 
 node_type_implicit::node_type_implicit(const source_code_view& view)
-		: node_type(view), _type(this)
+		: node_type(view), _type()
 {
-}
-
-int node_type_implicit::resolve_size(const recursion_detector* rd)
-{
-	if (has_known_size())
-		return _size;
-
-	rd->raise_error(this);
-	if (_type == this || _type == this)
-		throw resolve_error_unresolved_reference(get_source_code());
-
-	const recursion_detector rd0(rd, this);
-	_size = _type->resolve_size(&rd0);
-	return _size;
+	add_phases_left(phase_resolve_size);
 }
 
 void node_type_implicit::debug(debug_ostream& stream, int indent) const
@@ -40,33 +27,28 @@ void node_type_implicit::debug(debug_ostream& stream, int indent) const
 	node_type::debug(stream, indent);
 }
 
-bool node_type_implicit::resolve(const recursion_detector* rd)
+void node_type_implicit::resolve0(const recursion_detector* rd, resolve_state* state)
 {
-	if (_type == this)
-	{
-		const auto link = dynamic_cast<node_link*>(get_child(0));
-		if (link == nullptr)
-			throw expected_child_node(get_source_code(), "node_link");
-		if (link->is_broken())
-			throw expected_child_node(get_source_code(), "node_link->node_op");
-		const auto op = dynamic_cast<node_op*>(link->get_node());
-		if (op == nullptr)
-			throw unexpected_child_node(get_source_code(), "node_link->node_op");
+	const auto link = get_first_child_of_type<node_link>();
+	if (link == nullptr)
+		throw expected_child_node(get_source_code(), "node_link");
+	if (link->is_broken())
+		throw expected_child_node(get_source_code(), "node_link->node_op");
+	const auto op = dynamic_cast<node_op*>(link->get_node());
+	if (op == nullptr)
+		throw unexpected_child_node(get_source_code(), "node_link->node_op");
 
-		const recursion_detector rd1(rd, this);
-		if (!op->resolve(&rd1))
-			return false;
-		const auto type = op->get_type();
-		if (type == nullptr)
-			throw resolve_error_unresolved_reference(get_source_code());
-		_type = type->get_type();
-		if (_type == nullptr)
-			return false;
-	}
+	const recursion_detector rd1(rd, this);
+	op->process_phase(&rd1, state, phase_resolve);
 
-	if (!node::resolve(rd))
-		return false;
-	return true;
+	_type = op->get_type();
+	if (_type == nullptr)
+		throw resolve_error_unresolved_reference(get_source_code());
+	_type = _type->get_type();
+	if (_type == nullptr)
+		throw resolve_error_unresolved_reference(get_source_code());
+
+	node::resolve0(rd, state);
 }
 
 string node_type_implicit::get_id() const
@@ -81,4 +63,18 @@ string node_type_implicit::get_id() const
 	ss << _type->get_id();
 	ss << '.';
 	return std::move(ss.str());
+}
+
+void node_type_implicit::on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)
+{
+	if (phase != phase_resolve_size)
+	{
+		return;
+	}
+
+	assert(_type != nullptr && "this node's resolve0 method should've been called before this");
+
+	const recursion_detector rd0(rd, this);
+	_type->process_phase(&rd0, state, phase);
+	_size = _type->get_size();
 }

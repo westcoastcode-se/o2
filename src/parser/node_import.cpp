@@ -20,7 +20,7 @@ void node_import::debug(debug_ostream& stream, int indent) const
 	node::debug(stream, indent);
 }
 
-bool node_import::resolve(const recursion_detector* rd)
+void node_import::resolve0(const recursion_detector* rd, resolve_state* state)
 {
 	// resolve package first and then the rest of the children
 	if (_package == nullptr)
@@ -32,7 +32,7 @@ bool node_import::resolve(const recursion_detector* rd)
 			const string_view text;
 			vector<node_module*> modules;
 
-			modules_visitor(string_view text)
+			explicit modules_visitor(string_view text)
 					: text(text)
 			{
 			}
@@ -84,14 +84,12 @@ bool node_import::resolve(const recursion_detector* rd)
 			}
 		}
 
-		if (packages.empty())
+		if (packages.empty() || packages[0] == nullptr)
 			throw resolve_error_unresolved_reference(get_source_code());
 		_package = packages[0];
-		if (_package == nullptr)
-			return false;
 	}
 
-	return node::resolve(rd);
+	node::resolve0(rd, state);
 }
 
 void node_import::query(query_node_visitor* visitor, int flags)

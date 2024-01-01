@@ -67,13 +67,39 @@ void node::debug(debug_ostream& stream, int indent) const
 		c->debug(stream, indent + 1);
 }
 
-bool node::resolve(const recursion_detector* rd)
+void node::process_phase(const recursion_detector* rd, resolve_state* state, int phase)
 {
+	if (!has_phase_left(phase))
+	{
+		// push the node so that it will be processed in the next phase
+		if (has_phases_left())
+			state->add_next_phase(this);
+		return;
+	}
+	// check for recursions
 	rd->raise_error(this);
+	// actually perform the phase logic
+	switch (phase)
+	{
+	case phase_resolve:
+		resolve0(rd, state);
+		break;
+	default:
+		on_process_phase(rd, state, phase);
+		break;
+	}
+	// we are now done with processing a phase from this node
+	_phases_left = bit_unset(_phases_left, phase);
+	// push the node so that it will be processed in the next phase
+	if (has_phases_left())
+		state->add_next_phase(this);
+}
+
+void node::resolve0(const recursion_detector* rd, resolve_state* state)
+{
 	const recursion_detector rd0(rd, this);
 	for (auto c: _children)
-		c->resolve(&rd0);
-	return true;
+		c->process_phase(&rd0, state, phase_resolve);
 }
 
 vector<node*> node::optimize(node_optimizer* optimizer)

@@ -13,11 +13,6 @@
 
 using namespace o2;
 
-node_ref::node_ref(const source_code_view& view, node* result)
-		: node(view), _query_types(), _query_flags(), _text(), _results(result)
-{
-}
-
 void node_ref::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
@@ -78,11 +73,9 @@ void node_ref::debug(debug_ostream& stream, int indent) const
 	node::debug(stream, indent);
 }
 
-bool node_ref::resolve(const recursion_detector* rd)
+void node_ref::resolve0(const recursion_detector* rd, resolve_state* state)
 {
-	// this ref is already resolved
-	if (!_results.empty())
-		return true;
+	assert(_results.empty() && "expected the resolve method to be called only once");
 
 	auto parent = get_parent();
 	if (bit_isset(_query_flags, query_flag_from_root))
@@ -101,9 +94,9 @@ bool node_ref::resolve(const recursion_detector* rd)
 	if (leaf->_results.empty())
 		throw resolve_error_unresolved_reference(get_source_code());
 	if (leaf == this)
-		return true;
+		return;
 	_results = leaf->_results;
-	return node::resolve(rd);
+	node::resolve0(rd, state);
 }
 
 bool node_ref::resolve_from_parent(node* parent)
@@ -201,7 +194,10 @@ bool node_ref::resolve_from_parent(node* parent)
 	{
 		auto ref = static_cast<node_ref*>(child);
 		for (auto result: _results)
+		{
 			ref->resolve_from_parent(result);
+			ref->remove_phases_left(phase_resolve);
+		}
 	}
 	return true;
 }

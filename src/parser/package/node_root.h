@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../node_symbol.h"
+#include "node_package.h"
 
 namespace o2
 {

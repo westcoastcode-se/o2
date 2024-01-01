@@ -10,25 +10,14 @@
 using namespace o2;
 
 node_type_array::node_type_array(const source_code_view& view)
-		: node_type(view), _count(-1), _array_type(this), _operation()
+		: node_type_array(view, -1)
 {
 }
 
 node_type_array::node_type_array(const source_code_view& view, int count)
 		: node_type(view), _count(count), _array_type(this), _operation()
 {
-
-}
-
-int node_type_array::resolve_size(const recursion_detector* rd)
-{
-	if (has_known_size())
-		return _size;
-
-	// Ensure that we aren't having any recursions
-	rd->raise_error(this);
-	const recursion_detector rd0(rd, this);
-	return _count * _array_type->resolve_size(&rd0);
+	add_phases_left(phase_resolve_size);
 }
 
 void node_type_array::debug(debug_ostream& stream, int indent) const
@@ -38,10 +27,9 @@ void node_type_array::debug(debug_ostream& stream, int indent) const
 	node_type::debug(stream, indent);
 }
 
-bool node_type_array::resolve(const recursion_detector* rd)
+void node_type_array::resolve0(const recursion_detector* rd, resolve_state* state)
 {
-	if (!node_type::resolve(rd))
-		return false;
+	node_type::resolve0(rd, state);
 
 	// arrays must have a type associated with it
 	if (_array_type == nullptr)
@@ -49,7 +37,7 @@ bool node_type_array::resolve(const recursion_detector* rd)
 
 	// the array has been resolved already
 	if (_count != -1)
-		return true;
+		return;
 
 	// if no count is hard-coded then an operation must be associated with the array
 	if (_operation == nullptr)
@@ -68,7 +56,6 @@ bool node_type_array::resolve(const recursion_detector* rd)
 
 	if (_count == 0)
 		throw resolve_error_positive_int_constant_expected(get_source_code());
-	return true;
 }
 
 string node_type_array::get_id() const
@@ -101,4 +88,19 @@ void node_type_array::on_child_removed(node* n)
 		n = nullptr;
 	else if (n == _operation)
 		_operation = nullptr;
+}
+
+void node_type_array::on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)
+{
+	if (phase != phase_resolve_size)
+	{
+		return;
+	}
+
+	assert(_count > 0 && "expected resolve0 to be called before this");
+	assert(_array_type != nullptr && "expected resolve0 to be called before this");
+
+	const recursion_detector rd0(rd, this);
+	_array_type->process_phase(&rd0, state, phase);
+	_size = _count * _array_type->get_size();
 }

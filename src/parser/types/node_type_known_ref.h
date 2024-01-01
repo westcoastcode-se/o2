@@ -28,11 +28,6 @@ namespace o2
 			return _type;
 		}
 
-		int resolve_size(const recursion_detector* rd) final
-		{
-			return get_size();
-		}
-
 		compatibility is_compatible_with(node_type* rhs) const final
 		{
 			return _type->is_compatible_with(rhs);

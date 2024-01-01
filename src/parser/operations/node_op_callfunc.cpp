@@ -31,14 +31,14 @@ void node_op_callfunc::debug(debug_ostream& stream, int indent) const
 	node::debug(stream, indent);
 }
 
-bool node_op_callfunc::resolve(const recursion_detector* rd)
+void node_op_callfunc::resolve0(const recursion_detector* rd, resolve_state* state)
 {
 	if (_func != nullptr)
-		return true;
+		return;
 
-	if (!node::resolve(rd))
-		return false;
+	node::resolve0(rd, state);
 
+	// assume that the first child is the node reference
 	auto ref = dynamic_cast<node_ref*>(get_child(0));
 	if (ref == nullptr)
 		throw expected_child_node(get_source_code(), "node_ref");
@@ -80,8 +80,8 @@ bool node_op_callfunc::resolve(const recursion_detector* rd)
 			const auto arg_type = arg_op->get_type();
 
 			const recursion_detector rd0(rd, this);
-			named_arg_type->resolve(&rd0);
-			arg_type->resolve(&rd0);
+			named_arg_type->process_phase(&rd0, state, phase_resolve);
+			arg_type->process_phase(&rd0, state, phase_resolve_size);
 
 			// is the compatibility not identical or upcast?
 			if ((int)named_arg_type->is_compatible_with(arg_type) > (int)compatibility::upcast)
@@ -98,6 +98,4 @@ bool node_op_callfunc::resolve(const recursion_detector* rd)
 	// Could not resolve the function
 	if (_func == nullptr)
 		throw resolve_error_unresolved_reference(get_source_code());
-
-	return true;
 }

@@ -26,7 +26,7 @@ namespace o2
 		/**
 		 * \return the number of elements in this array
 		 */
-		int get_array_count() const
+		[[nodiscard]] int get_array_count() const
 		{
 			return _count;
 		}
@@ -39,12 +39,6 @@ namespace o2
 			return _array_type;
 		}
 
-#pragma region node_type
-
-		int resolve_size(const recursion_detector* rd) final;
-
-#pragma endregion
-
 #pragma region node_symbol
 
 		[[nodiscard]] string get_id() const final;
@@ -55,7 +49,9 @@ namespace o2
 
 		void debug(debug_ostream& stream, int indent) const final;
 
-		bool resolve(const recursion_detector* rd) final;
+		void resolve0(const recursion_detector* rd, resolve_state* state) final;
+
+		void on_process_phase(const recursion_detector* rd, resolve_state* state, int phase) final;
 
 		node* on_child_added(node* n) final;
 

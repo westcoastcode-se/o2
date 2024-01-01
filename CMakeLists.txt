@@ -59,7 +59,6 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/module/module_package_lookup.cpp"
         "src/parser/parser_state.cpp"
         "src/parser/recursion_detector.cpp"
-        "src/parser/resolver.cpp"
         "src/parser/types/node_type_implicit.cpp"
         "src/parser/operations/node_op_assign.cpp"
         "src/parser/node_link.cpp"
@@ -78,6 +77,8 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/types/node_type_known_ref.cpp"
         "src/parser/types/node_type_pointer_of.cpp"
         "src/parser/types/node_type_reference_of.cpp"
+        "src/parser/resolve_state.cpp"
+        "src/parser/module/system_modules.cpp"
 )
 
 # Test

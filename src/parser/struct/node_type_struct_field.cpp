@@ -23,6 +23,7 @@ void node_type_struct_fields::debug(debug_ostream& stream, int indent) const
 node_type_struct_field::node_type_struct_field(const source_code_view& view, string_view name)
 		: node_symbol(view), _name(name), _padding(), _size(-1), _field_type()
 {
+	add_phases_left(phase_resolve_size);
 }
 
 void node_type_struct_field::debug(debug_ostream& stream, int indent) const
@@ -32,12 +33,12 @@ void node_type_struct_field::debug(debug_ostream& stream, int indent) const
 	node::debug(stream, indent);
 }
 
-bool node_type_struct_field::resolve(const recursion_detector* rd)
+void node_type_struct_field::resolve0(const recursion_detector* rd, resolve_state* state)
 {
-	if (!node::resolve(rd))
-		return false;
+	node::resolve0(rd, state);
 	_field_type = _field_type->get_type();
-	return _field_type != nullptr;
+	if (_field_type == nullptr)
+		throw resolve_error_unresolved_reference(get_source_code());
 }
 
 node* node_type_struct_field::on_child_added(node* n)
@@ -75,13 +76,16 @@ void node_type_struct_field::on_parent_node(node* p)
 	test_collision(this);
 }
 
-int node_type_struct_field::resolve_size(const recursion_detector* rd)
+void node_type_struct_field::on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)
 {
-	if (_size != -1)
-		return _size;
+	if (phase != phase_resolve_size)
+	{
+		return;
+	}
 
-	rd->raise_error(this);
+	assert(_field_type != nullptr && "this node's resolve0 method should've been called before this");
+
 	const recursion_detector rd0(rd, this);
-	_size = _field_type->resolve_size(&rd0);
-	return _size;
+	_field_type->process_phase(&rd0, state, phase);
+	_size = _field_type->get_size();
 }

@@ -66,17 +66,6 @@ namespace o2
 
 #pragma endregion
 
-#pragma region node_type
-
-		node_type* get_type() override
-		{
-			return this;
-		}
-
-		int resolve_size(const recursion_detector* rd) final;
-
-#pragma endregion
-
 #pragma region node
 
 		void debug(debug_ostream& stream, int indent) const final;
@@ -88,6 +77,8 @@ namespace o2
 		void on_parent_node(node* p) final;
 
 		void write_json_properties(json& j) final;
+
+		void on_process_phase(const recursion_detector* rd, resolve_state* state, int phase) final;
 
 #pragma endregion
 

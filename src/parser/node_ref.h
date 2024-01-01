@@ -58,8 +58,6 @@ namespace o2
 		{
 		}
 
-		node_ref(const source_code_view& view, node* result);
-		
 		/**
 		 * \return types that this reference is looking for during the resolution phase
 		 */
@@ -96,7 +94,7 @@ namespace o2
 
 		void debug(debug_ostream& stream, int indent) const final;
 
-		bool resolve(const recursion_detector* rd) final;
+		void resolve0(const recursion_detector* rd, resolve_state* state) final;
 
 #pragma endregion
 

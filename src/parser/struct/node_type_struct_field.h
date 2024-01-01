@@ -58,11 +58,12 @@ namespace o2
 		}
 
 		/**
-		 * \brief resolve this field's size
-		 * \param rd
-		 * \return
+		 * \return the size, in bytes, that this field takes in memory
 		 */
-		int resolve_size(const recursion_detector* rd);
+		[[nodiscard]] int get_size() const
+		{
+			return _size;
+		}
 
 #pragma region node_symbol
 
@@ -76,7 +77,9 @@ namespace o2
 
 		void debug(debug_ostream& stream, int indent) const final;
 
-		bool resolve(const recursion_detector* rd) final;
+		void resolve0(const recursion_detector* rd, resolve_state* state) final;
+
+		void on_process_phase(const recursion_detector* rd, resolve_state* state, int phase) final;
 
 		node* on_child_added(node* n) final;
 

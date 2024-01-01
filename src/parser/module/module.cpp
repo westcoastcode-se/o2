@@ -37,6 +37,17 @@ package_source_info* module::get_package_info(string_view import_path) const
 	return _sources->get_info(get_relative_path(import_path));
 }
 
+package_source_info* module::get_package_info(string_view import_path, bool load) const
+{
+	const auto info = _sources->get_info(get_relative_path(import_path));
+	if (load && info->load_status == package_source_info::not_loaded)
+	{
+		load_package_sources(info);
+		info->load_status = package_source_info::loading;
+	}
+	return info;
+}
+
 void module::load_package_sources(package_source_info* info) const
 {
 	_sources->load_sources(info);
@@ -60,7 +71,7 @@ node_package* module::add_package(node_package* p)
 void module::notify_package_imported(node_package* p)
 {
 	// potentially imports that's loaded
-	for(int idx = _state.parse.import_requests.size() - 1; idx >= 0; --idx)
+	for (int idx = _state.parse.import_requests.size() - 1; idx >= 0; --idx)
 	{
 		const auto i = _state.parse.import_requests[idx];
 		const auto relative_package_name = get_relative_path(i->get_import_statement());
@@ -81,4 +92,39 @@ void module::notify_package_imported(node_package* p)
 void module::add_import_request(node_import* i)
 {
 	_state.parse.import_requests.add(i);
+}
+
+vector<node_package*> module::get_packages() const
+{
+	return std::move(_node_module->get_children_of_type<node_package>());
+}
+
+o2::module* module::find_module(string_view statement)
+{
+	// search this module first
+	module* best_match = nullptr;
+	int match = matches(statement);
+	if (match != module::MATCHES_NO_MATCH)
+		best_match = this;
+
+	// then look among the requirements
+	for (auto req: get_requirements())
+	{
+		const auto current_match = req->matches(statement);
+		if (current_match < match)
+		{
+			best_match = req;
+			match = current_match;
+		}
+	}
+	if (best_match && match != module::MATCHES_NO_MATCH)
+		return best_match;
+
+	// then lastly, check the system module for built-in modules
+	return _system_module->find_module(statement);
+}
+
+void module::add_requirement(module* requirement)
+{
+	_requirements.add(requirement);
 }

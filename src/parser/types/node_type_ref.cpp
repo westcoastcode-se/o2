@@ -9,27 +9,9 @@
 using namespace o2;
 
 node_type_ref::node_type_ref(const source_code_view& view)
-		: node_type(view), _type(this)
+		: node_type(view), _type()
 {
-}
-
-node_type_ref::node_type_ref(const source_code_view& view, node_type* type)
-		: node_type(view), _type(type)
-{
-}
-
-int node_type_ref::resolve_size(const recursion_detector* rd)
-{
-	if (has_known_size())
-		return _size;
-
-	rd->raise_error(this);
-	if (_type == this || _type == this)
-		throw resolve_error_unresolved_reference(get_source_code());
-
-	const recursion_detector rd0(rd, this);
-	_size = _type->resolve_size(&rd0);
-	return _size;
+	add_phases_left(phase_resolve_size);
 }
 
 void node_type_ref::debug(debug_ostream& stream, int indent) const
@@ -44,46 +26,48 @@ void node_type_ref::debug(debug_ostream& stream, int indent) const
 	node_type::debug(stream, indent);
 }
 
-bool node_type_ref::resolve(const recursion_detector* rd)
+void node_type_ref::resolve0(const recursion_detector* rd, resolve_state* state)
 {
-	// resolve type first and then the rest of the children
-	if (_type == this)
-	{
-		auto ref = dynamic_cast<node_ref*>(get_child(0));
-		if (ref == nullptr)
-			throw expected_child_node(get_source_code(), "node_ref");
-		const recursion_detector rd0(rd, this);
-		if (!ref->resolve(&rd0))
-			return false;
-		const auto results = ref->get_result();
-		if (results.size() > 1)
-			throw resolve_error_multiple_refs(get_source_code());
-		const auto type = dynamic_cast<node_type*>(results[0]);
-		if (type == nullptr)
-			return false;
-		_type = type;
-	}
+	node::resolve0(rd, state);
 
-	if (!node::resolve(rd))
-		return false;
+	// assume that the first child is a reference
+	const auto ref = dynamic_cast<node_ref*>(get_child(0));
+	if (ref == nullptr)
+		throw expected_child_node(get_source_code(), "node_ref");
 
-	_type = _type->get_type();
+	// collect the results and fetch the best matched one!
+	// TODO: add support for fetching the best match instead of just the first
+	const auto results = ref->get_result();
+	if (results.size() > 1)
+		throw resolve_error_multiple_refs(get_source_code());
+	_type = dynamic_cast<node_type*>(results[0]);
 	if (_type == nullptr)
-		return false;
-
-	return true;
+		throw resolve_error_unresolved_reference(get_source_code());
 }
 
 string node_type_ref::get_id() const
 {
-	if (_type && _type != this)
+	if (_type)
 		return _type->get_id();
 	return {};
 }
 
 compatibility node_type_ref::is_compatible_with(node_type* rhs) const
 {
-	if (_type == nullptr || _type != this)
+	if (_type == nullptr)
 		throw resolve_error_unresolved_reference(get_source_code());
 	return _type->is_compatible_with(rhs);
+}
+
+void node_type_ref::on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)
+{
+	if (phase != phase_resolve_size)
+	{
+		return;
+	}
+
+	assert(_type != nullptr && "this node's resolve0 method should've been called before this");
+	const recursion_detector rd0(rd, this);
+	_type->process_phase(&rd0, state, phase);
+	_size = _type->get_size();
 }

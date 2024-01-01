@@ -48,11 +48,6 @@ namespace o2
 		void debug(debug_ostream& stream) const;
 
 		/**
-		 * \brief resolve all soft references, types etc
-		 */
-		void resolve();
-
-		/**
 		 * \brief try to optimize the syntax tree using the supplied optimizer
 		 * \param optimizer 
 		 */

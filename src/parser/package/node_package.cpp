@@ -34,7 +34,7 @@ void node_package::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "package(name=" << get_name();
-	if (bit_isset(_status, status_resolved))
+	if (!has_phase_left(phase_resolve))
 		stream << ",resolved";
 	stream << ")" << std::endl;
 	node::debug(stream, indent);
@@ -69,21 +69,15 @@ void node_package::on_resolved_before(node_package* p)
 	_state.parse.depended_resolves.add(p);
 }
 
-bool node_package::resolve(const recursion_detector* rd)
+void node_package::process_phases()
 {
-	if (!node::resolve(rd))
-		return false;
+	const recursion_detector rd;
+	const recursion_detector rd0(&rd, this);
+	resolve_state state(this);
 
-	// resolve all dependencies that are waiting for this package to be resolved
-	const auto deps = std::move(_state.parse.depended_resolves);
-	const recursion_detector rd0(rd, this);
-	for (auto p: deps)
-	{
-		if (!p->resolve(&rd0))
-			return false;
-	}
-	_status = status_resolved;
-	return true;
+	process_phase_resolve(&rd0, &state);
+	process_phase_resolve_size(&rd0, &state);
+	// TODO: Add more phases
 }
 
 void node_package::write_json_properties(json& j)
@@ -120,12 +114,34 @@ string node_package::get_id() const
 	const auto symbol = get_parent_of_type<node_symbol>();
 	if (symbol)
 		ss << symbol->get_id();
-	ss << '/';
-	ss << _name;
+	if (!_name.empty())
+	{
+		assert(_name[0] == '/');
+		ss << _name;
+	}
 	return std::move(ss.str());
 }
 
 bool node_package::compare_with_symbol(const node_package* rhs) const
 {
 	return get_name() == rhs->get_name();
+}
+
+void node_package::process_phase_resolve(const recursion_detector* rd, resolve_state* state)
+{
+	// Start by resolving all nodes in this package
+	for(auto c : get_children())
+		c->process_phase(rd, state, node::phase_resolve);
+
+	// Then resolve all dependencies that are waiting for this package to be resolved
+	const auto deps = std::move(_state.parse.depended_resolves);
+	for (auto p: deps)
+		p->process_phase_resolve(rd, state);
+}
+
+void node_package::process_phase_resolve_size(const recursion_detector* rd, resolve_state* state)
+{
+	auto nodes = std::move(state->get_nodes());
+	for (auto n: nodes)
+		n->process_phase(rd, state, node::phase_resolve_size);
 }

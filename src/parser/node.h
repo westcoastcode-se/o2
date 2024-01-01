@@ -13,6 +13,7 @@
 #include "bit.h"
 #include "recursion_detector.h"
 #include "json/json_serializable.h"
+#include "resolve_state.h"
 #include <sstream>
 
 namespace o2
@@ -99,9 +100,7 @@ namespace o2
 	class node_optimizer
 	{
 	public:
-		virtual ~node_optimizer()
-		{
-		}
+		virtual ~node_optimizer() = default;
 
 		/**
 		 * \brief check to see if the supplied node is accepted by this optimizer
@@ -147,7 +146,7 @@ namespace o2
 		}
 
 		node(const source_code_view& view, int access_modifier)
-				: _source_code(view), _parent(), _query_access_modifiers(access_modifier)
+				: _source_code(view), _parent(), _query_access_modifiers(access_modifier), _phases_left(phase_resolve)
 		{
 		}
 
@@ -297,11 +296,29 @@ namespace o2
 		virtual void debug(debug_ostream& stream, int indent) const;
 
 		/**
+		 * \brief a phase is being processed on this node
+		 * \param rd
+		 * \param state
+		 * \param phase the current phase
+		 */
+		void process_phase(const recursion_detector* rd, resolve_state* state, int phase);
+
+		/**
+		 * \brief method called for when a non-specific phase is being processed on this node
+		 * \param rd
+		 * \param state
+		 * \param phase the current phase
+		 */
+		virtual void on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)
+		{
+		}
+
+		/**
 		 * \brief resolve all references
 		 * \param rd
 		 * \return
 		 */
-		virtual bool resolve(const recursion_detector* rd);
+		virtual void resolve0(const recursion_detector* rd, resolve_state* state);
 
 		/**
 		 * \brief optimize this node using the supplied optimizer
@@ -518,6 +535,45 @@ namespace o2
 			return nullptr;
 		}
 
+		// resolve this node during the resolve phase
+		static constexpr int phase_resolve = 1 << 0;
+		// resolve the size of this node
+		static constexpr int phase_resolve_size = 1 << 1;
+		// TODO: add more phases here
+
+		/**
+		 * \return true if one or more phases are left to be processed of this node
+		 */
+		[[nodiscard]] bool has_phases_left() const
+		{
+			return _phases_left != 0;
+		}
+
+		/**
+		 * \param phase
+		 * \return true if the supplied phase is left
+		 */
+		[[nodiscard]] bool has_phase_left(int phase) const
+		{
+			return bit_isset(_phases_left, phase);
+		}
+
+		/**
+		 * \brief add a phase to be processed for this node
+		 * \param phases
+		 *
+		 * by default, phase_resolve is added
+		 */
+		void add_phases_left(int phases)
+		{
+			_phases_left |= phases;
+		}
+
+		void remove_phases_left(int phases)
+		{
+			_phases_left = bit_unset(_phases_left, phases);
+		}
+
 	protected:
 		static string in(int indent)
 		{
@@ -532,5 +588,6 @@ namespace o2
 		node* _parent;
 		vector<node*> _children;
 		int _query_access_modifiers;
+		int _phases_left;
 	};
 }

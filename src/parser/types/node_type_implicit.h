@@ -45,15 +45,15 @@ namespace o2
 			return _type;
 		}
 
-		int resolve_size(const recursion_detector* rd) final;
-
 #pragma endregion
 
 #pragma region node
 
 		void debug(debug_ostream& stream, int indent) const final;
 
-		bool resolve(const recursion_detector* rd) final;
+		void resolve0(const recursion_detector* rd, resolve_state* state) final;
+
+		void on_process_phase(const recursion_detector* rd, resolve_state* state, int phase) final;
 
 #pragma endregion
 

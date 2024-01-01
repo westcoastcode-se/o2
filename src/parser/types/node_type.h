@@ -53,11 +53,6 @@ namespace o2
 		}
 
 		/**
-		 * \brief resolve the size of this type
-		 */
-		virtual int resolve_size(const recursion_detector* rd) = 0;
-
-		/**
 		 * \return the size of this type
 		 */
 		[[nodiscard]] int get_size() const

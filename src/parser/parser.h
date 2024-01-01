@@ -44,6 +44,15 @@ namespace o2
 			OUT parser_state* state);
 
 	/**
+	 * \brief parse a package inside a module
+	 * \param main_module the main module, which is the module that contains the entrypoint
+	 * \param package_name the package in the main module
+	 * \param state where to put the result into
+	 * \return the package
+	 */
+	extern node_package* parse_main_module_package(module* main_module, string_view package_name, OUT parser_state* state);
+
+	/**
 	 * \brief optimize the syntax tree 
 	 * \param st 
 	 * \param level 

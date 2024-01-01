@@ -11,6 +11,7 @@ using namespace o2;
 node_type_struct::node_type_struct(const source_code_view& view, string_view name)
 		: node_type(view), _name(name), _fields(), _methods(), _static()
 {
+	add_phases_left(phase_resolve_size);
 }
 
 void node_type_struct::debug(debug_ostream& stream, int indent) const
@@ -18,32 +19,6 @@ void node_type_struct::debug(debug_ostream& stream, int indent) const
 	stream << this << in(indent);
 	stream << "type_struct(name=" << get_name() << ",size=" << _size << ")" << std::endl;
 	node_type::debug(stream, indent);
-}
-
-int node_type_struct::resolve_size(const recursion_detector* rd)
-{
-	if (has_known_size())
-		return _size;
-
-	// TODO: Figure out how large a struct's size should be. Might depend on if virtual or not.
-	//       structs might also have no fields
-	if (_fields == nullptr)
-		return 0;
-
-	rd->raise_error(this);
-
-	int size = 0;
-	const recursion_detector rd0(rd, this);
-	const auto fields = _fields->get_children();
-	for (auto n: fields)
-	{
-		const auto field = dynamic_cast<node_type_struct_field*>(n);
-		if (field == nullptr)
-			continue;
-		size += field->resolve_size(&rd0);
-	}
-	_size = size;
-	return _size;
 }
 
 node* node_type_struct::on_child_added(node* n)
@@ -122,4 +97,35 @@ void node_type_struct::write_json_properties(json& j)
 bool node_type_struct::compare_with_symbol(const node_type_struct* rhs) const
 {
 	return get_name() == rhs->get_name();
+}
+
+void node_type_struct::on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)
+{
+	if (phase != phase_resolve_size)
+	{
+		return;
+	}
+
+	// TODO: Figure out how large a struct's size should be. Might depend on if virtual or not.
+	//       structs might also have no fields
+
+	// A type might not have a size
+	if (_fields == nullptr)
+	{
+		_size = 0;
+		return;
+	}
+
+	int size = 0;
+	const recursion_detector rd0(rd, this);
+	const auto fields = _fields->get_children();
+	for (auto n: fields)
+	{
+		const auto field = dynamic_cast<node_type_struct_field*>(n);
+		if (field == nullptr)
+			continue;
+		field->process_phase(&rd0, state, phase);
+		size += field->get_size();
+	}
+	_size = size;
 }

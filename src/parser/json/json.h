@@ -170,7 +170,7 @@ namespace o2
 				*_stream << ',';
 			if (!v.key.empty())
 				*_stream << "\"" << v.key << "\":";
-			return json(*this, type_object);
+			return { *this, type_object };
 		}
 
 		/**
@@ -184,7 +184,7 @@ namespace o2
 				*_stream << ',';
 			if (!v.key.empty())
 				*_stream << "\"" << v.key << "\":";
-			return json(*this, type_array);
+			return { *this, type_array };
 		}
 
 		json& operator=(json&& rhs) noexcept

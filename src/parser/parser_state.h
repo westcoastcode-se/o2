@@ -44,29 +44,11 @@ namespace o2
 		}
 
 		/**
-		 * \return all nodes collected during the resolve phase
-		 */
-		[[nodiscard]] vector<node_type*> get_resolve_size_nodes()
-		{
-			return std::move(_resolve_size);
-		}
-
-		/**
 		 * \return all imports collected during the parse phase
 		 */
 		[[nodiscard]] vector<node_import*> get_imports()
 		{
 			return std::move(_imports);
-		}
-
-		/**
-		 * \brief add the supplied node to the linked list
-		 *
-		 * \param n
-		 */
-		void add_resolve_size(node_type* n)
-		{
-			_resolve_size.add(n);
 		}
 
 		/**
@@ -91,6 +73,5 @@ namespace o2
 		syntax_tree* const _syntax_tree;
 		const source_code* _source_code;
 		vector<node_import*> _imports;
-		vector<node_type*> _resolve_size;
 	};
 }
