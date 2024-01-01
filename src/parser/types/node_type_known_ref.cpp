@@ -11,3 +11,12 @@ node_type_known_ref::node_type_known_ref(const source_code_view& view, node_type
 		: node_type(view, primitive->get_size()), _type(primitive)
 {
 }
+
+void node_type_known_ref::debug(debug_ostream& stream, int indent) const
+{
+	stream << this << in(indent);
+	stream << "known_ref(type=";
+	stream << _type;
+	stream << ")" << std::endl;
+	node_type::debug(stream, indent);
+}

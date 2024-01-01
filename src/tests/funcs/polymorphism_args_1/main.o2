@@ -1,0 +1,5 @@
+func F() {}
+
+func F(i int) {}
+
+func F(f float) {}

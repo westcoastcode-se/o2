@@ -51,3 +51,40 @@ node_type_primitive* parser_state::get_primitive_byte() const
 {
 	return dynamic_cast<node_type_primitive*>(_syntax_tree->get_root_package()->get_child(1));
 }
+
+node_type_primitive* parser_state::find_primitive_type(string_view name) const
+{
+	static const int COUNT = 13;
+	static const string_view PRIMITIVES[COUNT] = {
+			"void",
+			"byte",
+			"bool",
+			"int8",
+			"uint8",
+			"int16",
+			"uint16",
+			"int32",
+			"uint32",
+			"int64",
+			"uint64",
+			"float32",
+			"float64",
+	};
+	static const string_view INT("int");
+	static const string_view UINT("uint");
+	static const string_view FLOAT("float");
+
+	if (name == INT)
+		return dynamic_cast<node_type_primitive*>(_syntax_tree->get_root_package()->get_child(7));
+	if (name == UINT)
+		return dynamic_cast<node_type_primitive*>(_syntax_tree->get_root_package()->get_child(8));
+	if (name == FLOAT)
+		return dynamic_cast<node_type_primitive*>(_syntax_tree->get_root_package()->get_child(11));
+
+	for (int i = 0; i < COUNT; ++i)
+	{
+		if (PRIMITIVES[i] == name)
+			return dynamic_cast<node_type_primitive*>(_syntax_tree->get_root_package()->get_child(i));
+	}
+	return nullptr;
+}

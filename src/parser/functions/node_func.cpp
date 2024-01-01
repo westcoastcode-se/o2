@@ -124,7 +124,7 @@ bool node_func::compare_with_symbol(const node_func* rhs) const
 		return false;
 
 	const auto has_parameters1 = _parameters != nullptr;
-	const auto has_parameters2= rhs->_parameters != nullptr;
+	const auto has_parameters2 = rhs->_parameters != nullptr;
 	if (has_parameters1 != has_parameters2)
 		return false;
 

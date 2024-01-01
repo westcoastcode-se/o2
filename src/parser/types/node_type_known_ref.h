@@ -44,6 +44,12 @@ namespace o2
 
 #pragma endregion
 
+#pragma region node
+
+		void debug(debug_ostream& stream, int indent) const final;
+
+#pragma endregion
+
 	private:
 		node_type* const _type;
 	};

@@ -28,7 +28,7 @@ namespace o2
 		 * \remark a broken link means that one of the nodes are removed, normally during the
 		 *         optimization phase
 		 */
-		bool is_broken() const
+		[[nodiscard]] bool is_broken() const
 		{
 			return _link == nullptr;
 		}
@@ -36,12 +36,12 @@ namespace o2
 		/**
 		 * \return the node that this link points to
 		 */
-		node* get_node() const;
+		[[nodiscard]] node* get_node() const;
 
 		/**
 		 * \return a new link associated with this one
 		 */
-		node_link* new_link();
+		[[nodiscard]] node_link* new_link();
 
 #pragma region node
 

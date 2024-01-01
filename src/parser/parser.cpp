@@ -217,8 +217,7 @@ namespace
 			}
 			else
 			{
-				throw error_not_implemented(ps->get_view(),
-						"variables not supported yet");
+				throw error_not_implemented(ps->get_view(), "variables");
 			}
 		}
 		default:
@@ -501,6 +500,14 @@ namespace
 			const parser_scope ps0(ps, guard.get());
 			guard->add_child(parse_type_ref(&ps0));
 			return guard.done();
+		}
+
+		const auto primitive = ps->state->find_primitive_type(t->value());
+		if (primitive != nullptr)
+		{
+			auto known_ref = o2_new node_type_known_ref(ps->get_view(), primitive);
+			t->next();
+			return known_ref;
 		}
 
 		auto type_ref = o2_new node_type_ref(ps->get_view());

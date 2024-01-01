@@ -15,6 +15,7 @@
 #include "types/node_type_pointer_of.h"
 #include "types/node_type_reference_of.h"
 #include "types/node_type_array.h"
+#include "types/node_type_known_ref.h"
 #include "struct/node_type_struct.h"
 #include "struct/node_type_struct_field.h"
 #include "operations/node_op_constant.h"

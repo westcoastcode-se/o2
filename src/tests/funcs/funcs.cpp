@@ -50,11 +50,9 @@ void funcs()
 			assert_equals(func->get_parameters()->num_arguments(), 0);
 			const auto ret = assert_not_null(func->get_returns());
 			assert_equals(ret->get_children().size(), 1);
-			const auto ret_ref_float = assert_type<node_type_ref>(ret->get_child(0));
+			const auto ret_ref_float = assert_type<node_type_known_ref>(ret->get_child(0));
 			assert_equals(ret_ref_float->get_size(), sizeof(float));
 			assert_equals(ret_ref_float->get_type(), root->get_child(11));
-			const auto ref_float = assert_type<node_ref>(ret_ref_float->get_child(0));
-			assert_equals(ref_float->get_query_text(), "float");
 			const auto body = assert_type<node_func_body>(func->get_child(2));
 			assert_equals(body->get_children().size(), 1);
 			assert_type<node_scope>(body->get_children()[0]);
@@ -77,10 +75,8 @@ void funcs()
 			const auto ret = assert_not_null(func->get_returns());
 			assert_equals(ret->get_children().size(), 1);
 			const auto ret_ptr_int = assert_type<node_type_pointer_of>(ret->get_child(0));
-			const auto ret_ref_int = assert_type<node_type_ref>(ret_ptr_int->get_child(0));
+			const auto ret_ref_int = assert_type<node_type_known_ref>(ret_ptr_int->get_child(0));
 			assert_equals(ret_ref_int->get_type(), root->get_child(7));
-			const auto ref_int = assert_type<node_ref>(ret_ref_int->get_child(0));
-			assert_equals(ref_int->get_query_text(), "int");
 			const auto body = assert_type<node_func_body>(func->get_child(2));
 			assert_equals(body->get_children().size(), 1);
 			assert_type<node_scope>(body->get_children()[0]);
@@ -99,9 +95,8 @@ void funcs()
 			const auto args = assert_type<node_func_parameters>(func->get_child(0));
 			const auto arg1 = assert_type<node_var>(args->get_child(0));
 			assert_equals("a1", arg1->get_name());
-			const auto arr_type_ref_int = assert_type<node_type_ref>(arg1->get_child(0));
-			const auto arr_ref_int = assert_type<node_ref>(arr_type_ref_int->get_child(0));
-			assert_equals(arr_ref_int->get_query_text(), "int");
+			const auto arr_type_ref_int = assert_type<node_type_known_ref>(arg1->get_child(0));
+			assert_equals(arr_type_ref_int->get_size(), sizeof(int));
 			const auto body = assert_type<node_func_body>(func->get_child(2));
 			assert_equals(body->get_children().size(), 1);
 			assert_type<node_scope>(body->get_children()[0]);
@@ -125,9 +120,8 @@ void funcs()
 			assert_equals(arr_const->get_value().type, primitive_type::int32);
 			assert_equals(arr_const->get_value().i32, 2);
 			assert_equals(arr_const->get_children().size(), 1);
-			const auto arr_type_ref_int = assert_type<node_type_ref>(arr->get_child(1));
-			const auto arr_ref_int = assert_type<node_ref>(arr_type_ref_int->get_child(0));
-			assert_equals(arr_ref_int->get_query_text(), "int");
+			const auto arr_type_ref_int = assert_type<node_type_known_ref>(arr->get_child(1));
+			assert_equals(arr_type_ref_int->get_size(), sizeof(int));
 		});
 		test("args_1_anonymous_return_void", ROOT_PATH, [](syntax_tree& st)
 		{
@@ -143,10 +137,9 @@ void funcs()
 			const auto args = assert_type<node_func_parameters>(func->get_child(0));
 			const auto arg1 = assert_type<node_var>(args->get_child(0));
 			assert_equals("_", arg1->get_name());
-			const auto arr_type_ref_int = assert_type<node_type_ref>(arg1->get_child(0));
+			const auto arr_type_ref_int = assert_type<node_type_known_ref>(arg1->get_child(0));
 			assert_equals(arr_type_ref_int->get_type(), root->get_child(7));
-			const auto arr_ref_int = assert_type<node_ref>(arr_type_ref_int->get_child(0));
-			assert_equals(arr_ref_int->get_query_text(), "int");
+			assert_equals(arr_type_ref_int->get_size(), sizeof(int));
 			const auto body = assert_type<node_func_body>(func->get_child(2));
 			assert_equals(body->get_children().size(), 1);
 			assert_type<node_scope>(body->get_child(0));
@@ -335,5 +328,24 @@ void funcs()
 			const auto F2_scope_call_F1 = assert_type<node_op_callfunc>(F2_scope->get_child(0));
 			assert_equals(F2_scope_call_F1->get_func(), func_F1);
 		});
+		/*test("polymorphism_args_1", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+			assert_equals(package_main->get_child_count(), 3);
+
+			const auto func_F_void = assert_type<node_func>(package_main->get_child(0));
+			assert_equals(func_F_void->get_name(), "F");
+
+			const auto func_F_int = assert_type<node_func>(package_main->get_child(1));
+			assert_equals(func_F_int->get_name(), "F");
+
+			const auto func_F_float = assert_type<node_func>(package_main->get_child(2));
+			assert_equals(func_F_float->get_name(), "F");
+		});*/
 	});
 }

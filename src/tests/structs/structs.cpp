@@ -71,10 +71,10 @@ void structs()
 			assert_equals(fields->get_children().size(), 1);
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "first");
-			const auto field1_type_ref = assert_type<node_type_ref>(field1->get_child(0));
-			const auto field1_ref = assert_type<node_ref>(field1_type_ref->get_child(0));
-			assert_equals(field1_ref->get_query_text(), "int");
+			assert_equals(field1->get_size(), sizeof(int));
 			assert_equals(field1->get_field_type(), root->get_child(7));
+			const auto field1_type_ref = assert_type<node_type_known_ref>(field1->get_child(0));
+			assert_equals(field1_type_ref->get_type(), root->get_child(7));
 		});
 		test("int_float_fields", ROOT_PATH, [](syntax_tree& st)
 		{
@@ -93,16 +93,16 @@ void structs()
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "first");
 			assert_equals(field1->get_field_type(), root->get_child(7));
-			const auto field1_type_ref = assert_type<node_type_ref>(field1->get_child(0));
-			const auto field1_ref = assert_type<node_ref>(field1_type_ref->get_child(0));
-			assert_equals(field1_ref->get_query_text(), "int");
+			assert_equals(field1->get_size(), sizeof(int));
+			const auto field1_type_ref = assert_type<node_type_known_ref>(field1->get_child(0));
+			assert_equals(field1_type_ref->get_type(), root->get_child(7));
 
 			const auto field2 = assert_type<node_type_struct_field>(fields->get_child(1));
 			assert_equals(field2->get_name(), "second");
 			assert_equals(field2->get_field_type(), root->get_child(11));
-			const auto field2_type_ref = assert_type<node_type_ref>(field2->get_child(0));
-			const auto field2_ref = assert_type<node_ref>(field2_type_ref->get_child(0));
-			assert_equals(field2_ref->get_query_text(), "float32");
+			assert_equals(field2->get_size(), sizeof(float));
+			const auto field2_type_ref = assert_type<node_type_known_ref>(field2->get_child(0));
+			assert_equals(field2_type_ref->get_type(), root->get_child(11));
 		});
 		test("type_inside_type", ROOT_PATH, [](syntax_tree& st)
 		{
@@ -295,10 +295,10 @@ void structs()
 			assert_equals(fields->get_children().size(), 1);
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "I");
-			const auto field1_type_ref = assert_type<node_type_ref>(field1->get_child(0));
-			const auto field1_ref = assert_type<node_ref>(field1_type_ref->get_child(0));
-			assert_equals(field1_ref->get_query_text(), "int");
+			assert_equals(field1->get_size(), sizeof(int));
 			assert_equals(field1->get_field_type(), root->get_child(7));
+			const auto field1_type_ref = assert_type<node_type_known_ref>(field1->get_child(0));
+			assert_equals(field1_type_ref->get_type(), root->get_child(7));
 		});
 		test({ "static_int_float", "static_int_static_float" }, ROOT_PATH, [](syntax_tree& st)
 		{
@@ -321,17 +321,19 @@ void structs()
 			const auto fields = assert_type<node_type_struct_static_vars>(type_S_static->get_child(0));
 			const auto field1 = assert_type<node_type_struct_field>(fields->get_child(0));
 			assert_equals(field1->get_name(), "I");
+			assert_equals(field1->get_size(), sizeof(int));
 			assert_equals(field1->get_field_type(), root->get_child(7));
-			const auto field1_type_ref = assert_type<node_type_ref>(field1->get_child(0));
-			const auto field1_ref = assert_type<node_ref>(field1_type_ref->get_child(0));
-			assert_equals(field1_ref->get_query_text(), "int");
+			const auto field1_type_ref = assert_type<node_type_known_ref>(field1->get_child(0));
+			assert_equals(field1_type_ref->get_size(), sizeof(int));
+			assert_equals(field1_type_ref->get_type(), root->get_child(7));
 
 			const auto field2 = assert_type<node_type_struct_field>(fields->get_child(1));
 			assert_equals(field2->get_name(), "F");
+			assert_equals(field2->get_size(), sizeof(float));
 			assert_equals(field2->get_field_type(), root->get_child(11));
-			const auto field2_type_ref = assert_type<node_type_ref>(field2->get_child(0));
-			const auto field2_ref = assert_type<node_ref>(field2_type_ref->get_child(0));
-			assert_equals(field2_ref->get_query_text(), "float");
+			const auto field2_type_ref = assert_type<node_type_known_ref>(field2->get_child(0));
+			assert_equals(field2_type_ref->get_size(), sizeof(float));
+			assert_equals(field2_type_ref->get_type(), root->get_child(11));
 		});
 		test({ "static_func_void", "static_func_explicit_void" }, ROOT_PATH, [](syntax_tree& st)
 		{

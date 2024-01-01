@@ -65,6 +65,13 @@ namespace o2
 		[[nodiscard]] node_type_primitive* get_primitive_type(primitive_type type) const;
 
 		/**
+		 * \brief try to find a primitive with the supplied name
+		 * \param name the primitive type name
+		 * \return the node that represents the supplied primitive type
+		 */
+		[[nodiscard]] node_type_primitive* find_primitive_type(string_view name) const;
+
+		/**
 		 * \return the primitive that represents a byte
 		 */
 		[[nodiscard]] node_type_primitive* get_primitive_byte() const;
