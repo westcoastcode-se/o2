@@ -52,6 +52,11 @@ void errors_resolve()
 			const auto e2 = assert_type<error_named_symbol_already_declared>(&e);
 			assert_equals(string_view(STR("symbol 'f1' is already declared")), e2->get_error());
 		});
+		test_error("duplicated_func_args1", ROOT_PATH, [](const std::exception& e)
+		{
+			const auto e2 = assert_type<error_named_symbol_already_declared>(&e);
+			assert_equals(string_view(STR("symbol 'F' is already declared")), e2->get_error());
+		});
 	});
 
 }
