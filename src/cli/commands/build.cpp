@@ -163,8 +163,18 @@ int build::execute()
 		{
 			// package is now imported
 			imported_module->notify_package_imported(imported_package);
-			// all imports are imported, so let's resolve this package's dependencies!
-			imported_package->process_phases();
+			try
+			{
+				// all imports are imported, so let's resolve this package's dependencies!
+				imported_package->process_phases();
+			}
+			catch (const o2::error& e)
+			{
+				// print errors, but continue evaluating all other source code
+				// because it's tedious to having to fix one problem at a time
+				e.print(std::cerr);
+				success = false;
+			}
 		}
 		else
 		{
@@ -196,7 +206,17 @@ int build::execute()
 			// all imports are imported, so let's resolve this package
 			if (imports_left == 0)
 			{
-				imported_package->process_phases();
+				try
+				{
+					imported_package->process_phases();
+				}
+				catch (const o2::error& e)
+				{
+					// print errors, but continue evaluating all other source code
+					// because it's tedious to having to fix one problem at a time
+					e.print(std::cerr);
+					success = false;
+				}
 			}
 		}
 		// delete any state that's pending
