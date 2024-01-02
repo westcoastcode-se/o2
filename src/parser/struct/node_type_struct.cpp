@@ -131,3 +131,10 @@ void node_type_struct::on_process_phase(const recursion_detector* rd, resolve_st
 	}
 	_size = size;
 }
+
+compatibility node_type_struct::is_compatible_with(node_type* rhs) const
+{
+	if (rhs == this)
+		return compatibility::identical;
+	return node_type::is_compatible_with(rhs);
+}

@@ -1,0 +1,7 @@
+type S {}
+
+func F() {}
+
+func F(a S) {}
+
+func F(a S) {}

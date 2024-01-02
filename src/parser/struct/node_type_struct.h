@@ -58,6 +58,12 @@ namespace o2
 			return _static;
 		}
 
+#pragma region node_type
+
+		compatibility is_compatible_with(node_type* rhs) const override;
+
+#pragma endregion
+
 #pragma region node_symbol
 
 		[[nodiscard]] string get_id() const final;
