@@ -33,7 +33,7 @@ string_view node_module::get_relative_path(string_view import_path) const
 
 void node_module::on_parent_node(node* p)
 {
-	test_collision(this);
+	superficial_collision_test(this);
 }
 
 void node_module::write_json_properties(json& j)
@@ -63,8 +63,10 @@ string node_module::get_id() const
 	return std::move(ss.str());
 }
 
-bool node_module::compare_with_symbol(const node_module* rhs) const
+bool node_module::superficial_test_symbol_collision(const node_module* rhs) const
 {
-	return get_name() == rhs->get_name() &&
-		   get_version() == rhs->get_version();
+	if (get_name() == rhs->get_name() &&
+		   get_version() == rhs->get_version())
+		throw error_named_symbol_already_declared(get_source_code(), get_name(), rhs->get_source_code());
+	return false;
 }

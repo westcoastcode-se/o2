@@ -539,6 +539,8 @@ namespace o2
 		static constexpr int phase_resolve = 1 << 0;
 		// resolve the size of this node
 		static constexpr int phase_resolve_size = 1 << 1;
+		// perform deeper collision test
+		static constexpr int phase_next_bit = 1 << 2;
 		// TODO: add more phases here
 
 		/**

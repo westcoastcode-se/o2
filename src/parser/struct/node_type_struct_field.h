@@ -69,7 +69,7 @@ namespace o2
 
 		[[nodiscard]] string get_id() const final;
 
-		bool compare_with_symbol(const node_type_struct_field* rhs) const;
+		bool superficial_test_symbol_collision(const node_type_struct_field* rhs) const;
 
 #pragma endregion
 

@@ -17,7 +17,7 @@ node* node_package::on_child_added(node* n)
 	if (nv != nullptr)
 	{
 		if (_variables.contains(nv->get_name()))
-			throw error_named_symbol_already_declared(n->get_source_code(), nv->get_name());
+			throw error_named_symbol_already_declared(get_source_code(), get_name(), n->get_source_code());
 		_variables[nv->get_name()] = nv;
 	}
 	return n;
@@ -105,7 +105,7 @@ void node_package::write_json_properties(json& j)
 
 void node_package::on_parent_node(node* p)
 {
-	test_collision(this);
+	superficial_collision_test(this);
 }
 
 string node_package::get_id() const
@@ -122,15 +122,17 @@ string node_package::get_id() const
 	return std::move(ss.str());
 }
 
-bool node_package::compare_with_symbol(const node_package* rhs) const
+bool node_package::superficial_test_symbol_collision(const node_package* rhs) const
 {
-	return get_name() == rhs->get_name();
+	if (get_name() == rhs->get_name())
+		throw error_named_symbol_already_declared(get_source_code(), get_name(), rhs->get_source_code());
+	return false;
 }
 
 void node_package::process_phase_resolve(const recursion_detector* rd, resolve_state* state)
 {
 	// Start by resolving all nodes in this package
-	for(auto c : get_children())
+	for (auto c: get_children())
 		c->process_phase(rd, state, node::phase_resolve);
 
 	// Then resolve all dependencies that are waiting for this package to be resolved

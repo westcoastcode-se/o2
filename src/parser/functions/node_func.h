@@ -148,12 +148,18 @@ namespace o2
 		 * \param rhs
 		 * \return true if the supplied function is identical
 		 */
-		bool compare_with_symbol(const node_func* rhs) const;
+		bool superficial_test_symbol_collision(const node_func* rhs) const;
+
+		/**
+		 * \brief perform eep collision detection of this function
+		 * \param rhs
+		 * \return
+		 */
+		void deep_test_symbol_collision(const node_func* rhs) const;
 
 #pragma region node_symbol
 
 		[[nodiscard]] string get_id() const override;
-
 
 #pragma endregion
 
@@ -168,6 +174,8 @@ namespace o2
 		void on_child_removed(node* n) final;
 
 		void on_parent_node(node* p) final;
+
+		void resolve0(const recursion_detector* rd, resolve_state* state) override;
 
 #pragma endregion
 

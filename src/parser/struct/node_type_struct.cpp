@@ -85,7 +85,7 @@ string node_type_struct::get_id() const
 
 void node_type_struct::on_parent_node(node* p)
 {
-	test_collision(this);
+	superficial_collision_test(this);
 }
 
 void node_type_struct::write_json_properties(json& j)
@@ -94,9 +94,11 @@ void node_type_struct::write_json_properties(json& j)
 	j.write(json::pair<int>{ "size", _size });
 }
 
-bool node_type_struct::compare_with_symbol(const node_type_struct* rhs) const
+bool node_type_struct::superficial_test_symbol_collision(const node_type_struct* rhs) const
 {
-	return get_name() == rhs->get_name();
+	if (get_name() == rhs->get_name())
+		throw error_named_symbol_already_declared(get_source_code(), get_name(), rhs->get_source_code());
+	return false;
 }
 
 void node_type_struct::on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)

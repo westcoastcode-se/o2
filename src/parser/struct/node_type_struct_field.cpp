@@ -66,14 +66,16 @@ string node_type_struct_field::get_id() const
 	return std::move(ss.str());
 }
 
-bool node_type_struct_field::compare_with_symbol(const node_type_struct_field* rhs) const
+bool node_type_struct_field::superficial_test_symbol_collision(const node_type_struct_field* rhs) const
 {
-	return get_name() == rhs->get_name();
+	if (get_name() == rhs->get_name())
+		throw error_named_symbol_already_declared(get_source_code(), get_name(), rhs->get_source_code());
+	return false;
 }
 
 void node_type_struct_field::on_parent_node(node* p)
 {
-	test_collision(this);
+	superficial_collision_test(this);
 }
 
 void node_type_struct_field::on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)

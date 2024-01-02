@@ -41,7 +41,7 @@ void node_func::on_child_removed(node* n)
 
 void node_func::on_parent_node(node* p)
 {
-	test_collision(this);
+	superficial_collision_test(this);
 }
 
 void node_func::debug(debug_ostream& stream, int indent) const
@@ -118,7 +118,7 @@ string node_func::get_id() const
 	return std::move(ss.str());
 }
 
-bool node_func::compare_with_symbol(const node_func* rhs) const
+bool node_func::superficial_test_symbol_collision(const node_func* rhs) const
 {
 	if (get_name() != rhs->get_name())
 		return false;
@@ -133,7 +133,43 @@ bool node_func::compare_with_symbol(const node_func* rhs) const
 	if (num_children1 != num_children2)
 		return false;
 
+	// both arguments have 0 arguments
+	if (num_children1 == 0)
+		throw error_named_symbol_already_declared(get_source_code(), get_name(), rhs->get_source_code());
+
 	// TODO: verify each parameter
 	// TODO: varargs parameters?
 	return true;
+}
+
+void node_func::deep_test_symbol_collision(const node_func* rhs) const
+{
+	if (get_name() != rhs->get_name())
+		return;
+
+	const auto has_parameters1 = _parameters != nullptr;
+	const auto has_parameters2 = rhs->_parameters != nullptr;
+	if (has_parameters1 != has_parameters2)
+		return;
+
+	const auto num_children1 = _parameters != nullptr ? _parameters->get_child_count() : 0;
+	const auto num_children2 = rhs->_parameters != nullptr ? rhs->_parameters->get_child_count() : 0;
+	if (num_children1 != num_children2)
+		return;
+
+	// compare each argument
+	for(int i = 0; i < num_children1; ++i)
+	{
+		const auto arg1 = dynamic_cast<node_var*>(_parameters->get_child(i));
+		const auto arg2 = dynamic_cast<node_var*>(rhs->_parameters->get_child(i));
+
+
+	}
+	throw error_named_symbol_already_declared(get_source_code(), get_name(), rhs->get_source_code());
+}
+
+void node_func::resolve0(const recursion_detector* rd, resolve_state* state)
+{
+	node::resolve0(rd, state);
+	deep_collision_test(this);
 }

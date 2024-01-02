@@ -115,8 +115,9 @@ error_unexpected_extern_func_body::error_unexpected_extern_func_body(const sourc
 	set(std::move(s.str()));
 }
 
-error_named_symbol_already_declared::error_named_symbol_already_declared(const source_code_view& view, string_view name)
-		: parse_error(error_types::named_symbol_already_declared, view)
+error_named_symbol_already_declared::error_named_symbol_already_declared(const source_code_view& view, string_view name,
+		const source_code_view& collision)
+		: parse_error(error_types::named_symbol_already_declared, view), _collision(collision)
 {
 	stringstream s;
 	s << "symbol '" << name << "' is already declared";

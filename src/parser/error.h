@@ -164,7 +164,16 @@ namespace o2
 			: public parse_error
 	{
 	public:
-		error_named_symbol_already_declared(const source_code_view& view, string_view name);
+		error_named_symbol_already_declared(const source_code_view& view, string_view name,
+				const source_code_view& collision);
+
+		[[nodiscard]] const source_code_view& get_collision() const
+		{
+			return _collision;
+		}
+
+	private:
+		const source_code_view _collision;
 	};
 
 	/**
