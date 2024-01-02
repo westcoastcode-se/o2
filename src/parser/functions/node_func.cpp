@@ -158,12 +158,14 @@ void node_func::deep_test_symbol_collision(const node_func* rhs) const
 		return;
 
 	// compare each argument
-	for(int i = 0; i < num_children1; ++i)
+	for (int i = 0; i < num_children1; ++i)
 	{
 		const auto arg1 = dynamic_cast<node_var*>(_parameters->get_child(i));
 		const auto arg2 = dynamic_cast<node_var*>(rhs->_parameters->get_child(i));
-
-
+		const auto type1 = arg1->get_type();
+		const auto type2 = arg2->get_type();
+		if (type1->get_type()->is_compatible_with(type2->get_type()) != compatibility::identical)
+			return;
 	}
 	throw error_named_symbol_already_declared(get_source_code(), get_name(), rhs->get_source_code());
 }

@@ -328,7 +328,7 @@ void funcs()
 			const auto F2_scope_call_F1 = assert_type<node_op_callfunc>(F2_scope->get_child(0));
 			assert_equals(F2_scope_call_F1->get_func(), func_F1);
 		});
-		/*test("polymorphism_args_1", ROOT_PATH, [](syntax_tree& st)
+		test("polymorphism_args_1", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 14);
@@ -346,6 +346,6 @@ void funcs()
 
 			const auto func_F_float = assert_type<node_func>(package_main->get_child(2));
 			assert_equals(func_F_float->get_name(), "F");
-		});*/
+		});
 	});
 }
