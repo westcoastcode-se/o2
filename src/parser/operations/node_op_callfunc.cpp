@@ -87,7 +87,7 @@ void node_op_callfunc::resolve0(const recursion_detector* rd, resolve_state* sta
 			arg_type->process_phase(&rd0, state, phase_resolve);
 
 			// is the compatibility not identical or upcast?
-			if ((int)named_arg_type->get_type()->is_compatible_with(arg_type->get_type()) >= (int)compatibility::upcast)
+			if ((int)named_arg_type->get_type()->is_compatible_with(arg_type->get_type()) > (int)compatibility::upcast)
 				break;
 		}
 
