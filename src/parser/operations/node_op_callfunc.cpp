@@ -68,6 +68,8 @@ void node_op_callfunc::resolve0(const recursion_detector* rd, resolve_state* sta
 			continue;
 
 		// verify each argument
+		// TODO: Add support for figuring out the best function among many functions for
+		//       upcast among primitives and inheritance
 		const int num_children = args.size();
 		int i = 0;
 		for (; i < num_children; ++i)
@@ -75,16 +77,17 @@ void node_op_callfunc::resolve0(const recursion_detector* rd, resolve_state* sta
 			const auto named_arg = static_cast<node_var*>(args[i]);
 			const auto named_arg_type = named_arg->get_type();
 
-			// the first child of this type is the reference to the function we want to call
+			// index 0 is the reference to the function we want to call. All the other children
+			// are the actual values we send into the function
 			const auto arg_op = static_cast<node_op*>(get_child(i + 1));
 			const auto arg_type = arg_op->get_type();
 
 			const recursion_detector rd0(rd, this);
 			named_arg_type->process_phase(&rd0, state, phase_resolve);
-			arg_type->process_phase(&rd0, state, phase_resolve_size);
+			arg_type->process_phase(&rd0, state, phase_resolve);
 
 			// is the compatibility not identical or upcast?
-			if ((int)named_arg_type->is_compatible_with(arg_type) > (int)compatibility::upcast)
+			if ((int)named_arg_type->get_type()->is_compatible_with(arg_type->get_type()) >= (int)compatibility::upcast)
 				break;
 		}
 
