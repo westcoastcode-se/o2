@@ -67,6 +67,10 @@ void errors_resolve()
 			const auto e2 = assert_type<error_named_symbol_already_declared>(&e);
 			assert_equals(string_view(STR("symbol 'F' is already declared")), e2->get_error());
 		});
+		test_error("multiple_refs_upcast", ROOT_PATH, [](const std::exception& e)
+		{
+			const auto e2 = assert_type<resolve_error_multiple_refs>(&e);
+		});
 	});
 
 }

@@ -33,7 +33,7 @@ felt that something is missing from that language:
       runtime-type information, inheritance and other such features
 * Built-in support for dependency management between different projects/modules
 * No built-in support for suspensions using `async` and `await`
-* 
+*
     * Threads are not really a good way of using your computers resources
 
 So my goal is to make a programming language that's modern, compiles quickly enough and
@@ -44,8 +44,8 @@ creates machine-code. Then who knows what happens from there
 Tools needed are:
 
 * Compiler (Visual Studio, clang or gcc)
-  * For example, download clang https://github.com/llvm/llvm-project/releases and configure it 
-    for clion: https://www.jetbrains.com/help/clion/quick-tutorial-on-configuring-clion-on-windows.html#clang-cl
+    * For example, download clang https://github.com/llvm/llvm-project/releases and configure it
+      for clion: https://www.jetbrains.com/help/clion/quick-tutorial-on-configuring-clion-on-windows.html#clang-cl
 * CMake >= 3.12
 * Git
 
@@ -138,7 +138,7 @@ dependencies.
 ## Package
 
 - [x] allow for operating system specific source codes using filename suffixes
-  - `_win.o2`, `_osx.o2`, `_linux.o2`
+    - `_win.o2`, `_osx.o2`, `_linux.o2`
 
 A package is, implicitly, figured out by the folder it's located in. Lets' consider the following folder structure:
 
@@ -178,6 +178,7 @@ import using the format `import "<path>" as alias_name`.
 - [ ] inheritance
 - [ ] lookup of inherited symbols must be done with "closest" first
     - search one level at a time, beginning from the left of the inheritance list
+- [ ] add a specific `*void` type called `rawptr`, or `ptr` or something similar
 
 ### Typedef
 
@@ -272,6 +273,8 @@ const func MyFunc() int {
     - a function marked with the `module` accessor should only be accessible from within the same module
     - a function marked with the `public` accessor should only be accessible from everywhere
     - a function marked with the `private` accessor should only be accessible from within the package
+- [ ] polymorphism for functions
+    - allow for selecting the best matched function when more than one symbol is found during the resolve phase
 
 ### Package level function
 

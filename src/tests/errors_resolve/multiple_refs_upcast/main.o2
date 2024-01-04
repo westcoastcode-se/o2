@@ -1,0 +1,7 @@
+func F1(f float64) {}
+
+func F1(f float32) {}
+
+func F() {
+    F1(10)
+}

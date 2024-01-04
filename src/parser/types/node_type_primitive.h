@@ -6,6 +6,7 @@
 #pragma once
 
 #include "node_type.h"
+#include "../primitive_value.h"
 #include <llvm/IR/Type.h>
 
 namespace o2
@@ -15,6 +16,7 @@ namespace o2
 	{
 	public:
 		node_type_primitive(const vector<string_view>& names, int size,
+				primitive_type pttype,
 				llvm::Type* type);
 
 		/**
@@ -64,6 +66,7 @@ namespace o2
 
 	private:
 		vector<string_view> _names;
+		const primitive_type _primitive_type;
 		llvm::Type* const _llvm_type;
 	};
 
