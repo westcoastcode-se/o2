@@ -1,0 +1,7 @@
+func F1(a int, f float64) {}
+
+func F1(a int, f float32) {}
+
+func F() {
+    F1(10, 10)
+}

@@ -1,0 +1,10 @@
+func F(a int, b int) {}
+
+func F(a int, b float32) {}
+
+func F(a int, b float64) {}
+
+func main() {
+    F(10, 1.0f)
+}
+

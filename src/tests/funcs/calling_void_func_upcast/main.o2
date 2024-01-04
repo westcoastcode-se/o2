@@ -1,4 +1,4 @@
-func F1(i int) {}
+func F1(i float) {}
 
 func F() {
     F1(10)

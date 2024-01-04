@@ -328,7 +328,7 @@ void funcs()
 			const auto F2_scope_call_F1 = assert_type<node_op_callfunc>(F2_scope->get_child(0));
 			assert_equals(F2_scope_call_F1->get_func(), func_F1);
 		});
-		test("calling_func_return_void", ROOT_PATH, [](syntax_tree& st)
+		test("calling_polymorphism_args_1", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
 			assert_equals(root->get_child_count(), 14);
@@ -373,7 +373,7 @@ void funcs()
 			assert_equals(func_F3_void_body_scope_callfunc->get_func(), func_F1_int);
 			assert_equals(func_F4_void_body_scope_callfunc->get_func(), func_F1_float);
 		});
-		test("polymorphism_args_1", ROOT_PATH, [](syntax_tree& st)
+		test("declaring_polymorphism_args_1", ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 14);
@@ -391,6 +391,58 @@ void funcs()
 
 			const auto func_F_float = assert_type<node_func>(package_main->get_child(2));
 			assert_equals(func_F_float->get_name(), "F");
+		});
+		test("calling_void_func_upcast", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_child_count(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			assert_equals(package_main->get_child_count(), 2);
+
+			const auto func_F1_void = assert_type<node_func>(package_main->get_child(0));
+			assert_equals(func_F1_void->get_name(), "F1");
+
+			const auto func_F_void = assert_type<node_func>(package_main->get_child(1));
+			assert_equals(func_F_void->get_name(), "F");
+			const auto func_F_void_body = assert_type<node_func_body>(func_F_void->get_child(2));
+			const auto func_F_void_body_scope = assert_type<node_scope>(func_F_void_body->get_child(0));
+			const auto func_F_void_body_scope_callfunc = assert_type<node_op_callfunc>(
+					func_F_void_body_scope->get_child(0));
+
+			assert_equals(func_F_void_body_scope_callfunc->get_func(), func_F1_void);
+		});
+		test("calling_void_func_upcast_identical_args", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_child_count(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			assert_equals(package_main->get_child_count(), 4);
+
+			const auto func_F_int_int = assert_type<node_func>(package_main->get_child(0));
+			assert_equals(func_F_int_int->get_name(), "F");
+
+			const auto func_F_int_float32 = assert_type<node_func>(package_main->get_child(1));
+			assert_equals(func_F_int_float32->get_name(), "F");
+
+			const auto func_F_int_float64 = assert_type<node_func>(package_main->get_child(2));
+			assert_equals(func_F_int_float64->get_name(), "F");
+
+			const auto func_main = assert_type<node_func>(package_main->get_child(3));
+			assert_equals(func_main->get_name(), "main");
+			const auto func_main_body = assert_type<node_func_body>(func_main->get_child(2));
+			const auto func_main_body_scope = assert_type<node_scope>(func_main_body->get_child(0));
+			const auto func_main_body_scope_callfunc = assert_type<node_op_callfunc>(
+					func_main_body_scope->get_child(0));
+			assert_equals(func_main_body_scope_callfunc->get_func(), func_F_int_float32);
+
 		});
 	});
 }

@@ -1,0 +1,18 @@
+func F1() {}
+
+func F2() {
+    F1()
+}
+
+func F1(i int) {}
+
+func F3() {
+    F1(10)
+}
+
+func F4() {
+    F1(10.0f)
+}
+
+func F1(f float) {}
+
