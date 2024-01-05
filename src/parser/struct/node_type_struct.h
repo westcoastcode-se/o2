@@ -90,6 +90,17 @@ namespace o2
 			return _inherits->find_inherited_type(id);
 		}
 
+		/**
+		 * \param type
+		 * \return true if this struct inherits from the supplied type
+		 */
+		[[nodiscard]] bool inherits_from_type(node_type* type) const
+		{
+			if (_inherits == nullptr)
+				return false;
+			return _inherits->inherits_from_type(type);
+		}
+
 #pragma region node_type
 
 		compatibility is_compatible_with(node_type* rhs) const override;

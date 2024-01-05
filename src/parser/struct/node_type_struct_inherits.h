@@ -12,6 +12,8 @@ namespace o2
 {
 	/**
 	 * \brief a container of inheritances
+	 *
+	 * All of this container's children are of the node_type_struct_inherit type
 	 */
 	class node_type_struct_inherits
 			: public node
@@ -50,6 +52,12 @@ namespace o2
 #pragma endregion
 	};
 
+	/**
+	 * \brief abstraction of an inheritance
+	 *
+	 * The only allowed children are:
+	 * - node_type
+	 */
 	class node_type_struct_inherit
 			: public node
 	{

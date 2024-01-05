@@ -23,6 +23,8 @@ namespace o2
 	 * - variable
 	 *
 	 * An attribute must have the base class "stdlib/attribute"
+	 *
+	 * TODO add support for attribute arguments
 	 */
 	class node_attribute
 			: public node

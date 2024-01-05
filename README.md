@@ -13,7 +13,7 @@
 9. [Lambda](#Lambda)
 10. [Trait](#Trait)
 11. [Macro](#Macro)
-12. [Metadata](#Metadata)
+12. [Attributes](#Attributes)
 
 ## Why?
 
@@ -175,7 +175,12 @@ import using the format `import "<path>" as alias_name`.
 - [ ] implicit type deduction for variables
 - [ ] implicit types deducted from constants can be automatically resolved during parse phase
     - `var name = 10` is always known to be an `int32`
-- [ ] inheritance
+- [x] inheriting from primitives
+- [x] inheriting from types
+- [ ] prevent inheriting from multiple structs
+- [ ] inheriting from macro types
+- [ ] inheriting from interfaces
+- [ ] macro types
 - [ ] lookup of inherited symbols must be done with "closest" first
     - search one level at a time, beginning from the left of the inheritance list
 - [ ] add a specific `*void` type called `rawptr`, or `ptr` or something similar
@@ -579,13 +584,55 @@ Will turn into:
 const stringified string = "value is 20"
 ```
 
-## Metadata
+## Attributes
 
-- [ ] add support for the `@Metadata` syntax for functions
-- [ ] add support for the `@Metadata` syntax for arguments
-- [ ] add support for the `@Metadata` syntax for global variables
-- [ ] consider adding support for the `@Metadata` syntax for local variables
-- [ ] custom metadata types: `type MyMetadata : metadata{}` 
+- [x] add support for the `@attribute` syntax for functions
+- [x] add support for the `@attribute` syntax for types
+- [ ] add support for the `@attribute` syntax for type fields
+- [ ] add support for the `@attribute` syntax for type methods
+- [ ] add support for the `@attribute` syntax for type static functions
+- [ ] add support for the `@attribute` syntax for constant variables
+- [ ] add support for the `@attribute` syntax for function arguments
+- [ ] add support for the `@attribute` syntax for global variables
+- [ ] consider adding support for the `@attribute` syntax for local variables
+- [x] custom attribute types: `type custom_attribute : attribute{}`
+- [ ] add support for a way to configure attribute limitations, for example
+      so that an attribute is only allowed to be added on functions and nothing else
+
+### Attributes on types
+
+Considering the following:
+
+```
+@custom
+type my_type {}
+```
+
+This will add the attribute "custom" to the type. Attributes can be used efficiently after the resolve 
+phase. The compiler will raise an error if you specify a type where `attribute` isn't a base type.
+
+### Custom Attributes
+
+The language allows for custom attributes. A custom attribute **must** have the base type `attribute`.
+
+Consider the following:
+
+```
+import "stdlib"
+
+type custom : attribute {}
+```
+
+This will create an attribute named "custom" that you can attach on any [symbol](#Symbol).
+
+## Symbol
+
+Symbols:
+- `type`
+- `func`
+- `var`
+- `const`
+- function and method arguments
 
 ## Features
 
@@ -599,6 +646,7 @@ const stringified string = "value is 20"
 - [x] `return` statement
 - [x] resolving types should not also calculate the type size
 - [x] do not require `;`
+- [x] resolving `primitive` types can be during parse
 
 ### Not complete
 
@@ -606,7 +654,6 @@ const stringified string = "value is 20"
 - [ ] only resolve sizes for unknown types at the end. Some times can be resolved during parse phase
   (only primitives etc.).
     - how should fields in types be handled?
-- [ ] resolving `primitive` types can be during parse
 - [ ] `if` statement
 - [ ] `for` loops
 - [ ] `switch` statement

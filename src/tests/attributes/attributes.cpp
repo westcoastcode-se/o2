@@ -42,6 +42,14 @@ void attributes()
 			assert_equals(F2_attributes->get_child_count(), 1);
 			const auto F2_attribute = assert_type<node_attribute>(F2_attributes->get_child(0));
 			assert_equals(F2_attribute->get_attribute_type(), type_M);
+
+			const auto project_stdlib = assert_type<node_module>(root->get_child(14));
+			assert_equals(project_stdlib->get_name(), "stdlib");
+			const auto package_stdlib = assert_type<node_package>(project_stdlib->get_child(0));
+			const auto attribute = assert_type<node_type_struct>(package_stdlib->get_child(0));
+			assert_equals(attribute->get_name(), "attribute");
+
+			assert_true(type_M->inherits_from_type(attribute));
 		});
 	});
 }
