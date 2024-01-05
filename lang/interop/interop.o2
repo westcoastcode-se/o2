@@ -3,6 +3,8 @@
 // See the LICENSE file in the project root for license terms
 //
 
+import "stdlib"
+
 // \brief linkage attribute
 //
 // normally used in combination with the "extern" keyword. external functions
@@ -11,10 +13,10 @@
 type link : attribute {
     // path to where the library can be found
     // TODO: add support for an array of multiple paths
-    var path string;
+    var path string
 
     // kind can be "static" or "dynamic" depending on if you want to
     // force the compiler to link the function during compile-time or
     // runtime
-    var kind string;
+    var kind string
 }
