@@ -35,6 +35,7 @@ namespace o2
 		multiple_refs,
 		positive_int_constant_expected,
 		unresolved_reference,
+		expected_inherits_from_attribute
 	};
 
 	// \brief base class for parser errors
@@ -265,6 +266,16 @@ namespace o2
 	public:
 		explicit resolve_error_positive_int_constant_expected(const source_code_view& view);
 	};
+
+	/**
+	 * \brief error raised when a declared attribute statement is't an attribute type
+	 */
+	class resolve_error_expected_inherits_from_attribute
+			: public resolve_error
+	{
+	public:
+		explicit resolve_error_expected_inherits_from_attribute(const source_code_view& view);
+	};
 }
 
 namespace std
@@ -301,6 +312,8 @@ namespace std
 			return os << "unexpected_child_node";
 		case o2::error_types::positive_int_constant_expected:
 			return os << "positive_int_constant_expected";
+		case o2::error_types::expected_inherits_from_attribute:
+			return os << "expected_inherits_from_attribute";
 		default:
 			return os << "???";
 		}

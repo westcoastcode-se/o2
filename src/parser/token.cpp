@@ -298,21 +298,9 @@ void token::next0()
 		atom(token_type::parant_right);
 		break;
 	case '[':
-		if (peek(1) == '[')
-		{
-			_pos++;
-			atom(token_type::attribute_left);
-			break;
-		}
 		atom(token_type::square_left);
 		break;
 	case ']':
-		if (peek(1) == ']')
-		{
-			_pos++;
-			atom(token_type::attribute_right);
-			break;
-		}
 		atom(token_type::square_right);
 		break;
 	case '{':
@@ -364,7 +352,7 @@ void token::next0()
 		atom(token_type::colon);
 		break;
 	case '@':
-		next_attribute();
+		atom(token_type::attribute_prefix);
 		break;
 	case '"':
 		next_string('"');
@@ -558,49 +546,6 @@ void token::next_keyword()
 		_modifiers |= (int)token_modifier::hint_empty;
 }
 
-void token::next_attribute()
-{
-	const string_view::value_type* start = ++_pos;
-	if (*start == 0)
-	{
-		eof();
-		return;
-	}
-
-	bool escaped = false;
-	while (*_pos != 0)
-	{
-		if (*_pos == '\\' && !escaped)
-		{
-			escaped = true;
-			_pos++;
-			continue;
-		}
-
-		if (escaped)
-		{
-			escaped = false;
-			_pos++;
-			continue;
-		}
-
-		if (*_pos == '\n' && !escaped)
-		{
-			break;
-		}
-		if (*_pos == '\n')
-		{
-			_line++;
-			_line_offset = _pos + 1;
-		}
-		_pos++;
-	}
-	_string_start = start;
-	_string_end = _pos;
-	_pos++;
-	_type = token_type::attribute;
-}
-
 void token::next_comment_or_div()
 {
 	auto n = peek(1);
@@ -779,10 +724,8 @@ token_type token::hint_keyword_type() const
 	else if (len == 7)
 	{
 		static const string_view PRIVATE(STR("private"));
-		static const string_view TYPEDEF(STR("typedef"));
 
 		if (str == PRIVATE) return token_type::private_;
-		if (str == TYPEDEF) return token_type::typedef_;
 	}
 	else if (len == 8)
 	{

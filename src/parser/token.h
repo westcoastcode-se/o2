@@ -37,7 +37,6 @@ namespace o2
 
 		keyword_start,
 		type /* type */,
-		typedef_ /* typedef */,
 		macro /* macro */,
 		func /* func */,
 		cast /* cast */,
@@ -86,8 +85,6 @@ namespace o2
 		square_right /* ] */,
 		bracket_left /* { */,
 		bracket_right /* } */,
-		attribute_left /* [[ */,
-		attribute_right /* ]] */,
 
 		values_start,
 		number,
@@ -105,7 +102,7 @@ namespace o2
 		comma /* , */,
 		colon /* : */,
 		semicolon /* ; */,
-		attribute /* @??? */,
+		attribute_prefix /* @??? */,
 		assign /* = */,
 		decl_assign /* := */,
 		not_ /* ! */,
@@ -381,11 +378,6 @@ namespace o2
 		/// Seek the value assuming that it's a keyword
 		/// </summary>
 		void next_keyword();
-
-		/**
-		 * \brief seek the next attribute
-		 */
-		void next_attribute();
 
 		/// <summary>
 		/// Comment next?

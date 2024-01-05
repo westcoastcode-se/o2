@@ -13,7 +13,7 @@
 9. [Lambda](#Lambda)
 10. [Trait](#Trait)
 11. [Macro](#Macro)
-12. [Attribute](#Attribute)
+12. [Metadata](#Metadata)
 
 ## Why?
 
@@ -579,12 +579,13 @@ Will turn into:
 const stringified string = "value is 20"
 ```
 
-## Attribute
+## Metadata
 
-- [ ] add support for the `@Attribute` syntax for functions
-- [ ] add support for the `@Attribute` syntax for arguments
-- [ ] add support for the `@Attribute` syntax for global variables
-- [ ] consider adding support for the `@Attribute` syntax for local variables
+- [ ] add support for the `@Metadata` syntax for functions
+- [ ] add support for the `@Metadata` syntax for arguments
+- [ ] add support for the `@Metadata` syntax for global variables
+- [ ] consider adding support for the `@Metadata` syntax for local variables
+- [ ] custom metadata types: `type MyMetadata : metadata{}` 
 
 ## Features
 

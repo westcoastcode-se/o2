@@ -79,6 +79,7 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/types/node_type_reference_of.cpp"
         "src/parser/resolve_state.cpp"
         "src/parser/module/system_modules.cpp"
+        "src/parser/struct/node_type_struct_inherits.cpp"
 )
 
 # Test
@@ -91,6 +92,7 @@ add_executable(o2_tests "src/tests/main.cpp"
         "src/tests/const/const.cpp"
         "src/tests/errors_resolve/errors_resolve.cpp"
         "src/tests/errors_parse/errors_parse.cpp"
+        "src/tests/attributes/attributes.cpp"
 )
 target_link_libraries(o2_tests o2_parser ${llvm_libs})
 

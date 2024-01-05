@@ -90,6 +90,11 @@ namespace o2
 		{
 			return ptr;
 		}
+
+		bool is_set() const
+		{
+			return ptr != nullptr;
+		}
 	};
 
 	class node;

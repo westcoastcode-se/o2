@@ -8,7 +8,9 @@
 #include "../types/node_type.h"
 #include "node_type_struct_field.h"
 #include "node_type_struct_methods.h"
+#include "node_type_struct_inherits.h"
 #include "static/node_type_struct_static.h"
+#include "../node_attribute.h"
 
 namespace o2
 {
@@ -24,15 +26,31 @@ namespace o2
 		/**
 		 * \return the name of the struct
 		 */
-		string_view get_name() const
+		[[nodiscard]] string_view get_name() const
 		{
 			return _name;
 		}
 
 		/**
+		 * \return all attributes attached to this struct
+		 */
+		[[nodiscard]] node_attributes* get_attributes() const
+		{
+			return _attributes;
+		}
+
+		/**
+		 * \return inheritances
+		 */
+		[[nodiscard]] node_type_struct_inherits* get_inherits() const
+		{
+			return _inherits;
+		}
+
+		/**
 		 * \return fields part of this struct
 		 */
-		node_type_struct_fields* get_fields() const
+		[[nodiscard]] node_type_struct_fields* get_fields() const
 		{
 			return _fields;
 		}
@@ -40,12 +58,12 @@ namespace o2
 		/**
 		 * \return all fields part of this struct - included from all inherited structures
 		 */
-		vector<node_type_struct_field*> get_all_fields() const;
+		[[nodiscard]] vector<node_type_struct_field*> get_all_fields() const;
 
 		/**
 		 * \return methods container
 		 */
-		node_type_struct_methods* get_methods() const
+		[[nodiscard]] node_type_struct_methods* get_methods() const
 		{
 			return _methods;
 		}
@@ -53,9 +71,23 @@ namespace o2
 		/**
 		 * \return static container
 		 */
-		node_type_struct_static* get_static() const
+		[[nodiscard]] node_type_struct_static* get_static() const
 		{
 			return _static;
+		}
+
+		/**
+		 * \brief search for an inherited type that matches the supplied symbol id
+		 * \tparam str
+		 * \param name
+		 * \param s
+		 * \return
+		 */
+		[[nodiscard]] node_type* find_inherited_type(string_view id) const
+		{
+			if (_inherits == nullptr)
+				return nullptr;
+			return _inherits->find_inherited_type(id);
 		}
 
 #pragma region node_type
@@ -99,6 +131,8 @@ namespace o2
 
 	private:
 		string_view _name;
+		node_attributes* _attributes;
+		node_type_struct_inherits* _inherits;
 		node_type_struct_fields* _fields;
 		node_type_struct_methods* _methods;
 		node_type_struct_static* _static;

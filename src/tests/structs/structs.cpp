@@ -14,7 +14,7 @@ void structs()
 
 	suite("structs", []()
 	{
-		test({ "empty", "empty_with_no_body", "explicit_struct" }, ROOT_PATH, [](syntax_tree& st)
+		test({ "empty", "empty_with_no_body" }, ROOT_PATH, [](syntax_tree& st)
 		{
 			const auto root = st.get_root_package();
 			assert_equals(root->get_children().size(), 14);
@@ -25,6 +25,19 @@ void structs()
 			const auto type_struct = assert_type<node_type_struct>(package_main->get_child(0));
 			assert_equals(type_struct->get_name(), "empty");
 			assert_equals(type_struct->get_child_count(), 0);
+		});
+		test({ "explicit_struct" }, ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			const auto type_struct = assert_type<node_type_struct>(package_main->get_child(0));
+			assert_equals(type_struct->get_name(), "empty");
+			assert_equals(type_struct->get_child_count(), 1);
+			assert_type<node_type_struct_inherits>(type_struct->get_child(0));
 		});
 		test("empty_in_module", ROOT_PATH, "apps", [](syntax_tree& st)
 		{

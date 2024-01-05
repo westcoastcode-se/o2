@@ -15,6 +15,8 @@ extern void modules();
 
 extern void structs();
 
+extern void attributes();
+
 extern void errors_parse();
 
 extern void errors_resolve();
@@ -42,6 +44,7 @@ int main(int argc, char** argv)
 	modules();
 	funcs();
 	structs();
+	attributes();
 	errors_parse();
 	errors_resolve();
 	const_();

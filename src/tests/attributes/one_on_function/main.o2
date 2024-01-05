@@ -1,0 +1,9 @@
+import "stdlib"
+
+type M : attribute {}
+
+@M
+func F1() {}
+
+@M()
+func F2() {}

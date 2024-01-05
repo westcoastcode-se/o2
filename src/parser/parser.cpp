@@ -25,11 +25,17 @@ namespace
 {
 	node_func_method* parse_func_method(const parser_scope* ps);
 
-	node_func* parse_func_extern(const parser_scope* ps);
+	node_func* parse_func_extern(const parser_scope* ps, memory_guard<node_attributes>& attributes);
 
-	node_func* parse_func(const parser_scope* ps, int modifier);
+	node_func* parse_func(const parser_scope* ps, int modifiers, memory_guard<node_attributes>& attributes);
 
-	node_type* parse_type(const parser_scope* ps);
+	node_type* parse_type(const parser_scope* ps, memory_guard<node_attributes>& attributes);
+
+	/**
+	 * \brief parse an attribute statement
+	 * \param ps
+	 */
+	node_attributes* parse_attribute(const parser_scope* ps);
 
 	node_ref* parse_ref(const parser_scope* ps, int query, int chain_types, int query_flags);
 
@@ -344,11 +350,30 @@ namespace
 		{
 			if (t->type() == token_type::func)
 			{
-				return parse_func(ps, 0);
+				memory_guard<node_attributes> attributes;
+				return parse_func(ps, 0, attributes);
+			}
+			else if (t->type() == token_type::attribute_prefix)
+			{
+				// if we arrive at an attribute statement then the next tokens must be a :
+				// - type
+				// - function
+				// - constant value
+				// - variable
+				auto guard = memory_guard(parse_attribute(ps));
+				if (t->type() == token_type::type)
+					return parse_type(ps, guard);
+				else if (t->type() == token_type::func)
+					return parse_func(ps, 0, guard);
+				else
+				{
+					throw error_syntax_error(ps->get_view(), t, "incompatible attribute destination");
+				}
 			}
 			else if (t->type() == token_type::type)
 			{
-				return parse_type(ps);
+				memory_guard<node_attributes> attributes;
+				return parse_type(ps, attributes);
 			}
 			else if (t->type() == token_type::return_)
 			{
@@ -563,7 +588,7 @@ namespace
 		}
 	}
 
-	node_func* parse_func0(const parser_scope* ps, int modifiers)
+	node_func* parse_func0(const parser_scope* ps, int modifiers, memory_guard<node_attributes>& attributes)
 	{
 		const auto t = ps->t;
 		auto tt = t->next();
@@ -580,6 +605,8 @@ namespace
 		else
 			func = o2_new node_func(ps->get_view(), t->value());
 		auto guard = memory_guard(func);
+		if (attributes.is_set())
+			func->add_child(attributes.done());
 
 		tt = t->next();
 		if (tt == token_type::test_gt)
@@ -649,9 +676,9 @@ namespace
 		return guard.done();
 	}
 
-	node_func* parse_func_extern(const parser_scope* ps)
+	node_func* parse_func_extern(const parser_scope* ps, memory_guard<node_attributes>& attributes)
 	{
-		const auto func = parse_func0(ps, node_func::modifier_extern);
+		const auto func = parse_func0(ps, node_func::modifier_extern, attributes);
 		auto guard = memory_guard(func);
 		// TODO should it be possible to specify a function, but then
 		//      allow it to be overridden by external library?
@@ -756,9 +783,9 @@ namespace
 		return guard.done();
 	}
 
-	node_func* parse_func(const parser_scope* ps, int modifiers)
+	node_func* parse_func(const parser_scope* ps, int modifiers, memory_guard<node_attributes>& attributes)
 	{
-		const auto func = parse_func0(ps, modifiers);
+		const auto func = parse_func0(ps, modifiers, attributes);
 		auto guard = memory_guard(func);
 
 		// this function definition have a body
@@ -815,7 +842,7 @@ namespace
 		return guard.done();
 	}
 
-	node* parse_extern(const parser_scope* ps)
+	node* parse_extern(const parser_scope* ps, memory_guard<node_attributes>& attributes)
 	{
 		const auto t = ps->t;
 		t->next();
@@ -826,14 +853,14 @@ namespace
 		switch (t->type())
 		{
 		case token_type::func:
-			return parse_func_extern(ps);
+			return parse_func_extern(ps, attributes);
 		default:
 			throw error_syntax_error(ps->get_view(), t,
 					"only functions are allowed to be external");
 		}
 	}
 
-	node* parse_const(const parser_scope* ps)
+	node* parse_const(const parser_scope* ps, memory_guard<node_attributes>& attributes)
 	{
 		const auto t = ps->t;
 		t->next();
@@ -846,8 +873,9 @@ namespace
 		switch (t->type())
 		{
 		case token_type::func:
-			return parse_func(ps, node_func::modifier_const);
+			return parse_func(ps, node_func::modifier_const, attributes);
 		case token_type::identity:
+			assert(!attributes.is_set() && "attributes must be set to a type, const, func, var, ...");
 			return parse_named_constant(ps);
 		default:
 			throw error_syntax_error(ps->get_view(), t,
@@ -870,7 +898,8 @@ namespace
 		return guard.done();
 	}
 
-	void parse_type_statics(const parser_scope* ps, node_type_struct_static* static_)
+	void parse_type_statics(const parser_scope* ps, node_type_struct_static* static_,
+			memory_guard<node_attributes>& attributes)
 	{
 		const auto t = ps->t;
 		if (t->next_until_not(token_type::comment) != token_type::bracket_left)
@@ -901,7 +930,7 @@ namespace
 					static_->add_child(funcs);
 				}
 				const parser_scope ps1(ps, static_->get_funcs());
-				static_->get_funcs()->add_child(parse_func(&ps1, 0));
+				static_->get_funcs()->add_child(parse_func(&ps1, 0, attributes));
 				continue;
 			}
 			case token_type::bracket_right:
@@ -915,7 +944,66 @@ namespace
 			throw error_syntax_error(ps->get_view(), t, "expected '}'");
 	}
 
-	node_type* parse_type(const parser_scope* ps)
+	void parse_inheritances(node_type_struct* const type, node_type_struct_inherits* const inherits,
+			const parser_scope* ps)
+	{
+		const auto t = ps->t;
+		// ignore struct token
+		if (t->type() == token_type::struct_)
+		{
+			// not comma next, so we assume that no more inheritances will be parsed
+			if (t->next() != token_type::comma)
+			{
+				return;
+			}
+			// skip comma
+			t->next();
+		}
+
+		if (t->type() != token_type::identity)
+			throw error_expected_identity(ps->get_view(), t);
+
+		// Seek the first token
+		while (t->type() == token_type::identity)
+		{
+			if (t->type() != token_type::identity)
+				throw error_expected_identity(ps->get_view(), t);
+
+			const auto inherit = o2_new node_type_struct_inherit(ps->get_view());
+			auto guard = memory_guard(inherit);
+			inherit->add_child(parse_type_ref(ps));
+			inherits->add_child(guard.done());
+
+			if (t->type() == token_type::comma)
+				t->next();
+		}
+	}
+
+	node_attributes* parse_attribute(const parser_scope* ps)
+	{
+		const auto t = ps->t;
+		if (t->type() != token_type::attribute_prefix)
+			throw error_syntax_error(ps->get_view(), t, "@");
+
+		const auto attributes = o2_new node_attributes(ps->get_view());
+		auto guard = memory_guard(attributes);
+
+		// first attribute child node must be a node_type (node_type_ref)
+		t->next();
+		attributes->add_child(parse_type_ref(ps));
+
+		// then potentially parse attribute args
+		if (t->type() == token_type::parant_left)
+		{
+			if (t->next() != token_type::parant_right)
+				throw error_not_implemented(ps->get_view(), "attribute arguments");
+			t->next();
+		}
+
+		return guard.done();
+	}
+
+	node_type* parse_type(const parser_scope* ps, memory_guard<node_attributes>& attributes)
 	{
 		// types can have the format:
 		//
@@ -932,6 +1020,8 @@ namespace
 
 		const auto identity = t->value();
 		const auto type = o2_new node_type_struct(ps->get_view(), identity);
+		if (attributes.is_set())
+			type->add_child(attributes.done());
 		auto guard = memory_guard(type);
 		const parser_scope ps0(ps, type);
 
@@ -947,10 +1037,12 @@ namespace
 		// type <name> [: <inherited from>] { ... }
 		if (t->type() == token_type::colon)
 		{
-			// Only inheriting from structs are allowed for now
-			if (t->next() != token_type::struct_)
-				throw error_not_implemented(ps->get_view(), "inheritance are not implemented yet");
 			t->next();
+
+			// inherits from container
+			const auto inherits = o2_new node_type_struct_inherits(type->get_source_code());
+			type->add_child(inherits);
+			parse_inheritances(type, inherits, &ps0);
 		}
 
 		if (t->type() == token_type::newline)
@@ -967,12 +1059,16 @@ namespace
 			node_type_struct_fields* fields = nullptr;
 			node_type_struct_methods* methods = nullptr;
 			node_type_struct_static* static_ = nullptr;
+			memory_guard<node_attributes> attributes;
 
 			// Seek the first token
 			while (t->next_until_not(token_type::newline, token_type::comment) != token_type::bracket_right)
 			{
 				switch (t->type())
 				{
+				case token_type::attribute_prefix:
+					attributes.set(parse_attribute(&ps0));
+					continue;
 				case token_type::var:
 				{
 					if (fields == nullptr)
@@ -987,7 +1083,7 @@ namespace
 				}
 				case token_type::type:
 				{
-					type->add_child(parse_type(&ps0));
+					type->add_child(parse_type(&ps0, attributes));
 					continue;
 				}
 				case token_type::func:
@@ -1010,7 +1106,7 @@ namespace
 					}
 
 					const parser_scope ps1(&ps0, static_);
-					parse_type_statics(&ps1, static_);
+					parse_type_statics(&ps1, static_, attributes);
 					continue;
 				}
 				default:
@@ -1053,24 +1149,28 @@ namespace
 	void parse_package_scope(const parser_scope* ps)
 	{
 		const auto t = ps->t;
+		memory_guard<node_attributes> attributes;
 		while (true)
 		{
 			switch (t->type())
 			{
+			case token_type::attribute_prefix:
+				attributes.set(parse_attribute(ps));
+				continue;
 			case token_type::import:
 				throw error_syntax_error(ps->get_view(), t,
 						"imports are only allowed at the top of the package segment");
 			case token_type::func:
-				ps->closest->add_child(parse_func(ps, 0));
+				ps->closest->add_child(parse_func(ps, 0, attributes));
 				continue;
 			case token_type::const_:
-				ps->closest->add_child(parse_const(ps));
+				ps->closest->add_child(parse_const(ps, attributes));
 				continue;
 			case token_type::extern_:
-				ps->closest->add_child(parse_extern(ps));
+				ps->closest->add_child(parse_extern(ps, attributes));
 				continue;
 			case token_type::type:
-				ps->closest->add_child(parse_type(ps));
+				ps->closest->add_child(parse_type(ps, attributes));
 				continue;
 			case token_type::eof:
 				return;
@@ -1079,6 +1179,8 @@ namespace
 				break;
 			}
 		}
+
+		assert(!attributes.is_set() && "attributes must be set to a type, const, func, var, ...");
 	}
 
 	/**
