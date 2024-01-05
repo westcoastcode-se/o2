@@ -27,6 +27,21 @@ void attributes()
 			const auto import_stdlib = assert_type<node_import>(package_main->get_child(0));
 			assert_equals(import_stdlib->get_child_count(), 3);
 
+			const auto type_M = assert_type<node_type_struct>(import_stdlib->get_child(0));
+
+			const auto func_F1 = assert_type<node_func>(import_stdlib->get_child(1));
+			assert_equals(func_F1->get_name(), "F1");
+			const auto F1_attributes = assert_not_null(func_F1->get_attributes());
+			assert_equals(F1_attributes->get_child_count(), 1);
+			const auto F1_attribute = assert_type<node_attribute>(F1_attributes->get_child(0));
+			assert_equals(F1_attribute->get_attribute_type(), type_M);
+
+			const auto func_F2 = assert_type<node_func>(import_stdlib->get_child(2));
+			assert_equals(func_F2->get_name(), "F2");
+			const auto F2_attributes = assert_not_null(func_F2->get_attributes());
+			assert_equals(F2_attributes->get_child_count(), 1);
+			const auto F2_attribute = assert_type<node_attribute>(F2_attributes->get_child(0));
+			assert_equals(F2_attribute->get_attribute_type(), type_M);
 		});
 	});
 }

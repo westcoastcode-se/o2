@@ -10,7 +10,7 @@ using namespace o2;
 
 namespace
 {
-	const string_view ATTRIBUTE_ID("stdlib/attribute");
+	const string_view ATTRIBUTE_ID("/stdlib/attribute");
 }
 
 node_attribute::node_attribute(const source_code_view& view)

@@ -35,7 +35,13 @@ namespace
 	 * \brief parse an attribute statement
 	 * \param ps
 	 */
-	node_attributes* parse_attribute(const parser_scope* ps);
+	node_attribute* parse_attribute(const parser_scope* ps, node_attributes* attributes);
+
+	/**
+	 * \brief parse a list of attribute statements
+	 * \param ps
+	 */
+	node_attributes* parse_attributes(const parser_scope* ps);
 
 	node_ref* parse_ref(const parser_scope* ps, int query, int chain_types, int query_flags);
 
@@ -360,7 +366,7 @@ namespace
 				// - function
 				// - constant value
 				// - variable
-				auto guard = memory_guard(parse_attribute(ps));
+				auto guard = memory_guard(parse_attributes(ps));
 				if (t->type() == token_type::type)
 					return parse_type(ps, guard);
 				else if (t->type() == token_type::func)
@@ -979,18 +985,18 @@ namespace
 		}
 	}
 
-	node_attributes* parse_attribute(const parser_scope* ps)
+	node_attribute* parse_attribute(const parser_scope* ps, node_attributes* attributes)
 	{
 		const auto t = ps->t;
 		if (t->type() != token_type::attribute_prefix)
 			throw error_syntax_error(ps->get_view(), t, "@");
 
-		const auto attributes = o2_new node_attributes(ps->get_view());
-		auto guard = memory_guard(attributes);
+		const auto attribute = o2_new node_attribute(ps->get_view());
+		auto guard = memory_guard(attribute);
 
 		// first attribute child node must be a node_type (node_type_ref)
 		t->next();
-		attributes->add_child(parse_type_ref(ps));
+		attribute->add_child(parse_type_ref(ps));
 
 		// then potentially parse attribute args
 		if (t->type() == token_type::parant_left)
@@ -1000,6 +1006,23 @@ namespace
 			t->next();
 		}
 
+		if (t->type() != token_type::newline)
+			throw error_syntax_error(ps->get_view(), t, "newline");
+		t->next();
+		return guard.done();
+	}
+
+	node_attributes* parse_attributes(const parser_scope* ps)
+	{
+		const auto t = ps->t;
+		if (t->type() != token_type::attribute_prefix)
+			throw error_syntax_error(ps->get_view(), t, "@");
+
+		const auto attributes = o2_new node_attributes(ps->get_view());
+		auto guard = memory_guard(attributes);
+
+		while (t->type() == token_type::attribute_prefix)
+			attributes->add_child(parse_attribute(ps, attributes));
 		return guard.done();
 	}
 
@@ -1067,7 +1090,7 @@ namespace
 				switch (t->type())
 				{
 				case token_type::attribute_prefix:
-					attributes.set(parse_attribute(&ps0));
+					attributes.set(parse_attributes(&ps0));
 					continue;
 				case token_type::var:
 				{
@@ -1155,7 +1178,7 @@ namespace
 			switch (t->type())
 			{
 			case token_type::attribute_prefix:
-				attributes.set(parse_attribute(ps));
+				attributes.set(parse_attributes(ps));
 				continue;
 			case token_type::import:
 				throw error_syntax_error(ps->get_view(), t,

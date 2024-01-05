@@ -24,6 +24,12 @@ node* node_func::on_child_added(node* n)
 			const auto body = dynamic_cast<node_func_body*>(n);
 			if (body)
 				_body = body;
+			else
+			{
+				const auto attributes = dynamic_cast<node_attributes*>(n);
+				if (attributes)
+					_attributes = attributes;
+			}
 		}
 	}
 	return n;
