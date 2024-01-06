@@ -421,5 +421,22 @@ void structs()
 			assert_true(type_C->inherits_from_type(type_B));
 			assert_true(type_C->inherits_from_type(type_A));
 		});
+		test("inheritance_primitive", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 14);
+			const auto type_int = assert_type<node_type_primitive>(root->get_child(7));
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_child_count(), 1);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			assert_equals(package_main->get_child_count(), 1);
+			const auto type_A = assert_type<node_type_struct>(package_main->get_child(0));
+			const auto type_A_inherits = assert_not_null(type_A->get_inherits());
+			const auto type_A_inherit = assert_type<node_type_struct_inherit>(type_A_inherits->get_child(0));
+			assert_equals(type_A_inherit->get_inherits_from(), type_int);
+			assert_true(type_A->inherits_from_type(type_int));
+		});
 	});
 }
