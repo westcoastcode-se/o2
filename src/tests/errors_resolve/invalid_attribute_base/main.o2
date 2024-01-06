@@ -1,0 +1,6 @@
+import "stdlib"
+
+type B {}
+
+@B
+type T {}

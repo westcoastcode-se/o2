@@ -75,6 +75,10 @@ void errors_resolve()
 		{
 			const auto e2 = assert_type<resolve_error_multiple_refs>(&e);
 		});
+		test_error("invalid_attribute_base", ROOT_PATH, [](const std::exception& e)
+		{
+			const auto e2 = assert_type<resolve_error_expected_inherits_from_attribute>(&e);
+		});
 	});
 
 }
