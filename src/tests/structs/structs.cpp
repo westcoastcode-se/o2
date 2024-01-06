@@ -376,5 +376,50 @@ void structs()
 			assert_not_null(func_M->get_returns());
 			assert_equals(func_M->get_returns()->get_children().size(), 0);
 		});
+		test("inheritance_depth_one", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_child_count(), 1);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			assert_equals(package_main->get_child_count(), 2);
+			const auto type_A = assert_type<node_type_struct>(package_main->get_child(0));
+			assert_null(type_A->get_inherits());
+
+			const auto type_B = assert_type<node_type_struct>(package_main->get_child(1));
+			const auto type_B_inherits = assert_not_null(type_B->get_inherits());
+			const auto type_B_inherit = assert_type<node_type_struct_inherit>(type_B_inherits->get_child(0));
+			assert_equals(type_B_inherit->get_inherits_from(), type_A);
+			assert_true(type_B->inherits_from_type(type_A));
+		});
+		test("inheritance_depth_two", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_children().size(), 14);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_child_count(), 1);
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			assert_equals(package_main->get_child_count(), 3);
+			const auto type_A = assert_type<node_type_struct>(package_main->get_child(0));
+			assert_null(type_A->get_inherits());
+
+			const auto type_B = assert_type<node_type_struct>(package_main->get_child(1));
+			const auto type_B_inherits = assert_not_null(type_B->get_inherits());
+			const auto type_B_inherit = assert_type<node_type_struct_inherit>(type_B_inherits->get_child(0));
+			assert_equals(type_B_inherit->get_inherits_from(), type_A);
+			assert_true(type_B->inherits_from_type(type_A));
+
+			const auto type_C = assert_type<node_type_struct>(package_main->get_child(2));
+			const auto type_C_inherits = assert_not_null(type_C->get_inherits());
+			const auto type_C_inherit = assert_type<node_type_struct_inherit>(type_C_inherits->get_child(0));
+			assert_equals(type_C_inherit->get_inherits_from(), type_B);
+			assert_true(type_C->inherits_from_type(type_B));
+			assert_true(type_C->inherits_from_type(type_A));
+		});
 	});
 }

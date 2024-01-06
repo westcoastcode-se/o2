@@ -41,7 +41,7 @@ namespace o2
 		 * \remark please note that doing this type of search does not work
 		 *         until child node references are resolved
 		 */
-		bool inherits_from_type(node_type* type) const;
+		[[nodiscard]] bool inherits_from_type(node_type* type) const;
 
 #pragma region node
 
@@ -75,6 +75,24 @@ namespace o2
 		{
 			return _inherits_from;
 		}
+
+		/**
+		 * \brief search for a type that matches the supplied symbols
+		 * \tparam str
+		 * \param name
+		 * \param s
+		 * \return
+		 */
+		[[nodiscard]] node_type* find_inherited_type(string_view id) const;
+
+		/**
+		 * \brief check to see if we are inheriting from the supplied type
+		 * \param type
+		 * \return true, if the supplied type is inherited
+		 * \remark please note that doing this type of search does not work
+		 *         until child node references are resolved
+		 */
+		[[nodiscard]] bool inherits_from_type(node_type* type) const;
 
 #pragma region node
 

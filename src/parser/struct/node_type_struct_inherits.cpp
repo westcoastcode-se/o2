@@ -4,6 +4,7 @@
 //
 
 #include "node_type_struct_inherits.h"
+#include "node_type_struct.h"
 
 using namespace o2;
 
@@ -22,14 +23,17 @@ void node_type_struct_inherits::resolve0(const recursion_detector* rd, resolve_s
 
 node_type* node_type_struct_inherits::find_inherited_type(string_view id) const
 {
+	assert (!has_phase_left(phase_resolve) &&
+			"you are not allowed to call this function until after the resolve phase is done for this object");
+
 	for (const auto n: get_children())
 	{
 		const auto inherit = dynamic_cast<node_type_struct_inherit*>(n);
 		if (inherit == nullptr)
 			throw unexpected_child_node(get_source_code(), "node_type_struct_inherit");
 
-		const auto type = inherit->get_inherits_from();
-		if (type->get_id() == id)
+		const auto type = inherit->find_inherited_type(id);
+		if (type)
 			return type;
 	}
 	return nullptr;
@@ -46,8 +50,7 @@ bool node_type_struct_inherits::inherits_from_type(node_type* type) const
 		if (inherit == nullptr)
 			throw unexpected_child_node(get_source_code(), "node_type_struct_inherit");
 
-		const auto t = inherit->get_inherits_from();
-		if (t == type)
+		if (inherit->inherits_from_type(type))
 			return true;
 	}
 
@@ -97,4 +100,43 @@ void node_type_struct_inherit::on_child_removed(node* n)
 {
 	if (_inherits_from == n)
 		_inherits_from = nullptr;
+}
+
+node_type* node_type_struct_inherit::find_inherited_type(string_view id) const
+{
+	assert(_inherits_from != nullptr && "this node's resolve0 method should've been called before this");
+	if (_inherits_from->get_id() == id)
+		return _inherits_from;
+
+	auto s = dynamic_cast<node_type_struct*>(_inherits_from);
+	if (s != nullptr)
+	{
+		const auto inherits = s->get_inherits();
+		if (inherits)
+		{
+			return inherits->find_inherited_type(id);
+		}
+	}
+
+	return nullptr;
+}
+
+bool node_type_struct_inherit::inherits_from_type(node_type* type) const
+{
+	assert (!has_phase_left(phase_resolve) &&
+			"you are not allowed to call this function until after the resolve phase is done for this object");
+	if (_inherits_from == type)
+		return true;
+
+	auto s = dynamic_cast<node_type_struct*>(_inherits_from);
+	if (s != nullptr)
+	{
+		const auto inherits = s->get_inherits();
+		if (inherits)
+		{
+			return inherits->inherits_from_type(type);
+		}
+	}
+
+	return false;
 }
