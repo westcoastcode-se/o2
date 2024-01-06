@@ -72,6 +72,9 @@ void node_type_struct_inherit::resolve0(const recursion_detector* rd, resolve_st
 	_inherits_from = _inherits_from->get_type();
 	if (_inherits_from == nullptr)
 		throw resolve_error_unresolved_reference(get_source_code());
+
+	const recursion_detector rd0(rd, this);
+	_inherits_from->process_phase(&rd0, state, phase_resolve);
 }
 
 void node_type_struct_inherit::on_process_phase(const recursion_detector* rd, resolve_state* state, int phase)

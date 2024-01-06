@@ -24,7 +24,7 @@ void errors_resolve()
 		{
 			const auto e2 = assert_type<resolve_error_recursion>(&e);
 			assert_equals(string_view(
-							STR("recursion detected: '/westcoastcode.se/tests/Node->/westcoastcode.se/tests/Node/list->/westcoastcode.se/tests/List->/westcoastcode.se/tests/List/head->/westcoastcode.se/tests/Node'")),
+							STR("recursion detected: '/westcoastcode.se/tests/List->/westcoastcode.se/tests/List/head->/westcoastcode.se/tests/Node->/westcoastcode.se/tests/Node/list->/westcoastcode.se/tests/List'")),
 					e2->get_error());
 		});
 		test_error("duplicated_type", ROOT_PATH, [](const std::exception& e)
@@ -78,6 +78,13 @@ void errors_resolve()
 		test_error({ "invalid_attribute_base", "invalid_attribute_base2" }, ROOT_PATH, [](const std::exception& e)
 		{
 			const auto e2 = assert_type<resolve_error_expected_inherits_from_attribute>(&e);
+		});
+		test_error("inheritance_recursion", ROOT_PATH, [](const std::exception& e)
+		{
+			const auto e2 = assert_type<resolve_error_recursion>(&e);
+			assert_equals(string_view(
+							STR("recursion detected: '/westcoastcode.se/tests/A->/westcoastcode.se/tests/B->/westcoastcode.se/tests/A'")),
+					e2->get_error());
 		});
 	});
 

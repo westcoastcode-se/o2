@@ -66,6 +66,15 @@ namespace o2
 				: node(view), _inherits_from()
 		{
 			set_query_access_flags(query_access_modifier_passthrough);
+			add_phases_left(phase_resolve_size);
+		}
+
+		/**
+		 * \return the size, in bytes, this inheritance results in
+		 */
+		[[nodiscard]] int get_size() const
+		{
+			return _inherits_from->get_size();
 		}
 
 		/**

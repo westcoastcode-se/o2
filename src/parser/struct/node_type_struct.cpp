@@ -128,15 +128,28 @@ void node_type_struct::on_process_phase(const recursion_detector* rd, resolve_st
 	// TODO: Figure out how large a struct's size should be. Might depend on if virtual or not.
 	//       structs might also have no fields
 
+	int size = 0;
+	const recursion_detector rd0(rd, this);
+	if (_inherits)
+	{
+		const auto children = _inherits->get_children();
+		for (auto n: children)
+		{
+			const auto inherit = dynamic_cast<node_type_struct_inherit*>(n);
+			if (inherit == nullptr)
+				continue;
+			inherit->process_phase(&rd0, state, phase);
+			size += inherit->get_size();
+		}
+	}
+
 	// A type might not have a size
 	if (_fields == nullptr)
 	{
-		_size = 0;
+		_size = size;
 		return;
 	}
 
-	int size = 0;
-	const recursion_detector rd0(rd, this);
 	const auto fields = _fields->get_children();
 	for (auto n: fields)
 	{
@@ -146,6 +159,7 @@ void node_type_struct::on_process_phase(const recursion_detector* rd, resolve_st
 		field->process_phase(&rd0, state, phase);
 		size += field->get_size();
 	}
+
 	_size = size;
 }
 

@@ -39,6 +39,9 @@ void node_type_struct_field::resolve0(const recursion_detector* rd, resolve_stat
 	_field_type = _field_type->get_type();
 	if (_field_type == nullptr)
 		throw resolve_error_unresolved_reference(get_source_code());
+
+	const recursion_detector rd0(rd, this);
+	_field_type->process_phase(&rd0, state, phase_resolve);
 }
 
 node* node_type_struct_field::on_child_added(node* n)
