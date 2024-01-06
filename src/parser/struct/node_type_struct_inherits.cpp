@@ -5,6 +5,7 @@
 
 #include "node_type_struct_inherits.h"
 #include "node_type_struct.h"
+#include "../types/node_type_primitive.h"
 
 using namespace o2;
 
@@ -19,7 +20,7 @@ void node_type_struct_inherits::resolve0(const recursion_detector* rd, resolve_s
 {
 	node::resolve0(rd, state);
 
-	int num_structs = 0;
+	int num_bodies = 0;
 	for (auto n: get_children())
 	{
 		const auto inherit = dynamic_cast<node_type_struct_inherit*>(n);
@@ -28,8 +29,14 @@ void node_type_struct_inherits::resolve0(const recursion_detector* rd, resolve_s
 
 		const auto inherit_struct = dynamic_cast<node_type_struct*>(inherit->get_inherits_from());
 		if (inherit_struct)
-			num_structs++;
-		if (num_structs > 1)
+			num_bodies++;
+		else
+		{
+			const auto inherit_primitive = dynamic_cast<node_type_primitive*>(inherit->get_inherits_from());
+			if (inherit_primitive)
+				num_bodies++;
+		}
+		if (num_bodies > 1)
 			throw resolve_error_multiple_inherited_bodies(get_source_code());
 	}
 }

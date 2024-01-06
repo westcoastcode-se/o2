@@ -86,10 +86,11 @@ void errors_resolve()
 							STR("recursion detected: '/westcoastcode.se/tests/A->/westcoastcode.se/tests/B->/westcoastcode.se/tests/A'")),
 					e2->get_error());
 		});
-		test_error("inheritance_multiple_structs", ROOT_PATH, [](const std::exception& e)
-		{
-			const auto e2 = assert_type<resolve_error_multiple_inherited_bodies>(&e);
-		});
+		test_error({ "inheritance_multiple_bodies", "inheritance_multiple_bodies2" }, ROOT_PATH,
+				[](const std::exception& e)
+				{
+					const auto e2 = assert_type<resolve_error_multiple_inherited_bodies>(&e);
+				});
 	});
 
 }

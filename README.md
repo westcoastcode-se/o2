@@ -177,7 +177,7 @@ import using the format `import "<path>" as alias_name`.
     - `var name = 10` is always known to be an `int32`
 - [x] inheriting from primitives
 - [x] inheriting from types
-- [ ] prevent inheriting from multiple structs
+- [x] prevent inheriting from multiple structs
 - [ ] inheriting from macro types
 - [ ] inheriting from interfaces
 - [ ] macro types
