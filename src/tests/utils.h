@@ -229,4 +229,13 @@ namespace o2
 	{
 		test_error(name, root_path, string_view(), std::move(t));
 	}
+
+	static void test_error(std::initializer_list<string_view> names, string_view root_path,
+			std::function<void(const std::exception&)> t)
+	{
+		for (auto name: names)
+		{
+			test_error(name, root_path, string_view(), t);
+		}
+	}
 }

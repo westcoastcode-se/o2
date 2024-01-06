@@ -1,0 +1,7 @@
+import "stdlib"
+
+type A {}
+type B : A {}
+
+@B
+type T {}
