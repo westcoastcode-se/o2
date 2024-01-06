@@ -33,8 +33,8 @@ felt that something is missing from that language:
       runtime-type information, inheritance and other such features
 * Built-in support for dependency management between different projects/modules
 * No built-in support for suspensions using `async` and `await`
-*
     * Threads are not really a good way of using your computers resources
+* Why not?
 
 So my goal is to make a programming language that's modern, compiles quickly enough and
 creates machine-code. Then who knows what happens from there
@@ -597,7 +597,7 @@ const stringified string = "value is 20"
 - [ ] consider adding support for the `@attribute` syntax for local variables
 - [x] custom attribute types: `type custom_attribute : attribute{}`
 - [ ] add support for a way to configure attribute limitations, for example
-      so that an attribute is only allowed to be added on functions and nothing else
+  so that an attribute is only allowed to be added on functions and nothing else
 
 ### Attributes on types
 
@@ -608,7 +608,7 @@ Considering the following:
 type my_type {}
 ```
 
-This will add the attribute "custom" to the type. Attributes can be used efficiently after the resolve 
+This will add the attribute "custom" to the type. Attributes can be used efficiently after the resolve
 phase. The compiler will raise an error if you specify a type where `attribute` isn't a base type.
 
 ### Custom Attributes
@@ -628,6 +628,7 @@ This will create an attribute named "custom" that you can attach on any [symbol]
 ## Symbol
 
 Symbols:
+
 - `type`
 - `func`
 - `var`
@@ -663,7 +664,7 @@ Symbols:
 - [ ] template syntax using `<` and `>`
 - [ ] `yield` stream statement in function
 - [ ] `async` and `await` suspension statements
-    - should be triggered by interupts from drivers (sockets, io, ...)
+    - should be triggered by interrupts from drivers (sockets, io, ...)
 - [ ] types in `extern` libraries that use inheritance
     - expose vtable
 - [ ] `panic` statements
@@ -677,4 +678,10 @@ Symbols:
 
 - [ ] exceptions or `error` return value?
     - for example, exceptions should be considered a fatal error so why not panic?
-
+- [ ] consider having separate types for `struct` and `class`.
+    - structs will not have a virtual table, so virtual functions of any kind are not allowed and only compile-time
+      casting is allowed
+    - classes will have virtual table and runtime-based casting is allowed
+    - inheritance between classes and struct should not be allowed
+- [ ] generate source code based on syntax tree
+  - might be useful for macro-troubleshooting 

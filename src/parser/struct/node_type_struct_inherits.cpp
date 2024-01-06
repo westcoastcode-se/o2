@@ -18,7 +18,20 @@ void node_type_struct_inherits::debug(debug_ostream& stream, int indent) const
 void node_type_struct_inherits::resolve0(const recursion_detector* rd, resolve_state* state)
 {
 	node::resolve0(rd, state);
-	// TODO: verify that a struct only inherits from one struct
+
+	int num_structs = 0;
+	for (auto n: get_children())
+	{
+		const auto inherit = dynamic_cast<node_type_struct_inherit*>(n);
+		if (inherit == nullptr)
+			throw unexpected_child_node(get_source_code(), "node_type_struct_inherit");
+
+		const auto inherit_struct = dynamic_cast<node_type_struct*>(inherit->get_inherits_from());
+		if (inherit_struct)
+			num_structs++;
+		if (num_structs > 1)
+			throw resolve_error_multiple_inherited_bodies(get_source_code());
+	}
 }
 
 node_type* node_type_struct_inherits::find_inherited_type(string_view id) const

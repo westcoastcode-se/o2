@@ -207,10 +207,19 @@ resolve_error_positive_int_constant_expected::resolve_error_positive_int_constan
 	set(std::move(s.str()));
 }
 
-resolve_error_expected_inherits_from_attribute::resolve_error_expected_inherits_from_attribute(const source_code_view& view)
+resolve_error_expected_inherits_from_attribute::resolve_error_expected_inherits_from_attribute(
+		const source_code_view& view)
 		: resolve_error(error_types::expected_inherits_from_attribute, view)
 {
 	stringstream s;
 	s << "expected attribute statement to extend from stdlib.attribute";
+	set(std::move(s.str()));
+}
+
+resolve_error_multiple_inherited_bodies::resolve_error_multiple_inherited_bodies(const source_code_view& view)
+		: resolve_error(error_types::multiple_inherited_bodies, view)
+{
+	stringstream s;
+	s << "type inherits from more than one type with a body";
 	set(std::move(s.str()));
 }

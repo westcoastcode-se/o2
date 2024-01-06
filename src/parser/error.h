@@ -35,7 +35,8 @@ namespace o2
 		multiple_refs,
 		positive_int_constant_expected,
 		unresolved_reference,
-		expected_inherits_from_attribute
+		expected_inherits_from_attribute,
+		multiple_inherited_bodies
 	};
 
 	// \brief base class for parser errors
@@ -276,6 +277,16 @@ namespace o2
 	public:
 		explicit resolve_error_expected_inherits_from_attribute(const source_code_view& view);
 	};
+
+	/**
+	 * \brief error raised when a type inherits from more than type with a body
+	 */
+	class resolve_error_multiple_inherited_bodies
+			: public resolve_error
+	{
+	public:
+		explicit resolve_error_multiple_inherited_bodies(const source_code_view& view);
+	};
 }
 
 namespace std
@@ -314,6 +325,8 @@ namespace std
 			return os << "positive_int_constant_expected";
 		case o2::error_types::expected_inherits_from_attribute:
 			return os << "expected_inherits_from_attribute";
+		case o2::error_types::multiple_inherited_bodies:
+			return os << "multiple_inherited_bodies";
 		default:
 			return os << "???";
 		}
