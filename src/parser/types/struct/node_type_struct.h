@@ -9,7 +9,7 @@
 #include "node_type_struct_field.h"
 #include "node_type_struct_methods.h"
 #include "node_type_struct_inherits.h"
-#include "static/node_type_struct_static.h"
+#include "../static/node_type_static_scope.h"
 #include "../../node_attribute.h"
 
 namespace o2
@@ -71,7 +71,7 @@ namespace o2
 		/**
 		 * \return static container
 		 */
-		[[nodiscard]] node_type_struct_static* get_static() const
+		[[nodiscard]] node_type_static_scope* get_static() const
 		{
 			return _static;
 		}
@@ -146,6 +146,6 @@ namespace o2
 		node_type_struct_inherits* _inherits;
 		node_type_struct_fields* _fields;
 		node_type_struct_methods* _methods;
-		node_type_struct_static* _static;
+		node_type_static_scope* _static;
 	};
 }

@@ -3,19 +3,19 @@
 // See the LICENSE file in the project root for license terms
 //
 
-#include "node_type_struct_static.h"
-#include "../node_type_struct_field.h"
+#include "node_type_static_scope.h"
+#include "../struct/node_type_struct_field.h"
 
 using namespace o2;
 
-void node_type_struct_static::debug(debug_ostream& stream, int indent) const
+void node_type_static_scope::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_struct_static()" << std::endl;
 	node::debug(stream, indent);
 }
 
-node* node_type_struct_static::on_child_added(node* n)
+node* node_type_static_scope::on_child_added(node* n)
 {
 	const auto vars = dynamic_cast<node_type_struct_static_vars*>(n);
 	if (vars != nullptr)
@@ -29,7 +29,7 @@ node* node_type_struct_static::on_child_added(node* n)
 	return n;
 }
 
-void node_type_struct_static::on_child_removed(node* n)
+void node_type_static_scope::on_child_removed(node* n)
 {
 	if (_vars == n)
 		_vars = nullptr;

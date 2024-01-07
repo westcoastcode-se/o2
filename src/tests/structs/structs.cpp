@@ -283,7 +283,7 @@ void structs()
 			assert_null(type_S->get_methods());
 			assert_not_null(type_S->get_static());
 
-			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
+			const auto type_S_static = assert_type<node_type_static_scope>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 0);
 		});
 		test({ "static_int", "static_static_int" }, ROOT_PATH, [](syntax_tree& st)
@@ -301,7 +301,7 @@ void structs()
 			assert_null(type_S->get_methods());
 			assert_not_null(type_S->get_static());
 
-			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
+			const auto type_S_static = assert_type<node_type_static_scope>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 1);
 
 			const auto fields = assert_type<node_type_struct_static_vars>(type_S_static->get_child(0));
@@ -328,7 +328,7 @@ void structs()
 			assert_null(type_S->get_methods());
 			assert_not_null(type_S->get_static());
 
-			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
+			const auto type_S_static = assert_type<node_type_static_scope>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 1);
 
 			const auto fields = assert_type<node_type_struct_static_vars>(type_S_static->get_child(0));
@@ -363,7 +363,7 @@ void structs()
 			assert_null(type_S->get_methods());
 			assert_not_null(type_S->get_static());
 
-			const auto type_S_static = assert_type<node_type_struct_static>(type_S->get_child(0));
+			const auto type_S_static = assert_type<node_type_static_scope>(type_S->get_child(0));
 			assert_equals(type_S_static->get_child_count(), 1);
 
 			const auto type_S_static_funcs = assert_type<node_type_struct_static_funcs>(type_S_static->get_child(0));

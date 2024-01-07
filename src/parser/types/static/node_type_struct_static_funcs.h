@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../../../node.h"
+#include "../../node.h"
 
 namespace o2
 {

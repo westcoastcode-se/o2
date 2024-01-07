@@ -38,7 +38,7 @@ node* node_type_struct::on_child_added(node* n)
 				_inherits = i;
 			else
 			{
-				const auto s = dynamic_cast<node_type_struct_static*>(n);
+				const auto s = dynamic_cast<node_type_static_scope*>(n);
 				if (s != nullptr)
 					_static = s;
 				else

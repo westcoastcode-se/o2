@@ -904,7 +904,7 @@ namespace
 		return guard.done();
 	}
 
-	void parse_type_statics(const parser_scope* ps, node_type_struct_static* static_,
+	void parse_type_statics(const parser_scope* ps, node_type_static_scope* static_,
 			memory_guard<node_attributes>& attributes)
 	{
 		const auto t = ps->t;
@@ -1081,7 +1081,7 @@ namespace
 
 			node_type_struct_fields* fields = nullptr;
 			node_type_struct_methods* methods = nullptr;
-			node_type_struct_static* static_ = nullptr;
+			node_type_static_scope* static_ = nullptr;
 			memory_guard<node_attributes> attributes;
 
 			// Seek the first token
@@ -1124,7 +1124,7 @@ namespace
 				{
 					if (static_ == nullptr)
 					{
-						static_ = o2_new node_type_struct_static(type->get_source_code());
+						static_ = o2_new node_type_static_scope(type->get_source_code());
 						type->add_child(static_);
 					}
 
