@@ -5,15 +5,15 @@
 
 #pragma once
 
-#include "node_type_struct_static_funcs.h"
-#include "node_type_struct_static_vars.h"
+#include "node_type_static_scope_funcs.h"
+#include "node_type_static_scope_vars.h"
 
 namespace o2
 {
 	class node_type_struct_fields;
 
 	/**
-	 * \brief static container for structs
+	 * \brief static container for types such as structs, classes and interfaces
 	 */
 	class node_type_static_scope
 			: public node
@@ -28,7 +28,7 @@ namespace o2
 		/**
 		 * \return all variables part of this static block
 		 */
-		node_type_struct_static_vars* get_vars() const
+		[[nodiscard]] node_type_static_scope_vars* get_vars() const
 		{
 			return _vars;
 		}
@@ -36,7 +36,7 @@ namespace o2
 		/**
 		 * \return functions part of this static block
 		 */
-		node_type_struct_static_funcs* get_funcs() const
+		[[nodiscard]] node_type_static_scope_funcs* get_funcs() const
 		{
 			return _funcs;
 		}
@@ -52,7 +52,7 @@ namespace o2
 #pragma endregion
 
 	private:
-		node_type_struct_static_vars* _vars;
-		node_type_struct_static_funcs* _funcs;
+		node_type_static_scope_vars* _vars;
+		node_type_static_scope_funcs* _funcs;
 	};
 }

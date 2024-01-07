@@ -920,7 +920,7 @@ namespace
 			{
 				if (static_->get_vars() == nullptr)
 				{
-					const auto vars = o2_new node_type_struct_static_vars(static_->get_source_code());
+					const auto vars = o2_new node_type_static_scope_vars(static_->get_source_code());
 					static_->add_child(vars);
 				}
 				t->next_until_not(token_type::comment);
@@ -932,7 +932,7 @@ namespace
 			{
 				if (static_->get_funcs() == nullptr)
 				{
-					const auto funcs = o2_new node_type_struct_static_funcs(static_->get_source_code());
+					const auto funcs = o2_new node_type_static_scope_funcs(static_->get_source_code());
 					static_->add_child(funcs);
 				}
 				const parser_scope ps1(ps, static_->get_funcs());

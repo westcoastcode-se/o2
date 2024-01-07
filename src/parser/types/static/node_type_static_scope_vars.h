@@ -10,13 +10,13 @@
 namespace o2
 {
 	/**
-	 * \brief container for all variables inside the static block
+	 * \brief container for all variables inside the static scope
 	 */
-	class node_type_struct_static_vars
+	class node_type_static_scope_vars
 			: public node
 	{
 	public:
-		explicit node_type_struct_static_vars(const source_code_view& view)
+		explicit node_type_static_scope_vars(const source_code_view& view)
 				: node(view)
 		{
 			set_query_access_flags(query_access_modifier_passthrough);

@@ -11,18 +11,18 @@ using namespace o2;
 void node_type_static_scope::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
-	stream << "type_struct_static()" << std::endl;
+	stream << "type_static_scope()" << std::endl;
 	node::debug(stream, indent);
 }
 
 node* node_type_static_scope::on_child_added(node* n)
 {
-	const auto vars = dynamic_cast<node_type_struct_static_vars*>(n);
+	const auto vars = dynamic_cast<node_type_static_scope_vars*>(n);
 	if (vars != nullptr)
 		_vars = vars;
 	else
 	{
-		const auto funcs = dynamic_cast<node_type_struct_static_funcs*>(n);
+		const auto funcs = dynamic_cast<node_type_static_scope_funcs*>(n);
 		if (funcs != nullptr)
 			_funcs = funcs;
 	}

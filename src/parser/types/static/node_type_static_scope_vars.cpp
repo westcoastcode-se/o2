@@ -3,13 +3,13 @@
 // See the LICENSE file in the project root for license terms
 //
 
-#include "node_type_struct_static_funcs.h"
+#include "node_type_static_scope_vars.h"
 
 using namespace o2;
 
-void node_type_struct_static_funcs::debug(debug_ostream& stream, int indent) const
+void node_type_static_scope_vars::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
-	stream << "type_struct_static_funcs()" << std::endl;
+	stream << "type_static_scope_vars()" << std::endl;
 	node::debug(stream, indent);
 }
