@@ -18,3 +18,17 @@ void node_symbol::write_json_properties(json& j)
 	node::write_json_properties(j);
 	j.write(json::pair<string_view>{ "id", get_id() });
 }
+
+node* node_symbol::on_child_added(node* n)
+{
+	const auto a = dynamic_cast<node_attributes*>(n);
+	if (a)
+		_attributes = a;
+	return n;
+}
+
+void node_symbol::on_child_removed(node* n)
+{
+	if (_attributes == n)
+		_attributes = nullptr;
+}

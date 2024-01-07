@@ -24,19 +24,14 @@ node* node_func::on_child_added(node* n)
 			const auto body = dynamic_cast<node_func_body*>(n);
 			if (body)
 				_body = body;
-			else
-			{
-				const auto attributes = dynamic_cast<node_attributes*>(n);
-				if (attributes)
-					_attributes = attributes;
-			}
 		}
 	}
-	return n;
+	return node_symbol::on_child_added(n);
 }
 
 void node_func::on_child_removed(node* n)
 {
+	node_symbol::on_child_removed(n);
 	if (_parameters == n)
 		_parameters = nullptr;
 	else if (_returns == n)

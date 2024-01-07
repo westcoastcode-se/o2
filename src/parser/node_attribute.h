@@ -6,10 +6,11 @@
 #pragma once
 
 #include "node.h"
-#include "types/node_type.h"
 
 namespace o2
 {
+	class node_type;
+
 	/**
 	 * \brief an attribute that can be attached a keyword
 	 *

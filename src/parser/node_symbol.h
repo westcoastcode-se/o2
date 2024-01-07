@@ -6,6 +6,7 @@
 #pragma once
 
 #include "node.h"
+#include "node_attribute.h"
 
 namespace o2
 {
@@ -47,10 +48,17 @@ namespace o2
 		 * \param accessor whom are allowed to access this symbol
 		 */
 		node_symbol(const source_code_view& view, accessor accessor)
-				: node(view), _accessor(accessor)
+				: node(view), _accessor(accessor), _attributes()
 		{
 		}
 
+		/**
+		 * \return all attributes attached to this symbol
+		 */
+		[[nodiscard]] node_attributes* get_attributes() const
+		{
+			return _attributes;
+		}
 
 		/**
 		 * \return a unique id for this symbol
@@ -184,11 +192,16 @@ namespace o2
 
 #pragma region node
 
+		node* on_child_added(node* n) override;
+
+		void on_child_removed(node* n) override;
+
 		void write_json_properties(json& j) override;
 
 #pragma endregion
 
 	private:
 		accessor _accessor;
+		node_attributes* _attributes;
 	};
 }

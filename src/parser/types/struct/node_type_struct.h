@@ -10,7 +10,6 @@
 #include "node_type_struct_methods.h"
 #include "node_type_struct_inherits.h"
 #include "../static/node_type_static_scope.h"
-#include "../../node_attribute.h"
 
 namespace o2
 {
@@ -29,14 +28,6 @@ namespace o2
 		[[nodiscard]] string_view get_name() const
 		{
 			return _name;
-		}
-
-		/**
-		 * \return all attributes attached to this struct
-		 */
-		[[nodiscard]] node_attributes* get_attributes() const
-		{
-			return _attributes;
 		}
 
 		/**
@@ -141,8 +132,7 @@ namespace o2
 #pragma endregion
 
 	private:
-		string_view _name;
-		node_attributes* _attributes;
+		const string_view _name;
 		node_type_struct_inherits* _inherits;
 		node_type_struct_fields* _fields;
 		node_type_struct_methods* _methods;

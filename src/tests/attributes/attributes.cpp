@@ -51,5 +51,35 @@ void attributes()
 
 			assert_true(type_M->inherits_from_type(attribute));
 		});
+		test("one_on_type", ROOT_PATH, [](syntax_tree& st)
+		{
+			const auto root = st.get_root_package();
+			assert_equals(root->get_child_count(), 15);
+
+			const auto project_module = assert_type<node_module>(root->get_child(13));
+			assert_equals(project_module->get_name(), "westcoastcode.se/tests");
+			const auto package_main = assert_type<node_package>(project_module->get_child(0));
+
+			assert_equals(package_main->get_child_count(), 1);
+			const auto import_stdlib = assert_type<node_import>(package_main->get_child(0));
+			assert_equals(import_stdlib->get_child_count(), 2);
+
+			const auto type_M = assert_type<node_type_struct>(import_stdlib->get_child(0));
+
+			const auto type_T = assert_type<node_type_struct>(import_stdlib->get_child(1));
+			assert_equals(type_T->get_name(), "T");
+			const auto T_attributes = assert_not_null(type_T->get_attributes());
+			assert_equals(T_attributes->get_child_count(), 1);
+			const auto T_attribute = assert_type<node_attribute>(T_attributes->get_child(0));
+			assert_equals(T_attribute->get_attribute_type(), type_M);
+
+			const auto project_stdlib = assert_type<node_module>(root->get_child(14));
+			assert_equals(project_stdlib->get_name(), "stdlib");
+			const auto package_stdlib = assert_type<node_package>(project_stdlib->get_child(0));
+			const auto attribute = assert_type<node_type_struct>(package_stdlib->get_child(0));
+			assert_equals(attribute->get_name(), "attribute");
+
+			assert_true(type_M->inherits_from_type(attribute));
+		});
 	});
 }

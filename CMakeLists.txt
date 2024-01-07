@@ -80,6 +80,7 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/resolve_state.cpp"
         "src/parser/module/system_modules.cpp"
         "src/parser/types/struct/node_type_struct_inherits.cpp"
+        src/parser/types/interface/node_type_interface.cpp
 )
 
 # Test

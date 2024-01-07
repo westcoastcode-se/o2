@@ -9,7 +9,7 @@
 using namespace o2;
 
 node_type_struct::node_type_struct(const source_code_view& view, string_view name)
-		: node_type(view), _name(name), _attributes(), _inherits(), _fields(), _methods(), _static()
+		: node_type(view), _name(name), _inherits(), _fields(), _methods(), _static()
 {
 	add_phases_left(phase_resolve_size);
 }
@@ -41,21 +41,16 @@ node* node_type_struct::on_child_added(node* n)
 				const auto s = dynamic_cast<node_type_static_scope*>(n);
 				if (s != nullptr)
 					_static = s;
-				else
-				{
-					const auto a = dynamic_cast<node_attributes*>(n);
-					if (a)
-						_attributes = a;
-				}
 			}
 		}
 	}
 
-	return n;
+	return node_type::on_child_added(n);
 }
 
 void node_type_struct::on_child_removed(node* n)
 {
+	node_type::on_child_removed(n);
 	if (_fields == n)
 		_fields = nullptr;
 	else if (_methods == n)
@@ -64,8 +59,6 @@ void node_type_struct::on_child_removed(node* n)
 		_inherits = nullptr;
 	else if (_static == n)
 		_static = nullptr;
-	else if (_attributes == n)
-		_attributes = nullptr;
 }
 
 vector<node_type_struct_field*> node_type_struct::get_all_fields() const
