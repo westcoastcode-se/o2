@@ -805,7 +805,7 @@ namespace
 		return guard.done();
 	}
 
-	node* parse_named_constant(const parser_scope* ps)
+	node* parse_named_constant(const parser_scope* ps, memory_guard<node_attributes>& attributes)
 	{
 		// constants must have one of the following syntax
 		// const <name> = <expr>
@@ -817,6 +817,8 @@ namespace
 
 		const auto var = o2_new node_var_const(ps->get_view(), t->value());
 		auto guard = memory_guard(var);
+		if (attributes.is_set())
+			var->add_child(attributes.done());
 		const parser_scope ps1(ps, var);
 		if (t->next() == token_type::identity)
 		{
@@ -881,8 +883,7 @@ namespace
 		case token_type::func:
 			return parse_func(ps, node_func::modifier_const, attributes);
 		case token_type::identity:
-			assert(!attributes.is_set() && "attributes must be set to a type, const, func, var, ...");
-			return parse_named_constant(ps);
+			return parse_named_constant(ps, attributes);
 		default:
 			throw error_syntax_error(ps->get_view(), t,
 					"only functions, variables and types are allowed to be constant");

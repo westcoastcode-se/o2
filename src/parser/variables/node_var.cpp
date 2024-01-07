@@ -31,11 +31,12 @@ node* node_var::on_child_added(node* n)
 	const auto nt = dynamic_cast<node_type*>(n);
 	if (nt)
 		_type = nt;
-	return n;
+	return node_symbol::on_child_added(n);
 }
 
 void node_var::on_child_removed(node* n)
 {
+	node_symbol::on_child_removed(n);
 	if (_type == n)
 		_type = nullptr;
 }
