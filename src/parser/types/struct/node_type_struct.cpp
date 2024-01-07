@@ -4,7 +4,7 @@
 //
 
 #include "node_type_struct.h"
-#include "../package/node_package.h"
+#include "../../package/node_package.h"
 
 using namespace o2;
 

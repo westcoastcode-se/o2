@@ -5,7 +5,7 @@
 
 #include "node_type_struct_inherits.h"
 #include "node_type_struct.h"
-#include "../types/node_type_primitive.h"
+#include "../node_type_primitive.h"
 
 using namespace o2;
 

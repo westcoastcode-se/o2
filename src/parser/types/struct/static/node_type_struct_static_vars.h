@@ -5,15 +5,18 @@
 
 #pragma once
 
-#include "../node.h"
+#include "../../../node.h"
 
 namespace o2
 {
-	class  node_type_struct_methods
+	/**
+	 * \brief container for all variables inside the static block
+	 */
+	class node_type_struct_static_vars
 			: public node
 	{
 	public:
-		explicit node_type_struct_methods(const source_code_view& view)
+		explicit node_type_struct_static_vars(const source_code_view& view)
 				: node(view)
 		{
 			set_query_access_flags(query_access_modifier_passthrough);
@@ -24,6 +27,5 @@ namespace o2
 		void debug(debug_ostream& stream, int indent) const final;
 
 #pragma endregion
-
 	};
 }

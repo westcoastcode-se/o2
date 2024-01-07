@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "../node.h"
-#include "../types/node_type.h"
+#include "../../node.h"
+#include "../node_type.h"
 
 namespace o2
 {

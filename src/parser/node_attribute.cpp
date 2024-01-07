@@ -4,7 +4,7 @@
 //
 
 #include "node_attribute.h"
-#include "struct/node_type_struct.h"
+#include "types/struct/node_type_struct.h"
 
 using namespace o2;
 

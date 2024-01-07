@@ -9,14 +9,11 @@
 
 namespace o2
 {
-	/**
-	 * \brief container for all functions inside the static block
-	 */
-	class node_type_struct_static_funcs
+	class  node_type_struct_methods
 			: public node
 	{
 	public:
-		explicit node_type_struct_static_funcs(const source_code_view& view)
+		explicit node_type_struct_methods(const source_code_view& view)
 				: node(view)
 		{
 			set_query_access_flags(query_access_modifier_passthrough);
@@ -27,5 +24,6 @@ namespace o2
 		void debug(debug_ostream& stream, int indent) const final;
 
 #pragma endregion
+
 	};
 }

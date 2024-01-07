@@ -5,12 +5,12 @@
 
 #pragma once
 
-#include "../types/node_type.h"
+#include "../node_type.h"
 #include "node_type_struct_field.h"
 #include "node_type_struct_methods.h"
 #include "node_type_struct_inherits.h"
 #include "static/node_type_struct_static.h"
-#include "../node_attribute.h"
+#include "../../node_attribute.h"
 
 namespace o2
 {
