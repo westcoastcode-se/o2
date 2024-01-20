@@ -27,7 +27,7 @@ void attributes()
 			const auto import_stdlib = assert_type<node_import>(package_main->get_child(0));
 			assert_equals(import_stdlib->get_child_count(), 3);
 
-			const auto type_M = assert_type<node_type_struct>(import_stdlib->get_child(0));
+			const auto type_M = assert_type<node_type_complex>(import_stdlib->get_child(0));
 
 			const auto func_F1 = assert_type<node_func>(import_stdlib->get_child(1));
 			assert_equals(func_F1->get_name(), "F1");
@@ -46,7 +46,7 @@ void attributes()
 			const auto project_stdlib = assert_type<node_module>(root->get_child(14));
 			assert_equals(project_stdlib->get_name(), "stdlib");
 			const auto package_stdlib = assert_type<node_package>(project_stdlib->get_child(0));
-			const auto attribute = assert_type<node_type_struct>(package_stdlib->get_child(0));
+			const auto attribute = assert_type<node_type_complex>(package_stdlib->get_child(0));
 			assert_equals(attribute->get_name(), "attribute");
 
 			assert_true(type_M->inherits_from_type(attribute));
@@ -64,9 +64,9 @@ void attributes()
 			const auto import_stdlib = assert_type<node_import>(package_main->get_child(0));
 			assert_equals(import_stdlib->get_child_count(), 2);
 
-			const auto type_M = assert_type<node_type_struct>(import_stdlib->get_child(0));
+			const auto type_M = assert_type<node_type_complex>(import_stdlib->get_child(0));
 
-			const auto type_T = assert_type<node_type_struct>(import_stdlib->get_child(1));
+			const auto type_T = assert_type<node_type_complex>(import_stdlib->get_child(1));
 			assert_equals(type_T->get_name(), "T");
 			const auto T_attributes = assert_not_null(type_T->get_attributes());
 			assert_equals(T_attributes->get_child_count(), 1);
@@ -86,7 +86,7 @@ void attributes()
 			const auto import_stdlib = assert_type<node_import>(package_main->get_child(0));
 			assert_equals(import_stdlib->get_child_count(), 2);
 
-			const auto type_M = assert_type<node_type_struct>(import_stdlib->get_child(0));
+			const auto type_M = assert_type<node_type_complex>(import_stdlib->get_child(0));
 
 			const auto const_V = assert_type<node_var_const>(import_stdlib->get_child(1));
 			assert_equals(const_V->get_name(), "V");

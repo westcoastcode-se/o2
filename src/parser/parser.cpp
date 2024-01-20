@@ -158,7 +158,7 @@ namespace
 	node_op* parse_op_unary(const parser_scope* ps, token_type tt, parse_op_fn right_fn);
 
 	node_op* parse_op_binop(const parser_scope* ps, array_view<token_type> tokens,
-			parse_op_fn left_fn, parse_op_fn right_fn);
+		parse_op_fn left_fn, parse_op_fn right_fn);
 
 	node_op* parse_op_atom(const parser_scope* ps)
 	{
@@ -185,10 +185,10 @@ namespace
 		{
 			// todo: add support for variables
 			const auto ref = parse_ref(ps, node_ref::only_callable,
-					node_ref::only_callable_chain_types,
-					node::query_flag_parents |
-					node::query_flag_follow_refs |
-					node::query_flag_children_from_root);
+				node_ref::only_callable_chain_types,
+				node::query_flag_parents |
+				node::query_flag_follow_refs |
+				node::query_flag_children_from_root);
 			auto guard = memory_guard(ref);
 
 			// is the token after the identity a '(' then assume that we are making a function call
@@ -225,7 +225,7 @@ namespace
 			else if (t->type() == token_type::test_lt)
 			{
 				throw error_not_implemented(ps->get_view(),
-						"macro style function calls or type references are not supported yet");
+					"macro style function calls or type references are not supported yet");
 			}
 			else
 			{
@@ -256,7 +256,7 @@ namespace
 	node_op* parse_op_term(const parser_scope* ps)
 	{
 		static const vector<token_type> PARSE_TOKENS(
-				token_type::pointer, token_type::div
+			token_type::pointer, token_type::div
 		);
 		return parse_op_binop(ps, PARSE_TOKENS, parse_op_factor, parse_op_factor);
 	}
@@ -264,7 +264,7 @@ namespace
 	node_op* parse_op_expression(const parser_scope* ps)
 	{
 		static const vector<token_type> PARSE_TOKENS(
-				token_type::plus, token_type::minus
+			token_type::plus, token_type::minus
 		);
 		return parse_op_binop(ps, PARSE_TOKENS, parse_op_term, parse_op_term);
 	}
@@ -285,7 +285,7 @@ namespace
 	}
 
 	node_op* parse_op_binop(const parser_scope* ps, array_view<token_type> tokens,
-			parse_op_fn left_fn, parse_op_fn right_fn)
+		parse_op_fn left_fn, parse_op_fn right_fn)
 	{
 		const auto t = ps->t;
 		if (right_fn == nullptr)
@@ -326,9 +326,9 @@ namespace
 			return parse_op_unary(ps, t->type(), parse_op_factor);
 
 		static const vector<token_type> PARSE_COMPARE_TOKENS(
-				token_type::test_equals, token_type::not_,
-				token_type::test_lt, token_type::test_lte,
-				token_type::test_gt, token_type::test_gte
+			token_type::test_equals, token_type::not_,
+			token_type::test_lt, token_type::test_lte,
+			token_type::test_gt, token_type::test_gte
 		);
 
 		return parse_op_binop(ps, PARSE_COMPARE_TOKENS, parse_op_expression, parse_op_expression);
@@ -445,7 +445,7 @@ namespace
 				throw error_expected_identity(ps->get_view(), t);
 
 			const auto new_section = o2_new node_ref(ps->get_view(), chain_types,
-					node_ref::query_flag_children, t->value());
+				node_ref::query_flag_children, t->value());
 			auto inner_guard = memory_guard(new_section);
 			section->add_child(new_section);
 			section = inner_guard.done();
@@ -545,11 +545,11 @@ namespace
 		auto guard = memory_guard(type_ref);
 		const parser_scope ps0(ps, type_ref);
 		type_ref->add_child(parse_ref(&ps0,
-				node_ref::only_types,
-				node_ref::only_type_chain_types,
-				node::query_flag_parents |
-				node::query_flag_follow_refs |
-				node::query_flag_children_from_root));
+			node_ref::only_types,
+			node_ref::only_type_chain_types,
+			node::query_flag_parents |
+			node::query_flag_follow_refs |
+			node::query_flag_children_from_root));
 		return guard.done();
 	}
 
@@ -864,7 +864,7 @@ namespace
 			return parse_func_extern(ps, attributes);
 		default:
 			throw error_syntax_error(ps->get_view(), t,
-					"only functions are allowed to be external");
+				"only functions are allowed to be external");
 		}
 	}
 
@@ -886,17 +886,17 @@ namespace
 			return parse_named_constant(ps, attributes);
 		default:
 			throw error_syntax_error(ps->get_view(), t,
-					"only functions, variables and types are allowed to be constant");
+				"only functions, variables and types are allowed to be constant");
 		}
 	}
 
-	node_type_struct_field* parse_type_field(const parser_scope* ps)
+	node_type_complex_field* parse_type_field(const parser_scope* ps)
 	{
 		const auto t = ps->t;
 		if (t->type() != token_type::identity)
 			throw error_expected_identity(ps->get_view(), t);
 
-		const auto field = o2_new node_type_struct_field(ps->get_view(), t->value());
+		const auto field = o2_new node_type_complex_field(ps->get_view(), t->value());
 		auto guard = memory_guard(field);
 		t->next();
 		field->add_child(parse_type_ref(ps));
@@ -906,7 +906,7 @@ namespace
 	}
 
 	void parse_type_statics(const parser_scope* ps, node_type_static_scope* static_,
-			memory_guard<node_attributes>& attributes)
+		memory_guard<node_attributes>& attributes)
 	{
 		const auto t = ps->t;
 		if (t->next_until_not(token_type::comment) != token_type::bracket_left)
@@ -951,18 +951,35 @@ namespace
 			throw error_syntax_error(ps->get_view(), t, "expected '}'");
 	}
 
-	void parse_inheritances(node_type_struct* const type, node_type_struct_inherits* const inherits,
-			const parser_scope* ps)
+	void parse_inheritances(node_type_complex* const type, node_type_complex_inherits* const inherits,
+		const parser_scope* ps)
 	{
 		const auto t = ps->t;
-		// ignore struct token
 		if (t->type() == token_type::struct_)
 		{
+			type->set_complex_type(complex_type::struct_);
+
 			// not comma next, so we assume that no more inheritances will be parsed
 			if (t->next() != token_type::comma)
-			{
 				return;
-			}
+			// skip comma
+			t->next();
+		}
+		else if (t->type() == token_type::interface)
+		{
+			type->set_complex_type(complex_type::interface_);
+			// not comma next, so we assume that no more inheritances will be parsed
+			if (t->next() != token_type::comma)
+				return;
+			// skip comma
+			t->next();
+		}
+		else if (t->type() == token_type::trait)
+		{
+			type->set_complex_type(complex_type::trait_);
+			// not comma next, so we assume that no more inheritances will be parsed
+			if (t->next() != token_type::comma)
+				return;
 			// skip comma
 			t->next();
 		}
@@ -976,7 +993,7 @@ namespace
 			if (t->type() != token_type::identity)
 				throw error_expected_identity(ps->get_view(), t);
 
-			const auto inherit = o2_new node_type_struct_inherit(ps->get_view());
+			const auto inherit = o2_new node_type_complex_inherit(ps->get_view());
 			auto guard = memory_guard(inherit);
 			inherit->add_child(parse_type_ref(ps));
 			inherits->add_child(guard.done());
@@ -1043,7 +1060,7 @@ namespace
 			throw error_expected_identity(ps->get_view(), t);
 
 		const auto identity = t->value();
-		const auto type = o2_new node_type_struct(ps->get_view(), identity);
+		const auto type = o2_new node_type_complex(ps->get_view(), identity);
 		if (attributes.is_set())
 			type->add_child(attributes.done());
 		auto guard = memory_guard(type);
@@ -1064,7 +1081,7 @@ namespace
 			t->next();
 
 			// inherits from container
-			const auto inherits = o2_new node_type_struct_inherits(type->get_source_code());
+			const auto inherits = o2_new node_type_complex_inherits(type->get_source_code());
 			type->add_child(inherits);
 			parse_inheritances(type, inherits, &ps0);
 		}
@@ -1080,8 +1097,8 @@ namespace
 			// func - methods
 			// static - static scope for static variables and functions
 
-			node_type_struct_fields* fields = nullptr;
-			node_type_struct_methods* methods = nullptr;
+			node_type_complex_fields* fields = nullptr;
+			node_type_complex_methods* methods = nullptr;
 			node_type_static_scope* static_ = nullptr;
 			memory_guard<node_attributes> attributes;
 
@@ -1097,7 +1114,7 @@ namespace
 				{
 					if (fields == nullptr)
 					{
-						fields = o2_new node_type_struct_fields(type->get_source_code());
+						fields = o2_new node_type_complex_fields(type->get_source_code());
 						type->add_child(fields);
 					}
 					t->next_until_not(token_type::comment);
@@ -1114,7 +1131,7 @@ namespace
 				{
 					if (methods == nullptr)
 					{
-						methods = o2_new node_type_struct_methods(type->get_source_code());
+						methods = o2_new node_type_complex_methods(type->get_source_code());
 						type->add_child(methods);
 					}
 					const parser_scope ps1(&ps0, methods);
@@ -1183,7 +1200,7 @@ namespace
 				continue;
 			case token_type::import:
 				throw error_syntax_error(ps->get_view(), t,
-						"imports are only allowed at the top of the package segment");
+					"imports are only allowed at the top of the package segment");
 			case token_type::func:
 				ps->closest->add_child(parse_func(ps, 0, attributes));
 				continue;
@@ -1221,13 +1238,14 @@ namespace
 		{
 			switch (t->type())
 			{
-			case token_type::import: {
-					const parser_scope ps0(ps, parent);
-					auto import = parse_import(&ps0);
-					ps->state->add_import(import);
-					parent->add_child(import);
-					parent = import;
-				}
+			case token_type::import:
+			{
+				const parser_scope ps0(ps, parent);
+				auto import = parse_import(&ps0);
+				ps->state->add_import(import);
+				parent->add_child(import);
+				parent = import;
+			}
 			case token_type::comment:
 			case token_type::newline:
 				t->next();

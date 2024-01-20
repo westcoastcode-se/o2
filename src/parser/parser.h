@@ -17,7 +17,7 @@
 #include "types/node_type_reference_of.h"
 #include "types/node_type_array.h"
 #include "types/node_type_known_ref.h"
-#include "types/struct/node_type_struct.h"
+#include "types/complex/node_type_complex.h"
 #include "operations/node_op_constant.h"
 #include "node_scope.h"
 #include "operations/node_op_unaryop.h"

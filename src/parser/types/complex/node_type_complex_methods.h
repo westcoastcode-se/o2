@@ -9,11 +9,11 @@
 
 namespace o2
 {
-	class  node_type_struct_methods
+	class  node_type_complex_methods
 			: public node
 	{
 	public:
-		explicit node_type_struct_methods(const source_code_view& view)
+		explicit node_type_complex_methods(const source_code_view& view)
 				: node(view)
 		{
 			set_query_access_flags(query_access_modifier_passthrough);

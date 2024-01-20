@@ -3,11 +3,11 @@
 // See the LICENSE file in the project root for license terms
 //
 
-#include "node_type_struct_methods.h"
+#include "node_type_complex_methods.h"
 
 using namespace o2;
 
-void node_type_struct_methods::debug(debug_ostream& stream, int indent) const
+void node_type_complex_methods::debug(debug_ostream& stream, int indent) const
 {
 	stream << this << in(indent);
 	stream << "type_struct_methods()" << std::endl;

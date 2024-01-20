@@ -10,7 +10,7 @@
 
 namespace o2
 {
-	class node_type_struct_fields;
+	class node_type_complex_fields;
 
 	/**
 	 * \brief static container for types such as structs, classes and interfaces

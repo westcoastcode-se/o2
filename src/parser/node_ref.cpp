@@ -7,7 +7,7 @@
 #include "package/node_package.h"
 #include "types/node_type.h"
 #include "types/node_type_primitive.h"
-#include "types/struct/node_type_struct.h"
+#include "types/complex/node_type_complex.h"
 #include "node_import.h"
 #include "functions/node_func.h"
 
@@ -153,7 +153,7 @@ bool node_ref::resolve_from_parent(node* parent)
 
 			if ((query & query_types::type))
 			{
-				const auto impl = dynamic_cast<node_type_struct*>(n);
+				const auto impl = dynamic_cast<node_type_complex*>(n);
 				if (impl && impl->get_name() == text)
 				{
 					add(impl);

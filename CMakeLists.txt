@@ -49,9 +49,9 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/types/node_type_primitive.cpp"
         "src/parser/functions/node_func_parameters.cpp"
         "src/parser/functions/node_func_returns.cpp"
-        "src/parser/types/struct/node_type_struct.cpp"
+        "src/parser/types/complex/node_type_complex.cpp"
         "src/parser/node_scope.cpp"
-        "src/parser/types/struct/node_type_struct_field.cpp"
+        "src/parser/types/complex/node_type_complex_field.cpp"
         "src/parser/node_symbol.cpp"
         "src/parser/operations/node_op_return.cpp"
         "src/parser/node_attribute.cpp"
@@ -66,7 +66,7 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/functions/node_func_method.cpp"
         "src/parser/functions/node_func_body.cpp"
         "src/parser/variables/node_var_this.cpp"
-        "src/parser/types/struct/node_type_struct_methods.cpp"
+        "src/parser/types/complex/node_type_complex_methods.cpp"
         "src/parser/types/static/node_type_static_scope.cpp"
         "src/parser/types/static/node_type_static_scope_funcs.cpp"
         "src/parser/types/static/node_type_static_scope_vars.cpp"
@@ -79,8 +79,7 @@ add_library(o2_parser "src/parser/parser.cpp"
         "src/parser/types/node_type_reference_of.cpp"
         "src/parser/resolve_state.cpp"
         "src/parser/module/system_modules.cpp"
-        "src/parser/types/struct/node_type_struct_inherits.cpp"
-        src/parser/types/interface/node_type_interface.cpp
+        "src/parser/types/complex/node_type_complex_inherits.cpp"
 )
 
 # Test
@@ -94,6 +93,7 @@ add_executable(o2_tests "src/tests/main.cpp"
         "src/tests/errors_resolve/errors_resolve.cpp"
         "src/tests/errors_parse/errors_parse.cpp"
         "src/tests/attributes/attributes.cpp"
+        src/tests/interfaces/interfaces.cpp
 )
 target_link_libraries(o2_tests o2_parser ${llvm_libs})
 

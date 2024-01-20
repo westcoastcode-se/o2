@@ -13,6 +13,8 @@ extern void imports();
 
 extern void modules();
 
+extern void interfaces();
+
 extern void structs();
 
 extern void attributes();
@@ -43,6 +45,7 @@ int main(int argc, char** argv)
 	imports();
 	modules();
 	funcs();
+	interfaces();
 	structs();
 	attributes();
 	errors_parse();

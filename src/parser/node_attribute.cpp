@@ -4,7 +4,7 @@
 //
 
 #include "node_attribute.h"
-#include "types/struct/node_type_struct.h"
+#include "types/complex/node_type_complex.h"
 
 using namespace o2;
 
@@ -32,11 +32,11 @@ void node_attribute::resolve0(const recursion_detector* rd, resolve_state* state
 
 	node::resolve0(rd, state);
 	// TODO verify that the type actually inherits from stdlib.attribute
-	_attribute_type = dynamic_cast<node_type_struct*>(_attribute_type->get_type());
+	_attribute_type = dynamic_cast<node_type_complex*>(_attribute_type->get_type());
 	if (_attribute_type == nullptr)
 		throw resolve_error_unresolved_reference(get_source_code());
 	const auto inherits =
-			static_cast<node_type_struct*>(_attribute_type);
+			static_cast<node_type_complex*>(_attribute_type);
 	if (inherits->find_inherited_type(ATTRIBUTE_ID) == nullptr)
 		throw resolve_error_expected_inherits_from_attribute(get_source_code());
 }

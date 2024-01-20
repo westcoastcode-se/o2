@@ -10,11 +10,11 @@
 
 namespace o2
 {
-	class node_type_struct_fields
+	class node_type_complex_fields
 			: public node
 	{
 	public:
-		explicit node_type_struct_fields(const source_code_view& view);
+		explicit node_type_complex_fields(const source_code_view& view);
 
 #pragma region node
 
@@ -27,11 +27,11 @@ namespace o2
 	/**
 	 * \brief a field inside a struct
 	 */
-	class node_type_struct_field
+	class node_type_complex_field
 			: public node_symbol
 	{
 	public:
-		node_type_struct_field(const source_code_view& view, string_view name);
+		node_type_complex_field(const source_code_view& view, string_view name);
 
 		/**
 		 * \return the name of the field
@@ -69,7 +69,7 @@ namespace o2
 
 		[[nodiscard]] string get_id() const final;
 
-		bool superficial_test_symbol_collision(const node_type_struct_field* rhs) const;
+		bool superficial_test_symbol_collision(const node_type_complex_field* rhs) const;
 
 #pragma endregion
 

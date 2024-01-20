@@ -15,11 +15,11 @@ namespace o2
 	 *
 	 * All of this container's children are of the node_type_struct_inherit type
 	 */
-	class node_type_struct_inherits
+	class node_type_complex_inherits
 			: public node
 	{
 	public:
-		explicit node_type_struct_inherits(const source_code_view& view)
+		explicit node_type_complex_inherits(const source_code_view& view)
 				: node(view)
 		{
 			set_query_access_flags(query_access_modifier_passthrough);
@@ -58,11 +58,11 @@ namespace o2
 	 * The only allowed children are:
 	 * - node_type
 	 */
-	class node_type_struct_inherit
+	class node_type_complex_inherit
 			: public node
 	{
 	public:
-		explicit node_type_struct_inherit(const source_code_view& view)
+		explicit node_type_complex_inherit(const source_code_view& view)
 				: node(view), _inherits_from()
 		{
 			set_query_access_flags(query_access_modifier_passthrough);

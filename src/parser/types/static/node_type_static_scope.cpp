@@ -4,7 +4,7 @@
 //
 
 #include "node_type_static_scope.h"
-#include "../struct/node_type_struct_field.h"
+#include "../complex/node_type_complex_field.h"
 
 using namespace o2;
 
